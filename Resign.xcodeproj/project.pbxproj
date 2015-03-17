@@ -15,6 +15,7 @@
 		17492E211AB882AF004060A3 /* YAProvisioningProfile.m in Sources */ = {isa = PBXBuildFile; fileRef = 17492E1F1AB882AF004060A3 /* YAProvisioningProfile.m */; };
 		17492E261AB882F3004060A3 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 17492E241AB882F3004060A3 /* ViewController.m */; };
 		17492E271AB882F3004060A3 /* ViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 17492E251AB882F3004060A3 /* ViewController.xib */; };
+		17492E291AB898EA004060A3 /* entitlements.plist in Resources */ = {isa = PBXBuildFile; fileRef = 17492E281AB898EA004060A3 /* entitlements.plist */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -44,6 +45,7 @@
 		17492E231AB882F3004060A3 /* ViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
 		17492E241AB882F3004060A3 /* ViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
 		17492E251AB882F3004060A3 /* ViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ViewController.xib; sourceTree = "<group>"; };
+		17492E281AB898EA004060A3 /* entitlements.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = entitlements.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -95,6 +97,7 @@
 		17492DFB1AB8827C004060A3 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				17492E281AB898EA004060A3 /* entitlements.plist */,
 				17492DFC1AB8827C004060A3 /* Info.plist */,
 				17492E001AB8827C004060A3 /* main.m */,
 			);
@@ -222,6 +225,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				17492E291AB898EA004060A3 /* entitlements.plist in Resources */,
 				17492E271AB882F3004060A3 /* ViewController.xib in Resources */,
 				17492E061AB8827C004060A3 /* MainMenu.xib in Resources */,
 			);

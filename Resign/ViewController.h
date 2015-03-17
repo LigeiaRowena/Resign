@@ -16,7 +16,8 @@
 }
 
 @property (weak) IBOutlet IRTextFieldDrag *ipaField;
-@property (weak) IBOutlet NSComboBox *provioningComboBox;
+@property (weak) IBOutlet NSComboBox *provisioningComboBox;
+@property (weak) IBOutlet NSButton *infoProvisioning;
 
 @property (weak) IBOutlet NSTextField *statusLabel;
 

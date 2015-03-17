@@ -7,8 +7,9 @@
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="ViewController">
             <connections>
+                <outlet property="infoProvisioning" destination="dlU-ux-2Tf" id="mNk-G9-BIj"/>
                 <outlet property="ipaField" destination="aCJ-CN-poy" id="gcu-82-zHG"/>
-                <outlet property="provioningComboBox" destination="p3D-Yx-YRY" id="zIC-t6-fR3"/>
+                <outlet property="provisioningComboBox" destination="p3D-Yx-YRY" id="3vd-3r-3xh"/>
                 <outlet property="statusLabel" destination="6RF-WQ-3Jt" id="Jv4-C5-DzM"/>
                 <outlet property="view" destination="Hz6-mo-xeY" id="0bl-1N-x8E"/>
             </connections>
@@ -32,7 +33,7 @@
                 </button>
                 <textField verticalHuggingPriority="750" id="aCJ-CN-poy" customClass="IRTextFieldDrag">
                     <rect key="frame" x="222" y="583" width="458" height="22"/>
-                    <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
                     <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" placeholderString=".ipa file" drawsBackground="YES" id="G0J-mn-xlK">
                         <font key="font" metaFont="system"/>
                         <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
@@ -43,8 +44,8 @@
                     </connections>
                 </textField>
                 <comboBox verticalHuggingPriority="750" id="p3D-Yx-YRY">
-                    <rect key="frame" x="20" y="540" width="663" height="26"/>
-                    <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
+                    <rect key="frame" x="20" y="540" width="625" height="26"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMinY="YES"/>
                     <comboBoxCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" borderStyle="bezel" placeholderString="Select a mobile provision" drawsBackground="YES" completes="NO" usesDataSource="YES" numberOfVisibleItems="5" id="cqW-j3-D1l">
                         <font key="font" metaFont="system"/>
                         <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -71,6 +72,17 @@
                         <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                     </textFieldCell>
                 </textField>
+                <button horizontalHuggingPriority="750" verticalHuggingPriority="750" id="dlU-ux-2Tf">
+                    <rect key="frame" x="657" y="540" width="25" height="25"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
+                    <buttonCell key="cell" type="help" bezelStyle="helpButton" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="vVe-07-teG">
+                        <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                        <font key="font" metaFont="system"/>
+                    </buttonCell>
+                    <connections>
+                        <action selector="showProvisioningInfo:" target="-2" id="SMx-Do-4XU"/>
+                    </connections>
+                </button>
             </subviews>
             <point key="canvasLocation" x="250" y="327"/>
         </customView>

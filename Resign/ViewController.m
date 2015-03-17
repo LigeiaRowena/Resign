@@ -44,6 +44,7 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
 
 }
 
+#pragma mark - ZIP Methods
 
 - (void)searchForZipUtility
 {
@@ -61,6 +62,8 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
 		exit(0);
 	}
 }
+
+#pragma mark - Provisioning Methods
 
 - (void)getProvisioning
 {
@@ -84,13 +87,33 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
 	if ([provisioningArray count] > 0)
 	{
 		[self enableControls];
-		[self.provioningComboBox reloadData];
+		[self.provisioningComboBox reloadData];
 	}
 	else
 	{
 		[self showAlertOfKind:NSCriticalAlertStyle WithTitle:@"Error" AndMessage:@"There aren't Provisioning Profiles"];
 		[self enableControls];
 		[self.statusLabel setStringValue:@"There aren't Provisioning Profiles"];
+	}
+}
+
+- (void)showProvisioningInfo
+{
+	if ([provisioningArray count] > 0 && self.provisioningComboBox.indexOfSelectedItem != -1)
+	{
+		YAProvisioningProfile *profile = provisioningArray[self.provisioningComboBox.indexOfSelectedItem];
+		NSMutableString *message = @"".mutableCopy;
+		[message appendFormat:@"Profile name: %@\n", profile.name];
+		[message appendFormat:@"Bundle identifier: %@\n", profile.bundleIdentifier];
+		[message appendFormat:@"Expiration Date: %@\n", profile.expirationDate ? [formatter stringFromDate:profile.expirationDate] : @"Unknown"];
+		[message appendFormat:@"Team Name: %@\n", profile.teamName ? profile.teamName : @""];
+		[message appendFormat:@"App ID Name: %@\n", profile.appIdName];
+		[message appendFormat:@"Team Identifier: %@\n", profile.teamIdentifier];
+		[self.statusLabel setStringValue:message];		
+	}
+	else
+	{
+		[self.statusLabel setStringValue:@"No Provisioning profile selected"];
 	}
 }
 
@@ -113,6 +136,10 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
 	}
 }
 
+- (IBAction)showProvisioningInfo:(id)sender
+{
+	[self showProvisioningInfo];
+}
 
 #pragma mark - Alert Methods
 
@@ -133,14 +160,15 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
 - (void)disableControls
 {
 	[self.ipaField setEnabled:FALSE];
-	[self.provioningComboBox setEnabled:FALSE];
-	
+	[self.provisioningComboBox setEnabled:FALSE];
+	[self.infoProvisioning setEnabled:FALSE];
 }
 
 - (void)enableControls
 {
 	[self.ipaField setEnabled:TRUE];
-	[self.provioningComboBox setEnabled:TRUE];
+	[self.provisioningComboBox setEnabled:TRUE];
+	[self.infoProvisioning setEnabled:TRUE];
 }
 
 #pragma mark - NSComboBox
@@ -149,7 +177,7 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
 {
 	NSInteger count = 0;
 	
-	if ([aComboBox isEqual:self.provioningComboBox])
+	if ([aComboBox isEqual:self.provisioningComboBox])
 		count = [provisioningArray count];
 	
 	return count;
@@ -159,7 +187,7 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
 {
 	id item = nil;
 	
-	if ([aComboBox isEqual:self.provioningComboBox])
+	if ([aComboBox isEqual:self.provisioningComboBox])
 	{
 		YAProvisioningProfile *profile = provisioningArray[index];
 		item = profile.name;
@@ -173,17 +201,9 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
 {
 	NSComboBox *comboBox = (NSComboBox *)[notification object];
 
-	if ([comboBox isEqual:self.provioningComboBox])
+	if ([comboBox isEqual:self.provisioningComboBox])
 	{
-		YAProvisioningProfile *profile = provisioningArray[self.provioningComboBox.indexOfSelectedItem];
-		NSMutableString *message = @"".mutableCopy;
-		[message appendFormat:@"Profile name: %@\n", profile.name];
-		[message appendFormat:@"Bundle identifier: %@\n", profile.bundleIdentifier];
-		[message appendFormat:@"Expiration Date: %@\n", profile.expirationDate ? [formatter stringFromDate:profile.expirationDate] : @"Unknown"];
-		[message appendFormat:@"Team Name: %@\n", profile.teamName ? profile.teamName : @""];
-		[message appendFormat:@"App ID Name: %@\n", profile.appIdName];
-		[message appendFormat:@"Team Identifier: %@\n", profile.teamIdentifier];
-		[self.statusLabel setStringValue:message];
+		[self showProvisioningInfo];
 	}
 }
 
