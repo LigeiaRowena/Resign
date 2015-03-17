@@ -20,7 +20,6 @@ static NSString *kInfoPlistFilename                 = @"Info.plist";
 static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
 
 @interface ViewController ()
-@property (weak) IBOutlet IRTextFieldDrag *ipaField;
 @end
 
 @implementation ViewController
@@ -30,7 +29,18 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
 {
 	[super loadView];
 	
+	// Init
+	formatter = [[NSDateFormatter alloc] init];
+	formatter.dateFormat = @"dd-MM-yyyy";
+	provisioningArray = @[].mutableCopy;
+
+	[self disableControls];
+	
+	// Search for zip utilities
 	[self searchForZipUtility];
+	
+	// Search for Provisioning Profiles
+	[self getProvisioning];
 
 }
 
@@ -49,6 +59,38 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
 	if (![[NSFileManager defaultManager] fileExistsAtPath:@"/usr/bin/codesign"]) {
 		[self showAlertOfKind:NSCriticalAlertStyle WithTitle:@"Error" AndMessage:@"This app cannot run without the codesign utility present at /usr/bin/codesign"];
 		exit(0);
+	}
+}
+
+- (void)getProvisioning
+{
+	[self.statusLabel setStringValue:@"Getting Provisoning Profiles..."];
+	NSArray *provisioningProfiles = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:[NSString stringWithFormat:@"%@/Library/MobileDevice/Provisioning Profiles", NSHomeDirectory()] error:nil];
+	provisioningProfiles = [provisioningProfiles filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"self ENDSWITH '.mobileprovision'"]];
+	
+	[provisioningProfiles enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+		NSString *path = (NSString*)obj;
+		if ([[NSFileManager defaultManager] fileExistsAtPath:[NSString stringWithFormat:@"%@/Library/MobileDevice/Provisioning Profiles/%@", NSHomeDirectory(), path] isDirectory:NO])
+		{
+			YAProvisioningProfile *profile = [[YAProvisioningProfile alloc] initWithPath:[NSString stringWithFormat:@"%@/Library/MobileDevice/Provisioning Profiles/%@", NSHomeDirectory(), path]];
+			[provisioningArray addObject:profile];
+		}
+	}];
+	
+	provisioningArray = [[provisioningArray sortedArrayUsingComparator:^NSComparisonResult(id obj1, id obj2) {
+		return [((YAProvisioningProfile *)obj1).name compare:((YAProvisioningProfile *)obj2).name];
+	}] mutableCopy];
+	
+	if ([provisioningArray count] > 0)
+	{
+		[self enableControls];
+		[self.provioningComboBox reloadData];
+	}
+	else
+	{
+		[self showAlertOfKind:NSCriticalAlertStyle WithTitle:@"Error" AndMessage:@"There aren't Provisioning Profiles"];
+		[self enableControls];
+		[self.statusLabel setStringValue:@"There aren't Provisioning Profiles"];
 	}
 }
 
@@ -77,7 +119,6 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
 - (void)showAlertOfKind:(NSAlertStyle)style WithTitle:(NSString *)title AndMessage:(NSString *)message
 {
 	// Show a critical alert
-	
 	NSAlert *alert = [[NSAlert alloc] init];
 	[alert addButtonWithTitle:@"OK"];
 	[alert setMessageText:title];
@@ -85,6 +126,67 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
 	[alert setAlertStyle:style];
 	[alert runModal];
 }
+
+
+#pragma mark - UI
+
+- (void)disableControls
+{
+	[self.ipaField setEnabled:FALSE];
+	[self.provioningComboBox setEnabled:FALSE];
+	
+}
+
+- (void)enableControls
+{
+	[self.ipaField setEnabled:TRUE];
+	[self.provioningComboBox setEnabled:TRUE];
+}
+
+#pragma mark - NSComboBox
+
+- (NSInteger)numberOfItemsInComboBox:(NSComboBox *)aComboBox
+{
+	NSInteger count = 0;
+	
+	if ([aComboBox isEqual:self.provioningComboBox])
+		count = [provisioningArray count];
+	
+	return count;
+}
+
+- (id)comboBox:(NSComboBox *)aComboBox objectValueForItemAtIndex:(NSInteger)index
+{
+	id item = nil;
+	
+	if ([aComboBox isEqual:self.provioningComboBox])
+	{
+		YAProvisioningProfile *profile = provisioningArray[index];
+		item = profile.name;
+	}
+	
+	
+	return item;
+}
+
+- (void)comboBoxSelectionDidChange:(NSNotification *)notification
+{
+	NSComboBox *comboBox = (NSComboBox *)[notification object];
+
+	if ([comboBox isEqual:self.provioningComboBox])
+	{
+		YAProvisioningProfile *profile = provisioningArray[self.provioningComboBox.indexOfSelectedItem];
+		NSMutableString *message = @"".mutableCopy;
+		[message appendFormat:@"Profile name: %@\n", profile.name];
+		[message appendFormat:@"Bundle identifier: %@\n", profile.bundleIdentifier];
+		[message appendFormat:@"Expiration Date: %@\n", profile.expirationDate ? [formatter stringFromDate:profile.expirationDate] : @"Unknown"];
+		[message appendFormat:@"Team Name: %@\n", profile.teamName ? profile.teamName : @""];
+		[message appendFormat:@"App ID Name: %@\n", profile.appIdName];
+		[message appendFormat:@"Team Identifier: %@\n", profile.teamIdentifier];
+		[self.statusLabel setStringValue:message];
+	}
+}
+
 
 
 @end

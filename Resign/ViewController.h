@@ -10,5 +10,16 @@
 #import "IRTextFieldDrag.h"
 
 @interface ViewController : NSViewController <IRTextFieldDragDelegate>
+{
+	NSMutableArray *provisioningArray;
+	NSDateFormatter *formatter;
+}
+
+@property (weak) IBOutlet IRTextFieldDrag *ipaField;
+@property (weak) IBOutlet NSComboBox *provioningComboBox;
+
+@property (weak) IBOutlet NSTextField *statusLabel;
+
+
 
 @end
