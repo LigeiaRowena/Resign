@@ -16,7 +16,11 @@
 @implementation AppDelegate
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
-	// Insert code here to initialize your application
+	
+	// add a contentView
+	self.viewController = [[ViewController alloc] initWithNibName:@"ViewController" bundle:nil];
+	[self.window.contentView addSubview:self.viewController.view];
+	self.viewController.view.frame = ((NSView*)self.window.contentView).bounds;
 }
 
 - (void)applicationWillTerminate:(NSNotification *)aNotification {
