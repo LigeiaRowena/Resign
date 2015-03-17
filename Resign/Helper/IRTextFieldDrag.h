@@ -9,8 +9,8 @@
 @class IRTextFieldDrag;
 
 @protocol IRTextFieldDragDelegate <NSObject>
-- (void)performDragOperation:(NSString*)text;
 @optional
+- (void)performDragOperation:(NSString*)text;
 - (void)draggingEntered:(IRTextFieldDrag*)textField;
 @end
 
