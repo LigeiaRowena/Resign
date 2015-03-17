@@ -1,0 +1,413 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		17492DFF1AB8827C004060A3 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 17492DFE1AB8827C004060A3 /* AppDelegate.m */; };
+		17492E011AB8827C004060A3 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 17492E001AB8827C004060A3 /* main.m */; };
+		17492E031AB8827C004060A3 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 17492E021AB8827C004060A3 /* Images.xcassets */; };
+		17492E061AB8827C004060A3 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 17492E041AB8827C004060A3 /* MainMenu.xib */; };
+		17492E121AB8827C004060A3 /* ResignTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 17492E111AB8827C004060A3 /* ResignTests.m */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		17492E0C1AB8827C004060A3 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 17492DF01AB8827C004060A3 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 17492DF71AB8827C004060A3;
+			remoteInfo = Resign;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		17492DF81AB8827C004060A3 /* Resign.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Resign.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		17492DFC1AB8827C004060A3 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		17492DFD1AB8827C004060A3 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		17492DFE1AB8827C004060A3 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		17492E001AB8827C004060A3 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		17492E021AB8827C004060A3 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
+		17492E051AB8827C004060A3 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
+		17492E0B1AB8827C004060A3 /* ResignTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ResignTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		17492E101AB8827C004060A3 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		17492E111AB8827C004060A3 /* ResignTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ResignTests.m; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		17492DF51AB8827C004060A3 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		17492E081AB8827C004060A3 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		17492DEF1AB8827C004060A3 = {
+			isa = PBXGroup;
+			children = (
+				17492DFA1AB8827C004060A3 /* Resign */,
+				17492E0E1AB8827C004060A3 /* ResignTests */,
+				17492DF91AB8827C004060A3 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		17492DF91AB8827C004060A3 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				17492DF81AB8827C004060A3 /* Resign.app */,
+				17492E0B1AB8827C004060A3 /* ResignTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		17492DFA1AB8827C004060A3 /* Resign */ = {
+			isa = PBXGroup;
+			children = (
+				17492DFD1AB8827C004060A3 /* AppDelegate.h */,
+				17492DFE1AB8827C004060A3 /* AppDelegate.m */,
+				17492E021AB8827C004060A3 /* Images.xcassets */,
+				17492E041AB8827C004060A3 /* MainMenu.xib */,
+				17492DFB1AB8827C004060A3 /* Supporting Files */,
+			);
+			path = Resign;
+			sourceTree = "<group>";
+		};
+		17492DFB1AB8827C004060A3 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				17492DFC1AB8827C004060A3 /* Info.plist */,
+				17492E001AB8827C004060A3 /* main.m */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		17492E0E1AB8827C004060A3 /* ResignTests */ = {
+			isa = PBXGroup;
+			children = (
+				17492E111AB8827C004060A3 /* ResignTests.m */,
+				17492E0F1AB8827C004060A3 /* Supporting Files */,
+			);
+			path = ResignTests;
+			sourceTree = "<group>";
+		};
+		17492E0F1AB8827C004060A3 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				17492E101AB8827C004060A3 /* Info.plist */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		17492DF71AB8827C004060A3 /* Resign */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 17492E151AB8827C004060A3 /* Build configuration list for PBXNativeTarget "Resign" */;
+			buildPhases = (
+				17492DF41AB8827C004060A3 /* Sources */,
+				17492DF51AB8827C004060A3 /* Frameworks */,
+				17492DF61AB8827C004060A3 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Resign;
+			productName = Resign;
+			productReference = 17492DF81AB8827C004060A3 /* Resign.app */;
+			productType = "com.apple.product-type.application";
+		};
+		17492E0A1AB8827C004060A3 /* ResignTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 17492E181AB8827C004060A3 /* Build configuration list for PBXNativeTarget "ResignTests" */;
+			buildPhases = (
+				17492E071AB8827C004060A3 /* Sources */,
+				17492E081AB8827C004060A3 /* Frameworks */,
+				17492E091AB8827C004060A3 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				17492E0D1AB8827C004060A3 /* PBXTargetDependency */,
+			);
+			name = ResignTests;
+			productName = ResignTests;
+			productReference = 17492E0B1AB8827C004060A3 /* ResignTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		17492DF01AB8827C004060A3 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0620;
+				ORGANIZATIONNAME = "Francesca Corsini";
+				TargetAttributes = {
+					17492DF71AB8827C004060A3 = {
+						CreatedOnToolsVersion = 6.2;
+					};
+					17492E0A1AB8827C004060A3 = {
+						CreatedOnToolsVersion = 6.2;
+						TestTargetID = 17492DF71AB8827C004060A3;
+					};
+				};
+			};
+			buildConfigurationList = 17492DF31AB8827C004060A3 /* Build configuration list for PBXProject "Resign" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 17492DEF1AB8827C004060A3;
+			productRefGroup = 17492DF91AB8827C004060A3 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				17492DF71AB8827C004060A3 /* Resign */,
+				17492E0A1AB8827C004060A3 /* ResignTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		17492DF61AB8827C004060A3 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				17492E031AB8827C004060A3 /* Images.xcassets in Resources */,
+				17492E061AB8827C004060A3 /* MainMenu.xib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		17492E091AB8827C004060A3 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		17492DF41AB8827C004060A3 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				17492E011AB8827C004060A3 /* main.m in Sources */,
+				17492DFF1AB8827C004060A3 /* AppDelegate.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		17492E071AB8827C004060A3 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				17492E121AB8827C004060A3 /* ResignTests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		17492E0D1AB8827C004060A3 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 17492DF71AB8827C004060A3 /* Resign */;
+			targetProxy = 17492E0C1AB8827C004060A3 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		17492E041AB8827C004060A3 /* MainMenu.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				17492E051AB8827C004060A3 /* Base */,
+			);
+			name = MainMenu.xib;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		17492E131AB8827C004060A3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		17492E141AB8827C004060A3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		17492E161AB8827C004060A3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = Resign/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		17492E171AB8827C004060A3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = Resign/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		17492E191AB8827C004060A3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+					"$(inherited)",
+				);
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = ResignTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Resign.app/Contents/MacOS/Resign";
+			};
+			name = Debug;
+		};
+		17492E1A1AB8827C004060A3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = ResignTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Resign.app/Contents/MacOS/Resign";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		17492DF31AB8827C004060A3 /* Build configuration list for PBXProject "Resign" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				17492E131AB8827C004060A3 /* Debug */,
+				17492E141AB8827C004060A3 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		17492E151AB8827C004060A3 /* Build configuration list for PBXNativeTarget "Resign" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				17492E161AB8827C004060A3 /* Debug */,
+				17492E171AB8827C004060A3 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+		17492E181AB8827C004060A3 /* Build configuration list for PBXNativeTarget "ResignTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				17492E191AB8827C004060A3 /* Debug */,
+				17492E1A1AB8827C004060A3 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 17492DF01AB8827C004060A3 /* Project object */;
+}
