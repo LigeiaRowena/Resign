@@ -107,8 +107,8 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
         // The unzip task succeed
         if (terminationStatus == 0 && [[NSFileManager defaultManager] fileExistsAtPath:[workingPath stringByAppendingPathComponent:kPayloadDirName]])
         {
-            NSLog(@"Unzipping done");
-            [self.statusLabel setStringValue:[NSString stringWithFormat:@"Succeed to unzip ipa file in %@", workingPath]];
+            [self enableControls];
+            [self.statusLabel setStringValue:[NSString stringWithFormat:@"Succeed to unzip ipa file in %@", [workingPath stringByAppendingPathComponent:kPayloadDirName]]];
             [self showIpaInfo];
         }
         
@@ -214,6 +214,16 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
 	[self showIpaInfo];
 }
 
+- (IBAction)resetAll:(id)sender
+{
+    
+}
+
+- (IBAction)resign:(id)sender
+{
+    
+}
+
 #pragma mark - IRTextFieldDragDelegate
 
 - (void)performDragOperation:(NSString*)text
@@ -240,15 +250,25 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
 - (void)disableControls
 {
 	[self.ipaField setEnabled:FALSE];
+    [self.infoIpaFile setEnabled:FALSE];
 	[self.provisioningComboBox setEnabled:FALSE];
 	[self.infoProvisioning setEnabled:FALSE];
+    
+    [self.resetAllButton setEnabled:FALSE];
+    [self.resignButton setEnabled:FALSE];
+    [self.statusLabel setEnabled:FALSE];
 }
 
 - (void)enableControls
 {
 	[self.ipaField setEnabled:TRUE];
+    [self.infoIpaFile setEnabled:TRUE];
 	[self.provisioningComboBox setEnabled:TRUE];
 	[self.infoProvisioning setEnabled:TRUE];
+    
+    [self.resetAllButton setEnabled:TRUE];
+    [self.resignButton setEnabled:TRUE];
+    [self.statusLabel setEnabled:TRUE];
 }
 
 #pragma mark - NSComboBox

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="6751" systemVersion="13F1066" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="6751" systemVersion="14C1510" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
     <dependencies>
         <deployment identifier="macosx"/>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="6751"/>
@@ -11,6 +11,8 @@
                 <outlet property="infoProvisioning" destination="dlU-ux-2Tf" id="mNk-G9-BIj"/>
                 <outlet property="ipaField" destination="aCJ-CN-poy" id="gcu-82-zHG"/>
                 <outlet property="provisioningComboBox" destination="p3D-Yx-YRY" id="3vd-3r-3xh"/>
+                <outlet property="resetAllButton" destination="bhr-YO-7aL" id="4i3-Qp-CDy"/>
+                <outlet property="resignButton" destination="s7p-b4-gV5" id="rXR-2g-94c"/>
                 <outlet property="statusLabel" destination="6RF-WQ-3Jt" id="Jv4-C5-DzM"/>
                 <outlet property="view" destination="Hz6-mo-xeY" id="0bl-1N-x8E"/>
             </connections>
@@ -57,7 +59,7 @@
                         <outlet property="delegate" destination="-2" id="iXI-zR-ehY"/>
                     </connections>
                 </comboBox>
-                <box autoresizesSubviews="NO" verticalHuggingPriority="750" title="Box" boxType="separator" titlePosition="noTitle" id="FMa-Ud-XXt">
+                <box verticalHuggingPriority="750" title="Box" boxType="separator" titlePosition="noTitle" id="FMa-Ud-XXt">
                     <rect key="frame" x="14" y="141" width="674" height="5"/>
                     <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
                     <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
@@ -93,6 +95,28 @@
                     </buttonCell>
                     <connections>
                         <action selector="showIpaInfo:" target="-2" id="WeY-Z2-jmi"/>
+                    </connections>
+                </button>
+                <button verticalHuggingPriority="750" id="bhr-YO-7aL">
+                    <rect key="frame" x="206" y="146" width="95" height="32"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    <buttonCell key="cell" type="push" title="Reset All" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="skp-LM-BAP">
+                        <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                        <font key="font" metaFont="system"/>
+                    </buttonCell>
+                    <connections>
+                        <action selector="resetAll:" target="-2" id="Eez-6i-tyt"/>
+                    </connections>
+                </button>
+                <button verticalHuggingPriority="750" id="s7p-b4-gV5">
+                    <rect key="frame" x="398" y="146" width="97" height="32"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    <buttonCell key="cell" type="push" title="Resign" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="2lU-OT-CFR">
+                        <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                        <font key="font" metaFont="system"/>
+                    </buttonCell>
+                    <connections>
+                        <action selector="resign:" target="-2" id="mJ3-E0-xNo"/>
                     </connections>
                 </button>
             </subviews>
