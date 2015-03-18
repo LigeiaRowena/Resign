@@ -16,6 +16,12 @@
 		17492E271AB882F3004060A3 /* ViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 17492E251AB882F3004060A3 /* ViewController.xib */; };
 		17492E291AB898EA004060A3 /* entitlements.plist in Resources */ = {isa = PBXBuildFile; fileRef = 17492E281AB898EA004060A3 /* entitlements.plist */; };
 		DF27F1851AB97D2D00E54B7D /* Icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = DF27F1841AB97D2D00E54B7D /* Icon.icns */; };
+		DF8270A01AB9DE4700254F27 /* info-24.png in Resources */ = {isa = PBXBuildFile; fileRef = DF82709A1AB9DE4700254F27 /* info-24.png */; };
+		DF8270A11AB9DE4700254F27 /* info-26.png in Resources */ = {isa = PBXBuildFile; fileRef = DF82709B1AB9DE4700254F27 /* info-26.png */; };
+		DF8270A21AB9DE4700254F27 /* trash-24.png in Resources */ = {isa = PBXBuildFile; fileRef = DF82709C1AB9DE4700254F27 /* trash-24.png */; };
+		DF8270A31AB9DE4700254F27 /* visible-26.png in Resources */ = {isa = PBXBuildFile; fileRef = DF82709D1AB9DE4700254F27 /* visible-26.png */; };
+		DF8270A41AB9DE4700254F27 /* visible_filled-25.png in Resources */ = {isa = PBXBuildFile; fileRef = DF82709E1AB9DE4700254F27 /* visible_filled-25.png */; };
+		DF8270A51AB9DE4700254F27 /* waste-25.png in Resources */ = {isa = PBXBuildFile; fileRef = DF82709F1AB9DE4700254F27 /* waste-25.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -34,6 +40,12 @@
 		17492E251AB882F3004060A3 /* ViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ViewController.xib; sourceTree = "<group>"; };
 		17492E281AB898EA004060A3 /* entitlements.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = entitlements.plist; sourceTree = "<group>"; };
 		DF27F1841AB97D2D00E54B7D /* Icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = Icon.icns; sourceTree = "<group>"; };
+		DF82709A1AB9DE4700254F27 /* info-24.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "info-24.png"; sourceTree = "<group>"; };
+		DF82709B1AB9DE4700254F27 /* info-26.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "info-26.png"; sourceTree = "<group>"; };
+		DF82709C1AB9DE4700254F27 /* trash-24.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "trash-24.png"; sourceTree = "<group>"; };
+		DF82709D1AB9DE4700254F27 /* visible-26.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "visible-26.png"; sourceTree = "<group>"; };
+		DF82709E1AB9DE4700254F27 /* visible_filled-25.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "visible_filled-25.png"; sourceTree = "<group>"; };
+		DF82709F1AB9DE4700254F27 /* waste-25.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "waste-25.png"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -66,6 +78,7 @@
 		17492DFA1AB8827C004060A3 /* Resign */ = {
 			isa = PBXGroup;
 			children = (
+				DF8270991AB9DE4700254F27 /* images */,
 				17492E221AB882E0004060A3 /* GUI */,
 				17492E1B1AB882AF004060A3 /* Helper */,
 				17492DFB1AB8827C004060A3 /* Supporting Files */,
@@ -106,6 +119,19 @@
 				17492E251AB882F3004060A3 /* ViewController.xib */,
 			);
 			name = GUI;
+			sourceTree = "<group>";
+		};
+		DF8270991AB9DE4700254F27 /* images */ = {
+			isa = PBXGroup;
+			children = (
+				DF82709A1AB9DE4700254F27 /* info-24.png */,
+				DF82709B1AB9DE4700254F27 /* info-26.png */,
+				DF82709C1AB9DE4700254F27 /* trash-24.png */,
+				DF82709D1AB9DE4700254F27 /* visible-26.png */,
+				DF82709E1AB9DE4700254F27 /* visible_filled-25.png */,
+				DF82709F1AB9DE4700254F27 /* waste-25.png */,
+			);
+			path = images;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -166,7 +192,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				DF27F1851AB97D2D00E54B7D /* Icon.icns in Resources */,
+				DF8270A51AB9DE4700254F27 /* waste-25.png in Resources */,
+				DF8270A11AB9DE4700254F27 /* info-26.png in Resources */,
 				17492E291AB898EA004060A3 /* entitlements.plist in Resources */,
+				DF8270A21AB9DE4700254F27 /* trash-24.png in Resources */,
+				DF8270A31AB9DE4700254F27 /* visible-26.png in Resources */,
+				DF8270A01AB9DE4700254F27 /* info-24.png in Resources */,
+				DF8270A41AB9DE4700254F27 /* visible_filled-25.png in Resources */,
 				17492E271AB882F3004060A3 /* ViewController.xib in Resources */,
 				17492E061AB8827C004060A3 /* MainMenu.xib in Resources */,
 			);

@@ -111,6 +111,7 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
         // The unzip task succeed
         if (terminationStatus == 0 && [[NSFileManager defaultManager] fileExistsAtPath:[workingPath stringByAppendingPathComponent:kPayloadDirName]])
         {
+            [self setAppPath];
             [self enableControls];
             [self.statusLabel setStringValue:[NSString stringWithFormat:@"Succeed to unzip ipa file in %@", [workingPath stringByAppendingPathComponent:kPayloadDirName]]];
             [self showIpaInfo];
@@ -126,12 +127,68 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
     }
 }
 
+- (void)setAppPath
+{
+    NSString *payloadPath = [workingPath stringByAppendingPathComponent:kPayloadDirName];
+    NSArray *payloadContents = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:payloadPath error:nil];
+    
+    [payloadContents enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        NSString *file = (NSString*)obj;
+        if ([[[file pathExtension] lowercaseString] isEqualToString:@"app"])
+        {
+            appPath = [[workingPath stringByAppendingPathComponent:kPayloadDirName] stringByAppendingPathComponent:file];
+            *stop = YES;
+        }
+    }];
+}
+
 - (void)showIpaInfo
 {
-    // show the info of the ipa from the info.plist file
+    // Show the info of the ipa from the Info.plist file
+    [self.statusLabel setStringValue:[NSString stringWithFormat:@"Retrieving %@", kInfoPlistFilename]];
+    NSMutableString *message = @"".mutableCopy;
+    NSString* infoPlistPath = [appPath stringByAppendingPathComponent:kInfoPlistFilename];
+    if ([[NSFileManager defaultManager] fileExistsAtPath:infoPlistPath])
+    {
+        NSDictionary* infoPlistDict = [NSDictionary dictionaryWithContentsOfFile:infoPlistPath];
+        [message appendFormat:@"Bundle display name: %@\n", infoPlistDict[@"CFBundleDisplayName"]];
+        [message appendFormat:@"Bundle name: %@\n", infoPlistDict[@"CFBundleName"]];
+        [message appendFormat:@"Bundle identifier: %@\n", infoPlistDict[@"CFBundleIdentifier"]];
+        [message appendFormat:@"Bundle version: %@\n", infoPlistDict[@"CFBundleShortVersionString"]];
+        [message appendFormat:@"Build version: %@\n", infoPlistDict[@"CFBundleVersion"]];
+        [message appendFormat:@"Minimum OS version: %@\n", infoPlistDict[@"MinimumOSVersion"]];
+        [self.statusLabel setStringValue:message];
+    }
     
-    
-    //select the cert and provisioning and bundle id
+    //Select the provisioning and signign-certificate of the app in the relative combobox
+    NSString *provisioningPath = [appPath stringByAppendingPathComponent:@"embedded.mobileprovision"];
+    if ([[NSFileManager defaultManager] fileExistsAtPath:infoPlistPath])
+    {
+        YAProvisioningProfile *profile = [[YAProvisioningProfile alloc] initWithPath:provisioningPath];
+        NSInteger indexProvisioning = [self getProvisioningIndexFromApp:profile];
+        if (indexProvisioning >= 0)
+            [self.provisioningComboBox selectItemAtIndex:indexProvisioning];
+        else
+        {
+            NSMutableString *message = @"".mutableCopy;
+            [message appendFormat:@"Profile name: %@\n", profile.name];
+            [message appendFormat:@"Bundle identifier: %@\n", profile.bundleIdentifier];
+            [message appendFormat:@"Expiration Date: %@\n", profile.expirationDate ? [formatter stringFromDate:profile.expirationDate] : @"Unknown"];
+            [message appendFormat:@"Team Name: %@\n", profile.teamName ? profile.teamName : @""];
+            [message appendFormat:@"App ID Name: %@\n", profile.appIdName];
+            [message appendFormat:@"Team Identifier: %@\n", profile.teamIdentifier];
+            [self showAlertOfKind:NSInformationalAlertStyle WithTitle:@"The Provisioning of the app isn't in your local list:" AndMessage:message];
+        }
+        
+        NSString *teamName = profile.teamName;
+        NSInteger indexCert = [self getCertificateIndexFromApp:teamName];
+        if (indexCert >= 0)
+            [self.certificateComboBox selectItemAtIndex:indexCert];
+        else
+        {
+            [self showAlertOfKind:NSInformationalAlertStyle WithTitle:@"The Signign Certificate  of the app isn't in your keychain:" AndMessage:teamName];
+        }
+    }
 }
 
 #pragma mark - Signign Certificate Methods
@@ -215,6 +272,21 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
     }
 }
 
+- (NSInteger)getCertificateIndexFromApp:(NSString*)cert
+{
+    __block NSInteger index = -1;
+    [certificatesArray enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        NSString *c = (NSString*)obj;
+        NSRange range = [c rangeOfString:cert];
+        if (range.location != NSNotFound)
+        {
+            index = idx;
+            *stop = YES;
+        }
+    }];
+    return index;
+}
+
 
 #pragma mark - Provisioning Methods
 
@@ -271,6 +343,21 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
 	{
 		[self.statusLabel setStringValue:@"No Provisioning profile selected"];
 	}
+}
+
+- (NSInteger)getProvisioningIndexFromApp:(YAProvisioningProfile*)profile
+{
+    __block NSInteger index = -1;
+    [provisioningArray enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        YAProvisioningProfile *p = (YAProvisioningProfile*)obj;
+        if ([p.name isEqualToString:profile.name] && [p.bundleIdentifier isEqualToString:profile.bundleIdentifier] && [p.creationDate isEqualToDate:profile.creationDate] && [p.teamName isEqualToString:profile.teamName] && [p.appIdName isEqualToString:profile.appIdName] && [p.teamIdentifier isEqualToString:profile.teamIdentifier])
+        {
+            index = idx;
+            *stop = YES;
+        }
+    }];
+    
+    return index;
 }
 
 #pragma mark - Actions

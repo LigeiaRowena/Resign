@@ -17,6 +17,7 @@
     
     NSString *sourcePath;
     NSString *workingPath;
+    NSString *appPath;
     
     NSTask *unzipTask;
     NSTask *certTask;
