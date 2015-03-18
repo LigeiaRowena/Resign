@@ -8,6 +8,7 @@
         <customObject id="-2" userLabel="File's Owner" customClass="ViewController">
             <connections>
                 <outlet property="certificateComboBox" destination="gGv-Tn-fZy" id="oit-HA-XgO"/>
+                <outlet property="cleanConsoleButton" destination="IW0-Ld-oho" id="lA4-9a-qis"/>
                 <outlet property="infoCertificate" destination="j6B-db-UbM" id="8dR-03-iur"/>
                 <outlet property="infoIpaFile" destination="jBz-1b-mzK" id="onO-8c-HWb"/>
                 <outlet property="infoProvisioning" destination="dlU-ux-2Tf" id="mNk-G9-BIj"/>
@@ -15,7 +16,7 @@
                 <outlet property="provisioningComboBox" destination="p3D-Yx-YRY" id="3vd-3r-3xh"/>
                 <outlet property="resetAllButton" destination="bhr-YO-7aL" id="4i3-Qp-CDy"/>
                 <outlet property="resignButton" destination="s7p-b4-gV5" id="rXR-2g-94c"/>
-                <outlet property="statusLabel" destination="6RF-WQ-3Jt" id="Jv4-C5-DzM"/>
+                <outlet property="statusField" destination="UEj-VR-gnQ" id="M57-3q-cS2"/>
                 <outlet property="view" destination="Hz6-mo-xeY" id="0bl-1N-x8E"/>
             </connections>
         </customObject>
@@ -68,15 +69,6 @@
                     <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                     <font key="titleFont" metaFont="system"/>
                 </box>
-                <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" id="6RF-WQ-3Jt">
-                    <rect key="frame" x="14" y="10" width="674" height="121"/>
-                    <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
-                    <textFieldCell key="cell" selectable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" title="Please wait..." drawsBackground="YES" id="kRj-xb-TEh">
-                        <font key="font" metaFont="system"/>
-                        <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
-                        <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
-                    </textFieldCell>
-                </textField>
                 <button horizontalHuggingPriority="750" verticalHuggingPriority="750" id="dlU-ux-2Tf">
                     <rect key="frame" x="657" y="511" width="25" height="25"/>
                     <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
@@ -100,7 +92,7 @@
                     </connections>
                 </button>
                 <button verticalHuggingPriority="750" id="bhr-YO-7aL">
-                    <rect key="frame" x="206" y="146" width="95" height="32"/>
+                    <rect key="frame" x="116" y="146" width="95" height="32"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <buttonCell key="cell" type="push" title="Reset All" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="skp-LM-BAP">
                         <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -111,7 +103,7 @@
                     </connections>
                 </button>
                 <button verticalHuggingPriority="750" id="s7p-b4-gV5">
-                    <rect key="frame" x="398" y="146" width="97" height="32"/>
+                    <rect key="frame" x="308" y="146" width="97" height="32"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <buttonCell key="cell" type="push" title="Resign" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="2lU-OT-CFR">
                         <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -145,6 +137,54 @@
                         <action selector="showCertificateInfo:" target="-2" id="hoL-bm-lsP"/>
                     </connections>
                 </button>
+                <button verticalHuggingPriority="750" id="IW0-Ld-oho">
+                    <rect key="frame" x="474" y="146" width="128" height="32"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    <buttonCell key="cell" type="push" title="Clean console" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="a0A-zx-3GV">
+                        <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                        <font key="font" metaFont="system"/>
+                    </buttonCell>
+                    <connections>
+                        <action selector="cleanConsole:" target="-2" id="PXs-ty-0JK"/>
+                    </connections>
+                </button>
+                <scrollView borderType="none" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" usesPredominantAxisScrolling="NO" horizontalScrollElasticity="none" verticalScrollElasticity="allowed" id="UEj-VR-gnQ">
+                    <rect key="frame" x="14" y="10" width="674" height="121"/>
+                    <autoresizingMask key="autoresizingMask"/>
+                    <clipView key="contentView" id="3ds-a4-vbT">
+                        <rect key="frame" x="1" y="1" width="223" height="133"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <textView editable="NO" importsGraphics="NO" richText="NO" findStyle="panel" allowsUndo="YES" usesRuler="YES" usesFontPanel="YES" verticallyResizable="YES" allowsNonContiguousLayout="YES" quoteSubstitution="YES" dashSubstitution="YES" smartInsertDelete="YES" id="DM8-PL-Af6">
+                                <rect key="frame" x="0.0" y="0.0" width="223" height="133"/>
+                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <size key="minSize" width="659" height="121"/>
+                                <size key="maxSize" width="674" height="10000000"/>
+                                <attributedString key="textStorage">
+                                    <fragment content="Please wait...">
+                                        <attributes>
+                                            <font key="NSFont" size="12" name="Helvetica"/>
+                                            <paragraphStyle key="NSParagraphStyle" alignment="natural" lineBreakMode="wordWrapping" baseWritingDirection="natural"/>
+                                        </attributes>
+                                    </fragment>
+                                </attributedString>
+                                <color key="insertionPointColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                <size key="minSize" width="659" height="121"/>
+                                <size key="maxSize" width="674" height="10000000"/>
+                            </textView>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                    </clipView>
+                    <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" doubleValue="1" horizontal="YES" id="kTT-gx-brj">
+                        <rect key="frame" x="-100" y="-100" width="87" height="18"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </scroller>
+                    <scroller key="verticalScroller" verticalHuggingPriority="750" doubleValue="1" horizontal="NO" id="VIR-tU-vZL">
+                        <rect key="frame" x="224" y="1" width="15" height="133"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </scroller>
+                </scrollView>
             </subviews>
             <point key="canvasLocation" x="250" y="327"/>
         </customView>

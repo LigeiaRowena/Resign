@@ -22,6 +22,8 @@
 		DF8270A31AB9DE4700254F27 /* visible-26.png in Resources */ = {isa = PBXBuildFile; fileRef = DF82709D1AB9DE4700254F27 /* visible-26.png */; };
 		DF8270A41AB9DE4700254F27 /* visible_filled-25.png in Resources */ = {isa = PBXBuildFile; fileRef = DF82709E1AB9DE4700254F27 /* visible_filled-25.png */; };
 		DF8270A51AB9DE4700254F27 /* waste-25.png in Resources */ = {isa = PBXBuildFile; fileRef = DF82709F1AB9DE4700254F27 /* waste-25.png */; };
+		DF8270AB1AB9E02600254F27 /* NSTextField+MultiLine.m in Sources */ = {isa = PBXBuildFile; fileRef = DF8270AA1AB9E02600254F27 /* NSTextField+MultiLine.m */; };
+		DF8270AE1AB9ED5500254F27 /* NSScrollView+MultiLine.m in Sources */ = {isa = PBXBuildFile; fileRef = DF8270AD1AB9ED5500254F27 /* NSScrollView+MultiLine.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -46,6 +48,10 @@
 		DF82709D1AB9DE4700254F27 /* visible-26.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "visible-26.png"; sourceTree = "<group>"; };
 		DF82709E1AB9DE4700254F27 /* visible_filled-25.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "visible_filled-25.png"; sourceTree = "<group>"; };
 		DF82709F1AB9DE4700254F27 /* waste-25.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "waste-25.png"; sourceTree = "<group>"; };
+		DF8270A91AB9E02600254F27 /* NSTextField+MultiLine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSTextField+MultiLine.h"; sourceTree = "<group>"; };
+		DF8270AA1AB9E02600254F27 /* NSTextField+MultiLine.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSTextField+MultiLine.m"; sourceTree = "<group>"; };
+		DF8270AC1AB9ED5500254F27 /* NSScrollView+MultiLine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSScrollView+MultiLine.h"; sourceTree = "<group>"; };
+		DF8270AD1AB9ED5500254F27 /* NSScrollView+MultiLine.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSScrollView+MultiLine.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -100,6 +106,10 @@
 		17492E1B1AB882AF004060A3 /* Helper */ = {
 			isa = PBXGroup;
 			children = (
+				DF8270AC1AB9ED5500254F27 /* NSScrollView+MultiLine.h */,
+				DF8270AD1AB9ED5500254F27 /* NSScrollView+MultiLine.m */,
+				DF8270A91AB9E02600254F27 /* NSTextField+MultiLine.h */,
+				DF8270AA1AB9E02600254F27 /* NSTextField+MultiLine.m */,
 				17492E1C1AB882AF004060A3 /* IRTextFieldDrag.h */,
 				17492E1D1AB882AF004060A3 /* IRTextFieldDrag.m */,
 				17492E1E1AB882AF004060A3 /* YAProvisioningProfile.h */,
@@ -212,9 +222,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				17492E211AB882AF004060A3 /* YAProvisioningProfile.m in Sources */,
+				DF8270AE1AB9ED5500254F27 /* NSScrollView+MultiLine.m in Sources */,
 				17492E011AB8827C004060A3 /* main.m in Sources */,
 				17492DFF1AB8827C004060A3 /* AppDelegate.m in Sources */,
 				17492E201AB882AF004060A3 /* IRTextFieldDrag.m in Sources */,
+				DF8270AB1AB9E02600254F27 /* NSTextField+MultiLine.m in Sources */,
 				17492E261AB882F3004060A3 /* ViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

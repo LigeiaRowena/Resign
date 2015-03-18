@@ -30,9 +30,10 @@
 @property (weak) IBOutlet NSComboBox *provisioningComboBox;
 @property (weak) IBOutlet NSButton *infoProvisioning;
 
+@property (weak) IBOutlet NSButton *cleanConsoleButton;
 @property (weak) IBOutlet NSButton *resetAllButton;
 @property (weak) IBOutlet NSButton *resignButton;
-@property (weak) IBOutlet NSTextField *statusLabel;
+@property (weak) IBOutlet NSScrollView *statusField;
 
 
 

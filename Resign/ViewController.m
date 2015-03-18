@@ -8,6 +8,7 @@
 
 #import "ViewController.h"
 #import "YAProvisioningProfile.h"
+#import "NSScrollView+MultiLine.h"
 
 static NSString *kKeyPrefsBundleIDChange            = @"keyBundleIDChange";
 static NSString *kKeyBundleIDPlistApp               = @"CFBundleIdentifier";
@@ -77,12 +78,12 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
     {
         // Creation of the temp working directory (deleting the old one)
         workingPath = [NSTemporaryDirectory() stringByAppendingPathComponent:@"resign"];
-        [self.statusLabel setStringValue:[NSString stringWithFormat:@"Setting up working directory in %@",workingPath]];
+        [self.statusField appendStringValue:[NSString stringWithFormat:@"Setting up working directory in %@",workingPath]];
         [[NSFileManager defaultManager] removeItemAtPath:workingPath error:nil];
         [[NSFileManager defaultManager] createDirectoryAtPath:workingPath withIntermediateDirectories:TRUE attributes:nil error:nil];
         
         // Create the unzip task: unzip the IPA file in the temp working directory
-        [self.statusLabel setStringValue:[NSString stringWithFormat:@"Unzipping ipa file in %@", workingPath]];
+        [self.statusField appendStringValue:[NSString stringWithFormat:@"Unzipping ipa file in %@", workingPath]];
         unzipTask = [[NSTask alloc] init];
         [unzipTask setLaunchPath:@"/usr/bin/unzip"];
         [unzipTask setArguments:[NSArray arrayWithObjects:@"-q", sourcePath, @"-d", workingPath, nil]];
@@ -95,7 +96,7 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
     {
         [self showAlertOfKind:NSCriticalAlertStyle WithTitle:@"Error" AndMessage:@"You must choose a valid *.ipa file"];
         [self enableControls];
-        [self.statusLabel setStringValue:@"Please try again"];
+        [self.statusField appendStringValue:@"Please try again"];
     }
 }
 
@@ -113,7 +114,7 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
         {
             [self setAppPath];
             [self enableControls];
-            [self.statusLabel setStringValue:[NSString stringWithFormat:@"Succeed to unzip ipa file in %@", [workingPath stringByAppendingPathComponent:kPayloadDirName]]];
+            [self.statusField appendStringValue:[NSString stringWithFormat:@"Succeed to unzip ipa file in %@", [workingPath stringByAppendingPathComponent:kPayloadDirName]]];
             [self showIpaInfo];
         }
         
@@ -122,7 +123,7 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
         {
             [self showAlertOfKind:NSCriticalAlertStyle WithTitle:@"Error" AndMessage:@"Unzip failed"];
             [self enableControls];
-            [self.statusLabel setStringValue:@"Unzip failed. Please try again"];
+            [self.statusField appendStringValue:@"Unzip failed. Please try again"];
         }
     }
 }
@@ -145,7 +146,7 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
 - (void)showIpaInfo
 {
     // Show the info of the ipa from the Info.plist file
-    [self.statusLabel setStringValue:[NSString stringWithFormat:@"Retrieving %@", kInfoPlistFilename]];
+    [self.statusField appendStringValue:[NSString stringWithFormat:@"Retrieving %@", kInfoPlistFilename]];
     NSMutableString *message = @"".mutableCopy;
     NSString* infoPlistPath = [appPath stringByAppendingPathComponent:kInfoPlistFilename];
     if ([[NSFileManager defaultManager] fileExistsAtPath:infoPlistPath])
@@ -157,7 +158,7 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
         [message appendFormat:@"Bundle version: %@\n", infoPlistDict[@"CFBundleShortVersionString"]];
         [message appendFormat:@"Build version: %@\n", infoPlistDict[@"CFBundleVersion"]];
         [message appendFormat:@"Minimum OS version: %@\n", infoPlistDict[@"MinimumOSVersion"]];
-        [self.statusLabel setStringValue:message];
+        [self.statusField appendStringValue:message];
     }
     
     //Select the provisioning and signign-certificate of the app in the relative combobox
@@ -198,18 +199,18 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
     if ([certificatesArray count] > 0 && index >= 0)
     {
         NSString *certificate = certificatesArray[index];
-        [self.statusLabel setStringValue:certificate];
+        [self.statusField appendStringValue:certificate];
     }
     else
     {
-        [self.statusLabel setStringValue:@"No Signign Certificates selected"];
+        [self.statusField appendStringValue:@"No Signign Certificates selected"];
     }
 }
 
 - (void)getCertificates
 {
     [self disableControls];
-    [self.statusLabel setStringValue:@"Getting Signign Certificates..."];
+    [self.statusField appendStringValue:@"Getting Signign Certificates..."];
     
     certTask = [[NSTask alloc] init];
     [certTask setLaunchPath:@"/usr/bin/security"];
@@ -234,7 +235,7 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
         // The task found some cert identities
         if ([certificatesArray count] > 0)
         {
-            [self.statusLabel setStringValue:@"Signing Certificate IDs extracted"];
+            [self.statusField appendStringValue:@"Signing Certificate IDs extracted"];
             [self enableControls];
             [self.certificateComboBox reloadData];
         }
@@ -243,7 +244,7 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
         {
             [self showAlertOfKind:NSCriticalAlertStyle WithTitle:@"Error" AndMessage:@"There aren't Signign Certificates"];
             [self enableControls];
-            [self.statusLabel setStringValue:@"There aren't Signign Certificates"];
+            [self.statusField appendStringValue:@"There aren't Signign Certificates"];
         }
     }
 }
@@ -293,7 +294,7 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
 - (void)getProvisioning
 {
     [self disableControls];
-	[self.statusLabel setStringValue:@"Getting Provisoning Profiles..."];
+    [self.statusField appendStringValue:@"Getting Provisoning Profiles..."];
     
 	NSArray *provisioningProfiles = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:[NSString stringWithFormat:@"%@/Library/MobileDevice/Provisioning Profiles", NSHomeDirectory()] error:nil];
 	provisioningProfiles = [provisioningProfiles filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"self ENDSWITH '.mobileprovision'"]];
@@ -315,13 +316,13 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
 	{
 		[self enableControls];
 		[self.provisioningComboBox reloadData];
-        [self.statusLabel setStringValue:@"Provisioning Profiles loaded"];
+        [self.statusField appendStringValue:@"Provisioning Profiles loaded"];
 	}
 	else
 	{
 		[self showAlertOfKind:NSCriticalAlertStyle WithTitle:@"Error" AndMessage:@"There aren't Provisioning Profiles"];
 		[self enableControls];
-		[self.statusLabel setStringValue:@"There aren't Provisioning Profiles"];
+        [self.statusField appendStringValue:@"There aren't Provisioning Profiles"];
 	}
 }
 
@@ -337,11 +338,11 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
 		[message appendFormat:@"Team Name: %@\n", profile.teamName ? profile.teamName : @""];
 		[message appendFormat:@"App ID Name: %@\n", profile.appIdName];
 		[message appendFormat:@"Team Identifier: %@\n", profile.teamIdentifier];
-		[self.statusLabel setStringValue:message];		
+        [self.statusField appendStringValue:message];
 	}
 	else
 	{
-		[self.statusLabel setStringValue:@"No Provisioning profile selected"];
+        [self.statusField appendStringValue:@"No Provisioning profile selected"];
 	}
 }
 
@@ -400,6 +401,11 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
     
 }
 
+- (IBAction)cleanConsole:(id)sender
+{
+    [self.statusField setStringValue:@""];
+}
+
 - (IBAction)showCertificateInfo:(id)sender
 {
     [self showCertificateInfoAtIndex:self.certificateComboBox.indexOfSelectedItem];
@@ -440,7 +446,7 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
     
     [self.resetAllButton setEnabled:FALSE];
     [self.resignButton setEnabled:FALSE];
-    [self.statusLabel setEnabled:FALSE];
+    [self.cleanConsoleButton setEnabled:FALSE];
 }
 
 - (void)enableControls
@@ -454,7 +460,7 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
     
     [self.resetAllButton setEnabled:TRUE];
     [self.resignButton setEnabled:TRUE];
-    [self.statusLabel setEnabled:TRUE];
+    [self.cleanConsoleButton setEnabled:TRUE];
 }
 
 #pragma mark - NSComboBox
