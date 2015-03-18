@@ -33,8 +33,6 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
 	formatter = [[NSDateFormatter alloc] init];
 	formatter.dateFormat = @"dd-MM-yyyy";
 	provisioningArray = @[].mutableCopy;
-
-	[self disableControls];
 	
 	// Search for zip utilities
 	[self searchForZipUtility];
@@ -63,11 +61,79 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
 	}
 }
 
+- (void)unzipIpa
+{
+    [self disableControls];
+    
+    sourcePath = [self.ipaField stringValue];
+    
+    // The user choosed a valid IPA file
+    if ([[[sourcePath pathExtension] lowercaseString] isEqualToString:@"ipa"])
+    {
+        // Creation of the temp working directory (deleting the old one)
+        workingPath = [NSTemporaryDirectory() stringByAppendingPathComponent:@"resign"];
+        [self.statusLabel setStringValue:[NSString stringWithFormat:@"Setting up working directory in %@",workingPath]];
+        [[NSFileManager defaultManager] removeItemAtPath:workingPath error:nil];
+        [[NSFileManager defaultManager] createDirectoryAtPath:workingPath withIntermediateDirectories:TRUE attributes:nil error:nil];
+        
+        // Create the unzip task: unzip the IPA file in the temp working directory
+        [self.statusLabel setStringValue:[NSString stringWithFormat:@"Unzipping ipa file in %@", workingPath]];
+        unzipTask = [[NSTask alloc] init];
+        //TODO: standardError
+        [unzipTask setLaunchPath:@"/usr/bin/unzip"];
+        [unzipTask setArguments:[NSArray arrayWithObjects:@"-q", sourcePath, @"-d", workingPath, nil]];
+        [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(checkUnzip:) userInfo:nil repeats:TRUE];
+        [unzipTask launch];
+    }
+    
+    // The user didn't choose a valid IPA file
+    else
+    {
+        [self showAlertOfKind:NSCriticalAlertStyle WithTitle:@"Error" AndMessage:@"You must choose a valid *.ipa file"];
+        [self enableControls];
+        [self.statusLabel setStringValue:@"Please try again"];
+    }
+}
+
+- (void)checkUnzip:(NSTimer *)timer
+{
+    // Check if the unzip task finished: if yes invalidate the timer and do some operations
+    if ([unzipTask isRunning] == 0)
+    {
+        [timer invalidate];
+        int terminationStatus = unzipTask.terminationStatus;
+        unzipTask = nil;
+        
+        // The unzip task succeed
+        if (terminationStatus == 0 && [[NSFileManager defaultManager] fileExistsAtPath:[workingPath stringByAppendingPathComponent:kPayloadDirName]])
+        {
+            NSLog(@"Unzipping done");
+            [self.statusLabel setStringValue:[NSString stringWithFormat:@"Succeed to unzip ipa file in %@", workingPath]];
+            [self showIpaInfo];
+        }
+        
+        // The unzip task failed
+        else
+        {
+            [self showAlertOfKind:NSCriticalAlertStyle WithTitle:@"Error" AndMessage:@"Unzip failed"];
+            [self enableControls];
+            [self.statusLabel setStringValue:@"Unzip failed. Please try again"];
+        }
+    }
+}
+
+- (void)showIpaInfo
+{
+    
+}
+
 #pragma mark - Provisioning Methods
 
 - (void)getProvisioning
 {
+    [self disableControls];
 	[self.statusLabel setStringValue:@"Getting Provisoning Profiles..."];
+    
 	NSArray *provisioningProfiles = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:[NSString stringWithFormat:@"%@/Library/MobileDevice/Provisioning Profiles", NSHomeDirectory()] error:nil];
 	provisioningProfiles = [provisioningProfiles filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"self ENDSWITH '.mobileprovision'"]];
 	
@@ -88,6 +154,7 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
 	{
 		[self enableControls];
 		[self.provisioningComboBox reloadData];
+        [self.statusLabel setStringValue:@"Provisioning Profiles loaded"];
 	}
 	else
 	{
@@ -133,12 +200,25 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
 	{
 		NSString* fileNameOpened = [[[openDlg URLs] objectAtIndex:0] path];
 		[self.ipaField setStringValue:fileNameOpened];
+		[self unzipIpa];
 	}
 }
 
 - (IBAction)showProvisioningInfo:(id)sender
 {
 	[self showProvisioningInfo];
+}
+
+- (IBAction)showIpaInfo:(id)sender
+{
+	[self showIpaInfo];
+}
+
+#pragma mark - IRTextFieldDragDelegate
+
+- (void)performDragOperation:(NSString*)text
+{
+	[self unzipIpa];
 }
 
 #pragma mark - Alert Methods

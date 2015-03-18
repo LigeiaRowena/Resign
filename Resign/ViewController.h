@@ -13,9 +13,15 @@
 {
 	NSMutableArray *provisioningArray;
 	NSDateFormatter *formatter;
+    
+    NSString *sourcePath;
+    NSString *workingPath;
+    
+    NSTask *unzipTask;
 }
 
 @property (weak) IBOutlet IRTextFieldDrag *ipaField;
+@property (weak) IBOutlet NSButton *infoIpaFile;
 @property (weak) IBOutlet NSComboBox *provisioningComboBox;
 @property (weak) IBOutlet NSButton *infoProvisioning;
 
