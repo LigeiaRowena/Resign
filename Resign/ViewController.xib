@@ -7,6 +7,8 @@
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="ViewController">
             <connections>
+                <outlet property="certificateComboBox" destination="gGv-Tn-fZy" id="oit-HA-XgO"/>
+                <outlet property="infoCertificate" destination="j6B-db-UbM" id="8dR-03-iur"/>
                 <outlet property="infoIpaFile" destination="jBz-1b-mzK" id="onO-8c-HWb"/>
                 <outlet property="infoProvisioning" destination="dlU-ux-2Tf" id="mNk-G9-BIj"/>
                 <outlet property="ipaField" destination="aCJ-CN-poy" id="gcu-82-zHG"/>
@@ -26,7 +28,7 @@
                 <button verticalHuggingPriority="750" id="aZ2-i1-W80">
                     <rect key="frame" x="14" y="577" width="157" height="32"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                    <buttonCell key="cell" type="push" title="Open the ipa file..." bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="WBe-wM-NOH">
+                    <buttonCell key="cell" type="push" title="Open the ipa file" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="WBe-wM-NOH">
                         <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                         <font key="font" metaFont="system"/>
                     </buttonCell>
@@ -37,7 +39,7 @@
                 <textField verticalHuggingPriority="750" id="aCJ-CN-poy" customClass="IRTextFieldDrag">
                     <rect key="frame" x="185" y="583" width="458" height="22"/>
                     <autoresizingMask key="autoresizingMask" flexibleMinY="YES"/>
-                    <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" placeholderString=".ipa file" drawsBackground="YES" id="G0J-mn-xlK">
+                    <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" placeholderString="Drag &amp; drop the ipa file" drawsBackground="YES" id="G0J-mn-xlK">
                         <font key="font" metaFont="system"/>
                         <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
                         <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -47,7 +49,7 @@
                     </connections>
                 </textField>
                 <comboBox verticalHuggingPriority="750" id="p3D-Yx-YRY">
-                    <rect key="frame" x="20" y="540" width="625" height="26"/>
+                    <rect key="frame" x="20" y="456" width="625" height="26"/>
                     <autoresizingMask key="autoresizingMask" flexibleMinY="YES"/>
                     <comboBoxCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" borderStyle="bezel" placeholderString="Select a mobile provision" drawsBackground="YES" completes="NO" usesDataSource="YES" numberOfVisibleItems="5" id="cqW-j3-D1l">
                         <font key="font" metaFont="system"/>
@@ -76,7 +78,7 @@
                     </textFieldCell>
                 </textField>
                 <button horizontalHuggingPriority="750" verticalHuggingPriority="750" id="dlU-ux-2Tf">
-                    <rect key="frame" x="657" y="540" width="25" height="25"/>
+                    <rect key="frame" x="657" y="456" width="25" height="25"/>
                     <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
                     <buttonCell key="cell" type="help" bezelStyle="helpButton" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="vVe-07-teG">
                         <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -117,6 +119,30 @@
                     </buttonCell>
                     <connections>
                         <action selector="resign:" target="-2" id="mJ3-E0-xNo"/>
+                    </connections>
+                </button>
+                <comboBox verticalHuggingPriority="750" id="gGv-Tn-fZy">
+                    <rect key="frame" x="20" y="516" width="625" height="26"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMinY="YES"/>
+                    <comboBoxCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" borderStyle="bezel" placeholderString="Select a signign certificate" drawsBackground="YES" completes="NO" usesDataSource="YES" numberOfVisibleItems="5" id="ahx-b2-2Df">
+                        <font key="font" metaFont="system"/>
+                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                        <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                    </comboBoxCell>
+                    <connections>
+                        <outlet property="dataSource" destination="-2" id="Ixx-8v-9Nf"/>
+                        <outlet property="delegate" destination="-2" id="miX-Bh-a6N"/>
+                    </connections>
+                </comboBox>
+                <button horizontalHuggingPriority="750" verticalHuggingPriority="750" id="j6B-db-UbM">
+                    <rect key="frame" x="656" y="516" width="25" height="25"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
+                    <buttonCell key="cell" type="help" bezelStyle="helpButton" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="tYf-tN-U7F">
+                        <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                        <font key="font" metaFont="system"/>
+                    </buttonCell>
+                    <connections>
+                        <action selector="showCertificateInfo:" target="-2" id="hoL-bm-lsP"/>
                     </connections>
                 </button>
             </subviews>

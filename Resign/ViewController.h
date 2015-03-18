@@ -12,16 +12,20 @@
 @interface ViewController : NSViewController <IRTextFieldDragDelegate>
 {
 	NSMutableArray *provisioningArray;
+    NSMutableArray *certificatesArray;
 	NSDateFormatter *formatter;
     
     NSString *sourcePath;
     NSString *workingPath;
     
     NSTask *unzipTask;
+    NSTask *certTask;
 }
 
 @property (weak) IBOutlet IRTextFieldDrag *ipaField;
 @property (weak) IBOutlet NSButton *infoIpaFile;
+@property (weak) IBOutlet NSComboBox *certificateComboBox;
+@property (weak) IBOutlet NSButton *infoCertificate;
 @property (weak) IBOutlet NSComboBox *provisioningComboBox;
 @property (weak) IBOutlet NSButton *infoProvisioning;
 

@@ -33,12 +33,17 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
 	formatter = [[NSDateFormatter alloc] init];
 	formatter.dateFormat = @"dd-MM-yyyy";
 	provisioningArray = @[].mutableCopy;
+    certificatesArray = @[].mutableCopy;
+
 	
 	// Search for zip utilities
 	[self searchForZipUtility];
 	
 	// Search for Provisioning Profiles
 	[self getProvisioning];
+    
+    // Search for Signign Certificates
+    [self getCertificates];
 
 }
 
@@ -79,7 +84,6 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
         // Create the unzip task: unzip the IPA file in the temp working directory
         [self.statusLabel setStringValue:[NSString stringWithFormat:@"Unzipping ipa file in %@", workingPath]];
         unzipTask = [[NSTask alloc] init];
-        //TODO: standardError
         [unzipTask setLaunchPath:@"/usr/bin/unzip"];
         [unzipTask setArguments:[NSArray arrayWithObjects:@"-q", sourcePath, @"-d", workingPath, nil]];
         [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(checkUnzip:) userInfo:nil repeats:TRUE];
@@ -124,8 +128,93 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
 
 - (void)showIpaInfo
 {
+    // show the info of the ipa from the info.plist file
     
+    
+    //select the cert and provisioning and bundle id
 }
+
+#pragma mark - Signign Certificate Methods
+
+- (void)showCertificateInfoAtIndex:(NSInteger)index
+{
+    if ([certificatesArray count] > 0 && index >= 0)
+    {
+        NSString *certificate = certificatesArray[index];
+        [self.statusLabel setStringValue:certificate];
+    }
+    else
+    {
+        [self.statusLabel setStringValue:@"No Signign Certificates selected"];
+    }
+}
+
+- (void)getCertificates
+{
+    [self disableControls];
+    [self.statusLabel setStringValue:@"Getting Signign Certificates..."];
+    
+    certTask = [[NSTask alloc] init];
+    [certTask setLaunchPath:@"/usr/bin/security"];
+    [certTask setArguments:[NSArray arrayWithObjects:@"find-identity", @"-v", @"-p", @"codesigning", nil]];
+    [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(checkCerts:) userInfo:nil repeats:TRUE];
+    NSPipe *pipe = [NSPipe pipe];
+    [certTask setStandardOutput:pipe];
+    [certTask setStandardError:pipe];
+    NSFileHandle *handle=[pipe fileHandleForReading];
+    [certTask launch];
+    [NSThread detachNewThreadSelector:@selector(watchGetCerts:) toTarget:self withObject:handle];
+}
+
+- (void)checkCerts:(NSTimer *)timer
+{
+    // Check if the cert task finished: if yes invalidate the timer and do some operations
+    if ([certTask isRunning] == 0)
+    {
+        [timer invalidate];
+        certTask = nil;
+        
+        // The task found some cert identities
+        if ([certificatesArray count] > 0)
+        {
+            [self.statusLabel setStringValue:@"Signing Certificate IDs extracted"];
+            [self enableControls];
+            [self.certificateComboBox reloadData];
+        }
+        // The task didn't find any cert identities
+        else
+        {
+            [self showAlertOfKind:NSCriticalAlertStyle WithTitle:@"Error" AndMessage:@"There aren't Signign Certificates"];
+            [self enableControls];
+            [self.statusLabel setStringValue:@"There aren't Signign Certificates"];
+        }
+    }
+}
+
+- (void)watchGetCerts:(NSFileHandle*)streamHandle
+{
+    // Check if there are Identities Cert in KeyChain and saves them in certComboBoxItems to show in certComboBox
+    @autoreleasepool
+    {
+        NSString *securityResult = [[NSString alloc] initWithData:[streamHandle readDataToEndOfFile] encoding:NSASCIIStringEncoding];
+        if (securityResult == nil || securityResult.length < 1)
+            return;
+        NSArray *rawResult = [securityResult componentsSeparatedByString:@"\""];
+        NSMutableArray *tempGetCertsResult = [NSMutableArray arrayWithCapacity:20];
+        for (int i = 0; i <= [rawResult count] - 2; i+=2)
+        {
+            NSLog(@"i:%d", i+1);
+            if (rawResult.count - 1 < i + 1) {
+                // Invalid array, don't add an object to that position
+            } else {
+                // Valid object
+                [tempGetCertsResult addObject:[rawResult objectAtIndex:i+1]];
+            }
+        }
+        certificatesArray = [NSMutableArray arrayWithArray:tempGetCertsResult];
+    }
+}
+
 
 #pragma mark - Provisioning Methods
 
@@ -164,11 +253,11 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
 	}
 }
 
-- (void)showProvisioningInfo
+- (void)showProvisioningInfoAtIndex:(NSInteger)index
 {
-	if ([provisioningArray count] > 0 && self.provisioningComboBox.indexOfSelectedItem != -1)
+	if ([provisioningArray count] > 0 && index >= 0)
 	{
-		YAProvisioningProfile *profile = provisioningArray[self.provisioningComboBox.indexOfSelectedItem];
+		YAProvisioningProfile *profile = provisioningArray[index];
 		NSMutableString *message = @"".mutableCopy;
 		[message appendFormat:@"Profile name: %@\n", profile.name];
 		[message appendFormat:@"Bundle identifier: %@\n", profile.bundleIdentifier];
@@ -206,7 +295,7 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
 
 - (IBAction)showProvisioningInfo:(id)sender
 {
-	[self showProvisioningInfo];
+	[self showProvisioningInfoAtIndex:self.provisioningComboBox.indexOfSelectedItem];
 }
 
 - (IBAction)showIpaInfo:(id)sender
@@ -223,6 +312,12 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
 {
     
 }
+
+- (IBAction)showCertificateInfo:(id)sender
+{
+    [self showCertificateInfoAtIndex:self.certificateComboBox.indexOfSelectedItem];
+}
+
 
 #pragma mark - IRTextFieldDragDelegate
 
@@ -253,6 +348,8 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
     [self.infoIpaFile setEnabled:FALSE];
 	[self.provisioningComboBox setEnabled:FALSE];
 	[self.infoProvisioning setEnabled:FALSE];
+    [self.certificateComboBox setEnabled:FALSE];
+    [self.infoCertificate setEnabled:FALSE];
     
     [self.resetAllButton setEnabled:FALSE];
     [self.resignButton setEnabled:FALSE];
@@ -265,6 +362,8 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
     [self.infoIpaFile setEnabled:TRUE];
 	[self.provisioningComboBox setEnabled:TRUE];
 	[self.infoProvisioning setEnabled:TRUE];
+    [self.certificateComboBox setEnabled:TRUE];
+    [self.infoCertificate setEnabled:TRUE];
     
     [self.resetAllButton setEnabled:TRUE];
     [self.resignButton setEnabled:TRUE];
@@ -279,6 +378,9 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
 	
 	if ([aComboBox isEqual:self.provisioningComboBox])
 		count = [provisioningArray count];
+    
+    else if ([aComboBox isEqual:self.certificateComboBox])
+        count = [certificatesArray count];
 	
 	return count;
 }
@@ -292,6 +394,11 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
 		YAProvisioningProfile *profile = provisioningArray[index];
 		item = profile.name;
 	}
+    
+    else if ([aComboBox isEqual:self.certificateComboBox])
+    {
+        item = certificatesArray[index];
+    }
 	
 	
 	return item;
@@ -303,8 +410,13 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
 
 	if ([comboBox isEqual:self.provisioningComboBox])
 	{
-		[self showProvisioningInfo];
+		[self showProvisioningInfoAtIndex:self.provisioningComboBox.indexOfSelectedItem];
 	}
+    
+    else if ([comboBox isEqual:self.certificateComboBox])
+    {
+        [self showCertificateInfoAtIndex:self.certificateComboBox.indexOfSelectedItem];
+    }
 }
 
 
