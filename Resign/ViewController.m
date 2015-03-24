@@ -190,6 +190,10 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
             [self showAlertOfKind:NSInformationalAlertStyle WithTitle:@"The Signign Certificate  of the app isn't in your keychain:" AndMessage:teamName];
         }
     }
+    
+    //Show the Bundle ID of the app in the relative field
+    [self resetDefaultBundleID];
+
 }
 
 #pragma mark - Signign Certificate Methods
@@ -361,6 +365,35 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
     return index;
 }
 
+
+#pragma mark - Bundle ID Methods
+
+- (void)resetDefaultBundleID
+{
+    NSString* infoPlistPath = [appPath stringByAppendingPathComponent:kInfoPlistFilename];
+    
+    // Succeed to find the default bundle id
+    if ([[NSFileManager defaultManager] fileExistsAtPath:infoPlistPath])
+    {
+        NSDictionary* infoPlistDict = [NSDictionary dictionaryWithContentsOfFile:infoPlistPath];
+        NSString *bundleID = infoPlistDict[@"CFBundleIdentifier"];
+        [self.bundleIDButton setState:NSOnState];
+        [self.bundleIDField setEditable:NO];
+        [self.bundleIDField setSelectable:YES];
+        [self.bundleIDField setStringValue:bundleID];
+    }
+    
+    // Failed to find the default bundle id
+    else
+    {
+        [self showAlertOfKind:NSWarningAlertStyle WithTitle:@"Warning" AndMessage:@"You didn't select any IPA file, or the IPA file you selected hasn't a Bundle ID."];
+        [self.bundleIDButton setState:NSOffState];
+        [self.bundleIDField setEditable:YES];
+        [self.bundleIDField setSelectable:YES];
+    }
+}
+
+
 #pragma mark - Actions
 
 - (IBAction)browseIpa:(id)sender
@@ -411,6 +444,27 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
     [self showCertificateInfoAtIndex:self.certificateComboBox.indexOfSelectedItem];
 }
 
+- (IBAction)defaultBundleIDButton:(id)sender
+{
+    // reset default bundle id
+    if (self.bundleIDButton.state == NSOnState)
+    {
+        [self resetDefaultBundleID];
+    }
+    
+    // customized bundle id
+    else if (self.bundleIDButton.state == NSOffState)
+    {
+        [self.bundleIDField setEditable:YES];
+        [self.bundleIDField setSelectable:YES];
+    }
+}
+
+- (IBAction)changeBundleID:(id)sender
+{
+    [self.statusField appendStringValue:[NSString stringWithFormat:@"You typed the bundle ID: %@", self.bundleIDField.stringValue]];
+}
+
 
 #pragma mark - IRTextFieldDragDelegate
 
@@ -443,6 +497,8 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
 	[self.infoProvisioning setEnabled:FALSE];
     [self.certificateComboBox setEnabled:FALSE];
     [self.infoCertificate setEnabled:FALSE];
+    [self.bundleIDField setEnabled:FALSE];
+    [self.bundleIDButton setEnabled:FALSE];
     
     [self.resetAllButton setEnabled:FALSE];
     [self.resignButton setEnabled:FALSE];
@@ -457,6 +513,8 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
 	[self.infoProvisioning setEnabled:TRUE];
     [self.certificateComboBox setEnabled:TRUE];
     [self.infoCertificate setEnabled:TRUE];
+    [self.bundleIDField setEnabled:TRUE];
+    [self.bundleIDButton setEnabled:TRUE];
     
     [self.resetAllButton setEnabled:TRUE];
     [self.resignButton setEnabled:TRUE];
