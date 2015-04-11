@@ -15,11 +15,18 @@
 	NSMutableArray *provisioningArray;
     NSMutableArray *certificatesArray;
 	NSDateFormatter *formatter;
-    
-    // utility paths
+	
+	// source ipa path
     NSString *sourcePath;
+	
+	// temp working directory
     NSString *workingPath;
+	
+	// path of the unzipped ipa (inside the workingPath)
     NSString *appPath;
+	
+	// destination ipa path
+	NSString *destinationPath;
     
     // tasks
     NSTask *unzipTask;
@@ -37,6 +44,8 @@
 @property (weak) IBOutlet NSButton *bundleIDButton;
 @property (weak) IBOutlet NSTextField *displayNameField;
 @property (weak) IBOutlet NSButton *displayNameButton;
+@property (weak) IBOutlet NSTextField *destinationIpaPath;
+@property (weak) IBOutlet NSButton *destinationIpaPathButton;
 
 
 // Console UI

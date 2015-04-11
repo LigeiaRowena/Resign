@@ -12,12 +12,19 @@
 
 static NSString *kKeyBundleIDChange = @"keyBundleIDChange";
 static NSString *kCFBundleIdentifier = @"CFBundleIdentifier";
+static NSString *kCFBundleDisplayName = @"CFBundleDisplayName";
+static NSString *kCFBundleName = @"CFBundleName";
+static NSString *kCFBundleShortVersionString = @"CFBundleShortVersionString";
+static NSString *kCFBundleVersion = @"CFBundleVersion";
+static NSString *kMinimumOSVersion = @"MinimumOSVersion";
 static NSString *kSoftwareVersionBundleId = @"softwareVersionBundleId";
 static NSString *kApplicationProperties = @"ApplicationProperties";
 static NSString *kApplicationPath = @"ApplicationPath";
 static NSString *kPayloadDirName = @"Payload";
 static NSString *kProductsDirName = @"Products";
 static NSString *kInfoPlistFilename = @"Info.plist";
+static NSString *kMobileprovisionDirName = @"Library/MobileDevice/Provisioning Profiles";
+static NSString *kMobileprovisionFilename = @"embedded.mobileprovision";
 static NSString *kiTunesMetadataFileName = @"iTunesMetadata";
 
 @interface ViewController ()
@@ -45,7 +52,9 @@ static NSString *kiTunesMetadataFileName = @"iTunesMetadata";
     
     // Search for Signign Certificates
     [self getCertificates];
-
+	
+	// Show the default destination ipa path
+	[self resetDestinationIpaPath];
 }
 
 #pragma mark - ZIP Methods
@@ -152,17 +161,17 @@ static NSString *kiTunesMetadataFileName = @"iTunesMetadata";
     if ([[NSFileManager defaultManager] fileExistsAtPath:infoPlistPath])
     {
         NSDictionary* infoPlistDict = [NSDictionary dictionaryWithContentsOfFile:infoPlistPath];
-        [message appendFormat:@"Bundle display name: %@\n", infoPlistDict[@"CFBundleDisplayName"]];
-        [message appendFormat:@"Bundle name: %@\n", infoPlistDict[@"CFBundleName"]];
+        [message appendFormat:@"Bundle display name: %@\n", infoPlistDict[kCFBundleDisplayName]];
+        [message appendFormat:@"Bundle name: %@\n", infoPlistDict[kCFBundleName]];
         [message appendFormat:@"Bundle identifier: %@\n", infoPlistDict[kCFBundleIdentifier]];
-        [message appendFormat:@"Bundle version: %@\n", infoPlistDict[@"CFBundleShortVersionString"]];
-        [message appendFormat:@"Build version: %@\n", infoPlistDict[@"CFBundleVersion"]];
-        [message appendFormat:@"Minimum OS version: %@\n", infoPlistDict[@"MinimumOSVersion"]];
+        [message appendFormat:@"Bundle version: %@\n", infoPlistDict[kCFBundleShortVersionString]];
+        [message appendFormat:@"Build version: %@\n", infoPlistDict[kCFBundleVersion]];
+        [message appendFormat:@"Minimum OS version: %@\n", infoPlistDict[kMinimumOSVersion]];
         [self.statusField appendStringValue:message];
     }
     
     //Select the provisioning and signign-certificate of the app in the relative combobox
-    NSString *provisioningPath = [appPath stringByAppendingPathComponent:@"embedded.mobileprovision"];
+    NSString *provisioningPath = [appPath stringByAppendingPathComponent:kMobileprovisionFilename];
     if ([[NSFileManager defaultManager] fileExistsAtPath:infoPlistPath])
     {
         YAProvisioningProfile *profile = [[YAProvisioningProfile alloc] initWithPath:provisioningPath];
@@ -193,7 +202,9 @@ static NSString *kiTunesMetadataFileName = @"iTunesMetadata";
     
     //Show the Bundle ID of the app in the relative field
     [self resetDefaultBundleID];
-
+	
+	//Show the Product Name of the app in the relative field
+	[self resetDefaultProductName];
 }
 
 #pragma mark - Signign Certificate Methods
@@ -300,14 +311,14 @@ static NSString *kiTunesMetadataFileName = @"iTunesMetadata";
     [self disableControls];
     [self.statusField appendStringValue:@"Getting Provisoning Profiles..."];
     
-	NSArray *provisioningProfiles = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:[NSString stringWithFormat:@"%@/Library/MobileDevice/Provisioning Profiles", NSHomeDirectory()] error:nil];
+	NSArray *provisioningProfiles = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:[NSString stringWithFormat:@"%@/%@", NSHomeDirectory(), kMobileprovisionDirName] error:nil];
 	provisioningProfiles = [provisioningProfiles filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"self ENDSWITH '.mobileprovision'"]];
 	
 	[provisioningProfiles enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
 		NSString *path = (NSString*)obj;
-		if ([[NSFileManager defaultManager] fileExistsAtPath:[NSString stringWithFormat:@"%@/Library/MobileDevice/Provisioning Profiles/%@", NSHomeDirectory(), path] isDirectory:NO])
+		if ([[NSFileManager defaultManager] fileExistsAtPath:[NSString stringWithFormat:@"%@/%@/%@", NSHomeDirectory(), kMobileprovisionDirName, path] isDirectory:NO])
 		{
-			YAProvisioningProfile *profile = [[YAProvisioningProfile alloc] initWithPath:[NSString stringWithFormat:@"%@/Library/MobileDevice/Provisioning Profiles/%@", NSHomeDirectory(), path]];
+			YAProvisioningProfile *profile = [[YAProvisioningProfile alloc] initWithPath:[NSString stringWithFormat:@"%@/%@/%@", NSHomeDirectory(), kMobileprovisionDirName, path]];
 			[provisioningArray addObject:profile];
 		}
 	}];
@@ -403,7 +414,7 @@ static NSString *kiTunesMetadataFileName = @"iTunesMetadata";
 	if ([[NSFileManager defaultManager] fileExistsAtPath:infoPlistPath])
 	{
 		NSDictionary* infoPlistDict = [NSDictionary dictionaryWithContentsOfFile:infoPlistPath];
-		NSString *displayName = infoPlistDict[@"CFBundleDisplayName"];
+		NSString *displayName = infoPlistDict[kCFBundleDisplayName];
 		[self.displayNameButton setState:NSOnState];
 		[self.displayNameField setEditable:NO];
 		[self.displayNameField setSelectable:YES];
@@ -420,7 +431,18 @@ static NSString *kiTunesMetadataFileName = @"iTunesMetadata";
 	}
 }
 
+#pragma mark - Destination IPA Path Methods
 
+- (void)resetDestinationIpaPath
+{
+	NSString *documentFolderPath = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject];
+
+	[self.destinationIpaPathButton setState:NSOnState];
+	[self.destinationIpaPath setEditable:NO];
+	[self.destinationIpaPath setSelectable:YES];
+	[self.destinationIpaPath setStringValue:documentFolderPath];
+	destinationPath = documentFolderPath;
+}
 
 #pragma mark - Actions
 
@@ -515,6 +537,29 @@ static NSString *kiTunesMetadataFileName = @"iTunesMetadata";
 	}
 }
 
+- (IBAction)changeDestinationIpaPath:(id)sender
+{
+	destinationPath = self.destinationIpaPath.stringValue;
+	[self.statusField appendStringValue:[NSString stringWithFormat:@"You typed the destination ipa path: %@", self.destinationIpaPath.stringValue]];
+}
+
+
+- (IBAction)defaultDestinationIpaPath:(id)sender
+{
+	// reset default Destination Ipa Path (Documents)
+	if (self.destinationIpaPathButton.state == NSOnState)
+	{
+		[self resetDestinationIpaPath];
+	}
+	
+	// customized Destination Ipa Path
+	else if (self.destinationIpaPathButton.state == NSOffState)
+	{
+		[self.destinationIpaPath setEditable:YES];
+		[self.destinationIpaPath setSelectable:YES];
+	}
+}
+
 #pragma mark - IRTextFieldDragDelegate
 
 - (void)performDragOperation:(NSString*)text
@@ -550,6 +595,8 @@ static NSString *kiTunesMetadataFileName = @"iTunesMetadata";
     [self.bundleIDButton setEnabled:FALSE];
 	[self.displayNameField setEnabled:FALSE];
 	[self.displayNameButton setEnabled:FALSE];
+	[self.destinationIpaPath setEnabled:FALSE];
+	[self.destinationIpaPathButton setEnabled:FALSE];
     
     [self.resetAllButton setEnabled:FALSE];
     [self.resignButton setEnabled:FALSE];
@@ -568,6 +615,8 @@ static NSString *kiTunesMetadataFileName = @"iTunesMetadata";
     [self.bundleIDButton setEnabled:TRUE];
 	[self.displayNameField setEnabled:TRUE];
 	[self.displayNameButton setEnabled:TRUE];
+	[self.destinationIpaPath setEnabled:TRUE];
+	[self.destinationIpaPathButton setEnabled:TRUE];
     
     [self.resetAllButton setEnabled:TRUE];
     [self.resignButton setEnabled:TRUE];
