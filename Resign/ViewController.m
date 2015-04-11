@@ -10,15 +10,15 @@
 #import "YAProvisioningProfile.h"
 #import "NSScrollView+MultiLine.h"
 
-static NSString *kKeyPrefsBundleIDChange            = @"keyBundleIDChange";
-static NSString *kKeyBundleIDPlistApp               = @"CFBundleIdentifier";
-static NSString *kKeyBundleIDPlistiTunesArtwork     = @"softwareVersionBundleId";
-static NSString *kKeyInfoPlistApplicationProperties = @"ApplicationProperties";
-static NSString *kKeyInfoPlistApplicationPath       = @"ApplicationPath";
-static NSString *kPayloadDirName                    = @"Payload";
-static NSString *kProductsDirName                   = @"Products";
-static NSString *kInfoPlistFilename                 = @"Info.plist";
-static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
+static NSString *kKeyBundleIDChange = @"keyBundleIDChange";
+static NSString *kCFBundleIdentifier = @"CFBundleIdentifier";
+static NSString *kSoftwareVersionBundleId = @"softwareVersionBundleId";
+static NSString *kApplicationProperties = @"ApplicationProperties";
+static NSString *kApplicationPath = @"ApplicationPath";
+static NSString *kPayloadDirName = @"Payload";
+static NSString *kProductsDirName = @"Products";
+static NSString *kInfoPlistFilename = @"Info.plist";
+static NSString *kiTunesMetadataFileName = @"iTunesMetadata";
 
 @interface ViewController ()
 @end
@@ -154,7 +154,7 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
         NSDictionary* infoPlistDict = [NSDictionary dictionaryWithContentsOfFile:infoPlistPath];
         [message appendFormat:@"Bundle display name: %@\n", infoPlistDict[@"CFBundleDisplayName"]];
         [message appendFormat:@"Bundle name: %@\n", infoPlistDict[@"CFBundleName"]];
-        [message appendFormat:@"Bundle identifier: %@\n", infoPlistDict[@"CFBundleIdentifier"]];
+        [message appendFormat:@"Bundle identifier: %@\n", infoPlistDict[kCFBundleIdentifier]];
         [message appendFormat:@"Bundle version: %@\n", infoPlistDict[@"CFBundleShortVersionString"]];
         [message appendFormat:@"Build version: %@\n", infoPlistDict[@"CFBundleVersion"]];
         [message appendFormat:@"Minimum OS version: %@\n", infoPlistDict[@"MinimumOSVersion"]];
@@ -376,7 +376,7 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
     if ([[NSFileManager defaultManager] fileExistsAtPath:infoPlistPath])
     {
         NSDictionary* infoPlistDict = [NSDictionary dictionaryWithContentsOfFile:infoPlistPath];
-        NSString *bundleID = infoPlistDict[@"CFBundleIdentifier"];
+        NSString *bundleID = infoPlistDict[kCFBundleIdentifier];
         [self.bundleIDButton setState:NSOnState];
         [self.bundleIDField setEditable:NO];
         [self.bundleIDField setSelectable:YES];
@@ -386,12 +386,40 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
     // Failed to find the default bundle id
     else
     {
-        [self showAlertOfKind:NSWarningAlertStyle WithTitle:@"Warning" AndMessage:@"You didn't select any IPA file, or the IPA file you selected hasn't a Bundle ID."];
+        [self showAlertOfKind:NSWarningAlertStyle WithTitle:@"Warning" AndMessage:@"You didn't select any IPA file, or the IPA file you selected is corrupted."];
         [self.bundleIDButton setState:NSOffState];
         [self.bundleIDField setEditable:YES];
         [self.bundleIDField setSelectable:YES];
     }
 }
+
+#pragma mark - Product Name Methods
+
+- (void)resetDefaultProductName
+{
+	NSString* infoPlistPath = [appPath stringByAppendingPathComponent:kInfoPlistFilename];
+	
+	// Succeed to find the default product name
+	if ([[NSFileManager defaultManager] fileExistsAtPath:infoPlistPath])
+	{
+		NSDictionary* infoPlistDict = [NSDictionary dictionaryWithContentsOfFile:infoPlistPath];
+		NSString *displayName = infoPlistDict[@"CFBundleDisplayName"];
+		[self.displayNameButton setState:NSOnState];
+		[self.displayNameField setEditable:NO];
+		[self.displayNameField setSelectable:YES];
+		[self.displayNameField setStringValue:displayName];
+	}
+	
+	// Failed to find the default product name
+	else
+	{
+		[self showAlertOfKind:NSWarningAlertStyle WithTitle:@"Warning" AndMessage:@"You didn't select any IPA file, or the IPA file you selected is corrupted."];
+		[self.displayNameButton setState:NSOffState];
+		[self.displayNameField setEditable:YES];
+		[self.displayNameField setSelectable:YES];
+	}
+}
+
 
 
 #pragma mark - Actions
@@ -466,6 +494,27 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
 }
 
 
+- (IBAction)changeDisplayName:(id)sender
+{
+	[self.statusField appendStringValue:[NSString stringWithFormat:@"You typed the product name: %@", self.displayNameField.stringValue]];
+}
+
+- (IBAction)defaultDisplayNameButton:(id)sender
+{
+	// reset default display name
+	if (self.displayNameButton.state == NSOnState)
+	{
+		[self resetDefaultProductName];
+	}
+	
+	// customized display name
+	else if (self.displayNameButton.state == NSOffState)
+	{
+		[self.displayNameField setEditable:YES];
+		[self.displayNameField setSelectable:YES];
+	}
+}
+
 #pragma mark - IRTextFieldDragDelegate
 
 - (void)performDragOperation:(NSString*)text
@@ -499,6 +548,8 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
     [self.infoCertificate setEnabled:FALSE];
     [self.bundleIDField setEnabled:FALSE];
     [self.bundleIDButton setEnabled:FALSE];
+	[self.displayNameField setEnabled:FALSE];
+	[self.displayNameButton setEnabled:FALSE];
     
     [self.resetAllButton setEnabled:FALSE];
     [self.resignButton setEnabled:FALSE];
@@ -515,6 +566,8 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
     [self.infoCertificate setEnabled:TRUE];
     [self.bundleIDField setEnabled:TRUE];
     [self.bundleIDButton setEnabled:TRUE];
+	[self.displayNameField setEnabled:TRUE];
+	[self.displayNameButton setEnabled:TRUE];
     
     [self.resetAllButton setEnabled:TRUE];
     [self.resignButton setEnabled:TRUE];

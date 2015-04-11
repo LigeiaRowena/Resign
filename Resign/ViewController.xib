@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="6751" systemVersion="14C1510" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="6751" systemVersion="14C1514" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
     <dependencies>
         <deployment identifier="macosx"/>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="6751"/>
@@ -11,6 +11,8 @@
                 <outlet property="bundleIDField" destination="nAX-jd-Dyv" id="YvI-8O-byH"/>
                 <outlet property="certificateComboBox" destination="gGv-Tn-fZy" id="oit-HA-XgO"/>
                 <outlet property="cleanConsoleButton" destination="IW0-Ld-oho" id="lA4-9a-qis"/>
+                <outlet property="displayNameButton" destination="JcK-Rt-8Hb" id="qo3-S5-HYZ"/>
+                <outlet property="displayNameField" destination="IEa-37-rdz" id="Ddn-VV-0Yu"/>
                 <outlet property="infoCertificate" destination="j6B-db-UbM" id="8dR-03-iur"/>
                 <outlet property="infoIpaFile" destination="jBz-1b-mzK" id="onO-8c-HWb"/>
                 <outlet property="infoProvisioning" destination="dlU-ux-2Tf" id="mNk-G9-BIj"/>
@@ -187,6 +189,40 @@
                         <autoresizingMask key="autoresizingMask"/>
                     </scroller>
                 </scrollView>
+                <button id="0JQ-du-0rp">
+                    <rect key="frame" x="547" y="382" width="137" height="18"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMinY="YES"/>
+                    <buttonCell key="cell" type="check" title="Default Bundle ID" bezelStyle="regularSquare" imagePosition="left" inset="2" id="eQn-2m-ffD">
+                        <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                        <font key="font" metaFont="system"/>
+                    </buttonCell>
+                    <connections>
+                        <action selector="defaultBundleIDButton:" target="-2" id="pby-GF-igK"/>
+                    </connections>
+                </button>
+                <textField verticalHuggingPriority="750" id="IEa-37-rdz">
+                    <rect key="frame" x="20" y="319" width="484" height="22"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMinY="YES"/>
+                    <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" placeholderString="Display name of the app" drawsBackground="YES" id="Qch-8k-668">
+                        <font key="font" metaFont="system"/>
+                        <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
+                        <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                    </textFieldCell>
+                    <connections>
+                        <action selector="changeDisplayName:" target="-2" id="jvw-wP-kca"/>
+                    </connections>
+                </textField>
+                <button id="JcK-Rt-8Hb">
+                    <rect key="frame" x="525" y="321" width="158" height="18"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMinY="YES"/>
+                    <buttonCell key="cell" type="check" title="Default display name" bezelStyle="regularSquare" imagePosition="left" inset="2" id="kIV-qp-lVS">
+                        <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                        <font key="font" metaFont="system"/>
+                    </buttonCell>
+                    <connections>
+                        <action selector="defaultDisplayNameButton:" target="-2" id="VsT-3Q-RYD"/>
+                    </connections>
+                </button>
                 <textField verticalHuggingPriority="750" id="nAX-jd-Dyv">
                     <rect key="frame" x="20" y="380" width="511" height="22"/>
                     <autoresizingMask key="autoresizingMask" flexibleMinY="YES"/>
@@ -199,17 +235,6 @@
                         <action selector="changeBundleID:" target="-2" id="jiz-GU-gK0"/>
                     </connections>
                 </textField>
-                <button id="0JQ-du-0rp">
-                    <rect key="frame" x="547" y="382" width="137" height="18"/>
-                    <autoresizingMask key="autoresizingMask" flexibleMinY="YES"/>
-                    <buttonCell key="cell" type="check" title="Default Bundle ID" bezelStyle="regularSquare" imagePosition="left" inset="2" id="eQn-2m-ffD">
-                        <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                        <font key="font" metaFont="system"/>
-                    </buttonCell>
-                    <connections>
-                        <action selector="defaultBundleIDButton:" target="-2" id="pby-GF-igK"/>
-                    </connections>
-                </button>
             </subviews>
             <point key="canvasLocation" x="250" y="327"/>
         </customView>

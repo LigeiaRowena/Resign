@@ -35,6 +35,9 @@
 @property (weak) IBOutlet NSButton *infoCertificate;
 @property (weak) IBOutlet NSTextField *bundleIDField;
 @property (weak) IBOutlet NSButton *bundleIDButton;
+@property (weak) IBOutlet NSTextField *displayNameField;
+@property (weak) IBOutlet NSButton *displayNameButton;
+
 
 // Console UI
 @property (weak) IBOutlet NSButton *cleanConsoleButton;
