@@ -16,6 +16,13 @@ static NSString *kCFBundleDisplayName = @"CFBundleDisplayName";
 static NSString *kCFBundleName = @"CFBundleName";
 static NSString *kCFBundleShortVersionString = @"CFBundleShortVersionString";
 static NSString *kCFBundleVersion = @"CFBundleVersion";
+static NSString *kCFBundleIcons = @"CFBundleIcons";
+static NSString *kCFBundlePrimaryIcon = @"CFBundlePrimaryIcon";
+static NSString *kCFBundleIconFiles = @"CFBundleIconFiles";
+static NSString *kCFBundleIconsipad = @"CFBundleIcons~ipad";
+
+
+
 static NSString *kMinimumOSVersion = @"MinimumOSVersion";
 static NSString *kSoftwareVersionBundleId = @"softwareVersionBundleId";
 static NSString *kApplicationProperties = @"ApplicationProperties";
@@ -383,7 +390,7 @@ static NSString *kiTunesMetadataFileName = @"iTunesMetadata";
 {
     NSString* infoPlistPath = [appPath stringByAppendingPathComponent:kInfoPlistFilename];
     
-    // Succeed to find the default bundle id
+    // Succeed to find the Info.plist
     if ([[NSFileManager defaultManager] fileExistsAtPath:infoPlistPath])
     {
         NSDictionary* infoPlistDict = [NSDictionary dictionaryWithContentsOfFile:infoPlistPath];
@@ -394,7 +401,7 @@ static NSString *kiTunesMetadataFileName = @"iTunesMetadata";
         [self.bundleIDField setStringValue:bundleID];
     }
     
-    // Failed to find the default bundle id
+    // Failed to find the Info.plist
     else
     {
         [self showAlertOfKind:NSWarningAlertStyle WithTitle:@"Warning" AndMessage:@"You didn't select any IPA file, or the IPA file you selected is corrupted."];
@@ -410,7 +417,7 @@ static NSString *kiTunesMetadataFileName = @"iTunesMetadata";
 {
 	NSString* infoPlistPath = [appPath stringByAppendingPathComponent:kInfoPlistFilename];
 	
-	// Succeed to find the default product name
+	// Succeed to find the Info.plist
 	if ([[NSFileManager defaultManager] fileExistsAtPath:infoPlistPath])
 	{
 		NSDictionary* infoPlistDict = [NSDictionary dictionaryWithContentsOfFile:infoPlistPath];
@@ -421,7 +428,7 @@ static NSString *kiTunesMetadataFileName = @"iTunesMetadata";
 		[self.displayNameField setStringValue:displayName];
 	}
 	
-	// Failed to find the default product name
+	// Failed to find the Info.plist
 	else
 	{
 		[self showAlertOfKind:NSWarningAlertStyle WithTitle:@"Warning" AndMessage:@"You didn't select any IPA file, or the IPA file you selected is corrupted."];
@@ -442,6 +449,139 @@ static NSString *kiTunesMetadataFileName = @"iTunesMetadata";
 	[self.destinationIpaPath setSelectable:YES];
 	[self.destinationIpaPath setStringValue:documentFolderPath];
 	destinationPath = documentFolderPath;
+}
+
+
+#pragma mark - Icons Methods
+
+- (void)resetDefaultIcons
+{
+	[self.iconButton setEnabled:NO];
+	[self.retinaIconButton setEnabled:NO];
+
+	// Succeed to find the default icon files
+	AppIconSuccess success = [self getDefaultIconFiles];
+	if (success == RetinaAppIconFounded)
+	{
+		[self.defaultIconsButton setState:NSOnState];
+		[self.iconButton setEnabled:YES];
+		[self.retinaIconButton setEnabled:YES];
+	}
+	// Failed to find the default product name
+	else
+	{
+		[self showAlertOfKind:NSWarningAlertStyle WithTitle:@"Warning" AndMessage:@"You didn't select any IPA file, or the IPA file you selected is corrupted."];
+		[self.defaultIconsButton setState:NSOffState];
+		[self.iconButton setEnabled:NO];
+		[self.retinaIconButton setEnabled:NO];
+	}
+}
+
+- (AppIconSuccess)getDefaultIconFiles
+{
+	AppIconSuccess success = NoSuccess;
+	NSString* infoPlistPath = [appPath stringByAppendingPathComponent:kInfoPlistFilename];
+	
+	// Succeed to find the Info.plist
+	if ([[NSFileManager defaultManager] fileExistsAtPath:infoPlistPath])
+	{
+		NSDictionary* infoPlistDict = [NSDictionary dictionaryWithContentsOfFile:infoPlistPath];
+		NSArray *icons = infoPlistDict[kCFBundleIcons][kCFBundlePrimaryIcon][kCFBundleIconFiles];
+		NSArray *iconsAssets = infoPlistDict[kCFBundleIconsipad][kCFBundlePrimaryIcon][kCFBundleIconFiles];
+		
+		// array of bundle icons founded in the plist file
+		if (icons != nil && [icons count] > 0)
+		{
+			for (NSString *fileName in icons)
+			{
+				NSRange range = [fileName rangeOfString:@".png"options:NSCaseInsensitiveSearch];
+				if (range.location != NSNotFound)
+				{
+					NSString *iconName = [appPath stringByAppendingPathComponent:fileName];
+					NSImage *iconImage = [[NSImage alloc] initWithContentsOfFile:iconName];
+					if (NSEqualSizes(iconImage.size, CGSizeMake(76, 76)) && iconImage != nil)
+					{
+						self.iconButton.fileName = iconName;
+						[self.iconButton setImage:iconImage];
+						[self.statusField appendStringValue:[NSString stringWithFormat:@"The default icon file of 76x76 pixels is: %@", iconName]];
+						success = success+1;
+					}
+					else if (NSEqualSizes(iconImage.size, CGSizeMake(152, 152)) && iconImage != nil)
+					{
+						self.retinaIconButton.fileName = iconName;
+						[self.retinaIconButton setImage:iconImage];
+						[self.statusField appendStringValue:[NSString stringWithFormat:@"The default icon file of 152 pixels is: %@", iconName]];
+						success = success+1;
+					}
+				}
+			}
+		}
+		
+		// array of assets icons founded in the plist file
+		else if (iconsAssets != nil && [iconsAssets count] > 0)
+		{
+			NSString *appIcon = iconsAssets[0];//AppIcon76x76
+			NSString *iconName = [[appPath stringByAppendingPathComponent:appIcon] stringByAppendingString:@"~ipad.png"];
+			NSImage *iconImage = [[NSImage alloc] initWithContentsOfFile:iconName];
+			NSString *retinaIconName = [[appPath stringByAppendingPathComponent:appIcon] stringByAppendingString:@"@2x~ipad.png"];
+			NSImage *retinaIconImage = [[NSImage alloc] initWithContentsOfFile:retinaIconName];
+			if (iconImage != nil)
+			{
+				self.iconButton.fileName = iconName;
+				[self.iconButton setImage:iconImage];
+				[self.statusField appendStringValue:[NSString stringWithFormat:@"The default icon file of 76x76 pixels is: %@", iconName]];
+				success = success+1;
+			}
+			if (retinaIconImage != nil)
+			{
+				self.retinaIconButton.fileName = retinaIconName;
+				[self.retinaIconButton setImage:retinaIconImage];
+				[self.statusField appendStringValue:[NSString stringWithFormat:@"The default icon file of 152 pixels is: %@", retinaIconName]];
+				success = success+1;
+			}
+		}
+	}
+	
+	// Failed to find the Info.plist
+	else
+	{
+		[self showAlertOfKind:NSWarningAlertStyle WithTitle:@"Warning" AndMessage:@"You didn't select any IPA file, or the IPA file you selected is corrupted."];
+		[self.defaultIconsButton setState:NSOffState];
+		[self.iconButton setEnabled:YES];
+		[self.retinaIconButton setEnabled:YES];
+		success = NoSuccess;
+	}
+	
+	return success;
+}
+
+- (void)openNewIconFile:(NSNumber*)iconSize button:(IconButton*)button
+{
+	NSOpenPanel *opanel = [NSOpenPanel openPanel];
+	NSString *desktopFolderPath = [NSSearchPathForDirectoriesInDomains(NSDesktopDirectory, NSUserDomainMask, YES) lastObject];
+	[opanel setDirectoryURL:[NSURL fileURLWithPath:desktopFolderPath]];
+	[opanel setCanChooseFiles:TRUE];
+	[opanel setCanChooseDirectories:FALSE];
+	[opanel setAllowedFileTypes:@[@"png", @"PNG"]];
+	[opanel setPrompt:@"Open"];
+	[opanel setTitle:@"Open icon file"];
+	[opanel setMessage:[NSString stringWithFormat:@"Please select an icon file of size %@x%@ pixels", iconSize, iconSize]];
+	
+	if ([opanel runModal] == NSOKButton)
+	{
+		NSString* path = [[opanel URL] path];
+		NSImage *image = [[NSImage alloc] initWithContentsOfFile:path];
+		if (NSEqualSizes(image.size, CGSizeMake(iconSize.floatValue, iconSize.floatValue)))
+		{
+			button.fileName = path;
+			[button setImage:image];
+			[self.statusField appendStringValue:[NSString stringWithFormat:@"You selected the icon file: %@ of size %@x%@ pixels", path, iconSize, iconSize]];
+		}
+		else
+		{
+			[self showAlertOfKind:NSCriticalAlertStyle WithTitle:@"Error" AndMessage:[NSString stringWithFormat:@"You have to select an icon file of size %@x%@ pixels", iconSize, iconSize]];
+		}
+	}
 }
 
 #pragma mark - Actions
@@ -560,6 +700,32 @@ static NSString *kiTunesMetadataFileName = @"iTunesMetadata";
 	}
 }
 
+- (IBAction)defaultIcons:(id)sender
+{
+	// reset default icons
+	if (self.defaultIconsButton.state == NSOnState)
+	{
+		[self resetDefaultIcons];
+	}
+	
+	// customized icons
+	else if (self.defaultIconsButton.state == NSOffState)
+	{
+		[self.iconButton setEnabled:YES];
+		[self.retinaIconButton setEnabled:YES];
+	}
+}
+
+- (IBAction)changeIcon:(id)sender
+{
+	[self openNewIconFile:@76 button:sender];
+}
+
+- (IBAction)changeRetinaIcon:(id)sender
+{
+	[self openNewIconFile:@152 button:sender];
+}
+
 #pragma mark - IRTextFieldDragDelegate
 
 - (void)performDragOperation:(NSString*)text
@@ -597,6 +763,9 @@ static NSString *kiTunesMetadataFileName = @"iTunesMetadata";
 	[self.displayNameButton setEnabled:FALSE];
 	[self.destinationIpaPath setEnabled:FALSE];
 	[self.destinationIpaPathButton setEnabled:FALSE];
+	[self.defaultIconsButton setEnabled:FALSE];
+	[self.iconButton setEnabled:FALSE];
+	[self.retinaIconButton setEnabled:FALSE];
     
     [self.resetAllButton setEnabled:FALSE];
     [self.resignButton setEnabled:FALSE];
@@ -617,6 +786,9 @@ static NSString *kiTunesMetadataFileName = @"iTunesMetadata";
 	[self.displayNameButton setEnabled:TRUE];
 	[self.destinationIpaPath setEnabled:TRUE];
 	[self.destinationIpaPathButton setEnabled:TRUE];
+	[self.defaultIconsButton setEnabled:TRUE];
+	[self.iconButton setEnabled:TRUE];
+	[self.retinaIconButton setEnabled:TRUE];
     
     [self.resetAllButton setEnabled:TRUE];
     [self.resignButton setEnabled:TRUE];

@@ -8,6 +8,14 @@
 
 #import <Cocoa/Cocoa.h>
 #import "IRTextFieldDrag.h"
+#import "IconButton.h"
+
+typedef NS_ENUM(NSInteger, AppIconSuccess){
+	NoSuccess,
+	AppIconFounded,
+	RetinaAppIconFounded
+};
+
 
 @interface ViewController : NSViewController <IRTextFieldDragDelegate>
 {
@@ -46,6 +54,9 @@
 @property (weak) IBOutlet NSButton *displayNameButton;
 @property (weak) IBOutlet NSTextField *destinationIpaPath;
 @property (weak) IBOutlet NSButton *destinationIpaPathButton;
+@property (weak) IBOutlet NSButton *defaultIconsButton;
+@property (weak) IBOutlet IconButton *iconButton;
+@property (weak) IBOutlet IconButton *retinaIconButton;
 
 
 // Console UI

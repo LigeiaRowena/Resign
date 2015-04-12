@@ -24,6 +24,9 @@
 		DF8270A51AB9DE4700254F27 /* waste-25.png in Resources */ = {isa = PBXBuildFile; fileRef = DF82709F1AB9DE4700254F27 /* waste-25.png */; };
 		DF8270AB1AB9E02600254F27 /* NSTextField+MultiLine.m in Sources */ = {isa = PBXBuildFile; fileRef = DF8270AA1AB9E02600254F27 /* NSTextField+MultiLine.m */; };
 		DF8270AE1AB9ED5500254F27 /* NSScrollView+MultiLine.m in Sources */ = {isa = PBXBuildFile; fileRef = DF8270AD1AB9ED5500254F27 /* NSScrollView+MultiLine.m */; };
+		DFD6A04A1AD981F400FB6A11 /* Icon-iPadRetina.png in Resources */ = {isa = PBXBuildFile; fileRef = DFD6A0481AD981F400FB6A11 /* Icon-iPadRetina.png */; };
+		DFD6A04D1AD982AF00FB6A11 /* Icon-Ipad.png in Resources */ = {isa = PBXBuildFile; fileRef = DFD6A04C1AD982AF00FB6A11 /* Icon-Ipad.png */; };
+		DFD6A0501AD98F2800FB6A11 /* IconButton.m in Sources */ = {isa = PBXBuildFile; fileRef = DFD6A04F1AD98F2800FB6A11 /* IconButton.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -52,6 +55,10 @@
 		DF8270AA1AB9E02600254F27 /* NSTextField+MultiLine.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSTextField+MultiLine.m"; sourceTree = "<group>"; };
 		DF8270AC1AB9ED5500254F27 /* NSScrollView+MultiLine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSScrollView+MultiLine.h"; sourceTree = "<group>"; };
 		DF8270AD1AB9ED5500254F27 /* NSScrollView+MultiLine.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSScrollView+MultiLine.m"; sourceTree = "<group>"; };
+		DFD6A0481AD981F400FB6A11 /* Icon-iPadRetina.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon-iPadRetina.png"; sourceTree = "<group>"; };
+		DFD6A04C1AD982AF00FB6A11 /* Icon-Ipad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon-Ipad.png"; sourceTree = "<group>"; };
+		DFD6A04E1AD98F2800FB6A11 /* IconButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IconButton.h; sourceTree = "<group>"; };
+		DFD6A04F1AD98F2800FB6A11 /* IconButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IconButton.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -114,6 +121,8 @@
 				17492E1D1AB882AF004060A3 /* IRTextFieldDrag.m */,
 				17492E1E1AB882AF004060A3 /* YAProvisioningProfile.h */,
 				17492E1F1AB882AF004060A3 /* YAProvisioningProfile.m */,
+				DFD6A04E1AD98F2800FB6A11 /* IconButton.h */,
+				DFD6A04F1AD98F2800FB6A11 /* IconButton.m */,
 			);
 			path = Helper;
 			sourceTree = "<group>";
@@ -134,6 +143,8 @@
 		DF8270991AB9DE4700254F27 /* images */ = {
 			isa = PBXGroup;
 			children = (
+				DFD6A04C1AD982AF00FB6A11 /* Icon-Ipad.png */,
+				DFD6A0481AD981F400FB6A11 /* Icon-iPadRetina.png */,
 				DF82709A1AB9DE4700254F27 /* info-24.png */,
 				DF82709B1AB9DE4700254F27 /* info-26.png */,
 				DF82709C1AB9DE4700254F27 /* trash-24.png */,
@@ -206,8 +217,10 @@
 				DF8270A11AB9DE4700254F27 /* info-26.png in Resources */,
 				17492E291AB898EA004060A3 /* entitlements.plist in Resources */,
 				DF8270A21AB9DE4700254F27 /* trash-24.png in Resources */,
+				DFD6A04A1AD981F400FB6A11 /* Icon-iPadRetina.png in Resources */,
 				DF8270A31AB9DE4700254F27 /* visible-26.png in Resources */,
 				DF8270A01AB9DE4700254F27 /* info-24.png in Resources */,
+				DFD6A04D1AD982AF00FB6A11 /* Icon-Ipad.png in Resources */,
 				DF8270A41AB9DE4700254F27 /* visible_filled-25.png in Resources */,
 				17492E271AB882F3004060A3 /* ViewController.xib in Resources */,
 				17492E061AB8827C004060A3 /* MainMenu.xib in Resources */,
@@ -225,6 +238,7 @@
 				DF8270AE1AB9ED5500254F27 /* NSScrollView+MultiLine.m in Sources */,
 				17492E011AB8827C004060A3 /* main.m in Sources */,
 				17492DFF1AB8827C004060A3 /* AppDelegate.m in Sources */,
+				DFD6A0501AD98F2800FB6A11 /* IconButton.m in Sources */,
 				17492E201AB882AF004060A3 /* IRTextFieldDrag.m in Sources */,
 				DF8270AB1AB9E02600254F27 /* NSTextField+MultiLine.m in Sources */,
 				17492E261AB882F3004060A3 /* ViewController.m in Sources */,
