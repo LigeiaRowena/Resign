@@ -21,11 +21,5 @@
 	[super setImage:img];
 }
 
-/*
-- (NSImage*)image
-{
-	return nil;
-}
- */
 
 @end

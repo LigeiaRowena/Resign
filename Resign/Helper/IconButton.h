@@ -11,5 +11,6 @@
 @interface IconButton : NSButton
 
 @property (nonatomic, strong) NSString *fileName;
+@property (nonatomic) BOOL tappable;
 
 @end

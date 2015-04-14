@@ -7,32 +7,8 @@
 //
 
 #import "ViewController.h"
-#import "YAProvisioningProfile.h"
 #import "NSScrollView+MultiLine.h"
-
-static NSString *kKeyBundleIDChange = @"keyBundleIDChange";
-static NSString *kCFBundleIdentifier = @"CFBundleIdentifier";
-static NSString *kCFBundleDisplayName = @"CFBundleDisplayName";
-static NSString *kCFBundleName = @"CFBundleName";
-static NSString *kCFBundleShortVersionString = @"CFBundleShortVersionString";
-static NSString *kCFBundleVersion = @"CFBundleVersion";
-static NSString *kCFBundleIcons = @"CFBundleIcons";
-static NSString *kCFBundlePrimaryIcon = @"CFBundlePrimaryIcon";
-static NSString *kCFBundleIconFiles = @"CFBundleIconFiles";
-static NSString *kCFBundleIconsipad = @"CFBundleIcons~ipad";
-
-
-
-static NSString *kMinimumOSVersion = @"MinimumOSVersion";
-static NSString *kSoftwareVersionBundleId = @"softwareVersionBundleId";
-static NSString *kApplicationProperties = @"ApplicationProperties";
-static NSString *kApplicationPath = @"ApplicationPath";
-static NSString *kPayloadDirName = @"Payload";
-static NSString *kProductsDirName = @"Products";
-static NSString *kInfoPlistFilename = @"Info.plist";
-static NSString *kMobileprovisionDirName = @"Library/MobileDevice/Provisioning Profiles";
-static NSString *kMobileprovisionFilename = @"embedded.mobileprovision";
-static NSString *kiTunesMetadataFileName = @"iTunesMetadata";
+#import "FileHandler.h"
 
 @interface ViewController ()
 @end
@@ -43,16 +19,13 @@ static NSString *kiTunesMetadataFileName = @"iTunesMetadata";
 - (void)loadView
 {
 	[super loadView];
-	
-	// Init
-	formatter = [[NSDateFormatter alloc] init];
-	formatter.dateFormat = @"dd-MM-yyyy";
-	provisioningArray = @[].mutableCopy;
-    certificatesArray = @[].mutableCopy;
-
-	
+		
 	// Search for zip utilities
-	[self searchForZipUtility];
+	if (![[FileHandler sharedInstance] searchForZipUtility])
+	{
+		[self showAlertOfKind:NSCriticalAlertStyle WithTitle:@"Error" AndMessage:@"This app cannot run without the zip utility present at /usr/bin/zip"];
+		exit(0);
+	}
 	
 	// Search for Provisioning Profiles
 	[self getProvisioning];
@@ -66,96 +39,21 @@ static NSString *kiTunesMetadataFileName = @"iTunesMetadata";
 
 #pragma mark - ZIP Methods
 
-- (void)searchForZipUtility
-{
-	// Look for zip utility
-	if (![[NSFileManager defaultManager] fileExistsAtPath:@"/usr/bin/zip"]) {
-		[self showAlertOfKind:NSCriticalAlertStyle WithTitle:@"Error" AndMessage:@"This app cannot run without the zip utility present at /usr/bin/zip"];
-		exit(0);
-	}
-	if (![[NSFileManager defaultManager] fileExistsAtPath:@"/usr/bin/unzip"]) {
-		[self showAlertOfKind:NSCriticalAlertStyle WithTitle:@"Error" AndMessage:@"This app cannot run without the unzip utility present at /usr/bin/unzip"];
-		exit(0);
-	}
-	if (![[NSFileManager defaultManager] fileExistsAtPath:@"/usr/bin/codesign"]) {
-		[self showAlertOfKind:NSCriticalAlertStyle WithTitle:@"Error" AndMessage:@"This app cannot run without the codesign utility present at /usr/bin/codesign"];
-		exit(0);
-	}
-}
-
 - (void)unzipIpa
 {
     [self disableControls];
-    
-    sourcePath = [self.ipaField stringValue];
-    
-    // The user choosed a valid IPA file
-    if ([[[sourcePath pathExtension] lowercaseString] isEqualToString:@"ipa"])
-    {
-        // Creation of the temp working directory (deleting the old one)
-        workingPath = [NSTemporaryDirectory() stringByAppendingPathComponent:@"resign"];
-        [self.statusField appendStringValue:[NSString stringWithFormat:@"Setting up working directory in %@",workingPath]];
-        [[NSFileManager defaultManager] removeItemAtPath:workingPath error:nil];
-        [[NSFileManager defaultManager] createDirectoryAtPath:workingPath withIntermediateDirectories:TRUE attributes:nil error:nil];
+    [[FileHandler sharedInstance] unzipIpaFromSource:[self.ipaField stringValue] log:^(NSString *log) {
+        [self.statusField appendStringValue:log];
         
-        // Create the unzip task: unzip the IPA file in the temp working directory
-        [self.statusField appendStringValue:[NSString stringWithFormat:@"Unzipping ipa file in %@", workingPath]];
-        unzipTask = [[NSTask alloc] init];
-        [unzipTask setLaunchPath:@"/usr/bin/unzip"];
-        [unzipTask setArguments:[NSArray arrayWithObjects:@"-q", sourcePath, @"-d", workingPath, nil]];
-        [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(checkUnzip:) userInfo:nil repeats:TRUE];
-        [unzipTask launch];
-    }
-    
-    // The user didn't choose a valid IPA file
-    else
-    {
-        [self showAlertOfKind:NSCriticalAlertStyle WithTitle:@"Error" AndMessage:@"You must choose a valid *.ipa file"];
+    } error:^(NSString *error) {
+        [self showAlertOfKind:NSCriticalAlertStyle WithTitle:@"Error" AndMessage:error];
         [self enableControls];
-        [self.statusField appendStringValue:@"Please try again"];
-    }
-}
-
-- (void)checkUnzip:(NSTimer *)timer
-{
-    // Check if the unzip task finished: if yes invalidate the timer and do some operations
-    if ([unzipTask isRunning] == 0)
-    {
-        [timer invalidate];
-        int terminationStatus = unzipTask.terminationStatus;
-        unzipTask = nil;
+        [self.statusField appendStringValue:error];
         
-        // The unzip task succeed
-        if (terminationStatus == 0 && [[NSFileManager defaultManager] fileExistsAtPath:[workingPath stringByAppendingPathComponent:kPayloadDirName]])
-        {
-            [self setAppPath];
-            [self enableControls];
-            [self.statusField appendStringValue:[NSString stringWithFormat:@"Succeed to unzip ipa file in %@", [workingPath stringByAppendingPathComponent:kPayloadDirName]]];
-            [self showIpaInfo];
-        }
-        
-        // The unzip task failed
-        else
-        {
-            [self showAlertOfKind:NSCriticalAlertStyle WithTitle:@"Error" AndMessage:@"Unzip failed"];
-            [self enableControls];
-            [self.statusField appendStringValue:@"Unzip failed. Please try again"];
-        }
-    }
-}
-
-- (void)setAppPath
-{
-    NSString *payloadPath = [workingPath stringByAppendingPathComponent:kPayloadDirName];
-    NSArray *payloadContents = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:payloadPath error:nil];
-    
-    [payloadContents enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-        NSString *file = (NSString*)obj;
-        if ([[[file pathExtension] lowercaseString] isEqualToString:@"app"])
-        {
-            appPath = [[workingPath stringByAppendingPathComponent:kPayloadDirName] stringByAppendingPathComponent:file];
-            *stop = YES;
-        }
+    } success:^(NSString *success){
+        [self enableControls];
+        [self.statusField appendStringValue:[NSString stringWithFormat:@"Succeed to unzip ipa file in %@", [[[FileHandler sharedInstance] workingPath] stringByAppendingPathComponent:kPayloadDirName]]];
+        [self showIpaInfo];
     }];
 }
 
@@ -163,64 +61,51 @@ static NSString *kiTunesMetadataFileName = @"iTunesMetadata";
 {
     // Show the info of the ipa from the Info.plist file
     [self.statusField appendStringValue:[NSString stringWithFormat:@"Retrieving %@", kInfoPlistFilename]];
-    NSMutableString *message = @"".mutableCopy;
-    NSString* infoPlistPath = [appPath stringByAppendingPathComponent:kInfoPlistFilename];
-    if ([[NSFileManager defaultManager] fileExistsAtPath:infoPlistPath])
-    {
-        NSDictionary* infoPlistDict = [NSDictionary dictionaryWithContentsOfFile:infoPlistPath];
-        [message appendFormat:@"Bundle display name: %@\n", infoPlistDict[kCFBundleDisplayName]];
-        [message appendFormat:@"Bundle name: %@\n", infoPlistDict[kCFBundleName]];
-        [message appendFormat:@"Bundle identifier: %@\n", infoPlistDict[kCFBundleIdentifier]];
-        [message appendFormat:@"Bundle version: %@\n", infoPlistDict[kCFBundleShortVersionString]];
-        [message appendFormat:@"Build version: %@\n", infoPlistDict[kCFBundleVersion]];
-        [message appendFormat:@"Minimum OS version: %@\n", infoPlistDict[kMinimumOSVersion]];
-        [self.statusField appendStringValue:message];
-    }
+    [[FileHandler sharedInstance] showIpaInfoWithSuccess:^(id success) {
+        [self.statusField appendStringValue:success];
+
+    } error:^(NSString *error) {
+        [self showAlertOfKind:NSWarningAlertStyle WithTitle:@"Warning" AndMessage:error];
+    }];
     
-    //Select the provisioning and signign-certificate of the app in the relative combobox
-    NSString *provisioningPath = [appPath stringByAppendingPathComponent:kMobileprovisionFilename];
-    if ([[NSFileManager defaultManager] fileExistsAtPath:infoPlistPath])
-    {
-        YAProvisioningProfile *profile = [[YAProvisioningProfile alloc] initWithPath:provisioningPath];
-        NSInteger indexProvisioning = [self getProvisioningIndexFromApp:profile];
-        if (indexProvisioning >= 0)
-            [self.provisioningComboBox selectItemAtIndex:indexProvisioning];
-        else
-        {
-            NSMutableString *message = @"".mutableCopy;
-            [message appendFormat:@"Profile name: %@\n", profile.name];
-            [message appendFormat:@"Bundle identifier: %@\n", profile.bundleIdentifier];
-            [message appendFormat:@"Expiration Date: %@\n", profile.expirationDate ? [formatter stringFromDate:profile.expirationDate] : @"Unknown"];
-            [message appendFormat:@"Team Name: %@\n", profile.teamName ? profile.teamName : @""];
-            [message appendFormat:@"App ID Name: %@\n", profile.appIdName];
-            [message appendFormat:@"Team Identifier: %@\n", profile.teamIdentifier];
-            [self showAlertOfKind:NSInformationalAlertStyle WithTitle:@"The Provisioning of the app isn't in your local list:" AndMessage:message];
-        }
+    
+    //Select the provisioning of the app in the relative combobox
+    [[FileHandler sharedInstance] showProvisioningInfoWithSuccess:^(id success) {
+        int indexProvisioning = [(NSNumber*)success intValue];
+        [self.provisioningComboBox selectItemAtIndex:indexProvisioning];
         
-        NSString *teamName = profile.teamName;
-        NSInteger indexCert = [self getCertificateIndexFromApp:teamName];
-        if (indexCert >= 0)
-            [self.certificateComboBox selectItemAtIndex:indexCert];
-        else
-        {
-            [self showAlertOfKind:NSInformationalAlertStyle WithTitle:@"The Signign Certificate  of the app isn't in your keychain:" AndMessage:teamName];
-        }
-    }
+    } error:^(NSString *error) {
+        [self showAlertOfKind:NSWarningAlertStyle WithTitle:@"Warning" AndMessage:error];
+    }];
+    
+    
+    //Select the signign-certificate of the app in the relative combobox
+    [[FileHandler sharedInstance] showCertificatesInfoWithSuccess:^(id success) {
+        int indexCert = [(NSNumber*)success intValue];
+        [self.certificateComboBox selectItemAtIndex:indexCert];
+        
+    } error:^(NSString *error) {
+        [self showAlertOfKind:NSWarningAlertStyle WithTitle:@"Warning" AndMessage:error];
+    }];
+
     
     //Show the Bundle ID of the app in the relative field
     [self resetDefaultBundleID];
 	
 	//Show the Product Name of the app in the relative field
 	[self resetDefaultProductName];
+	
+	//Show the default icons of the app in the relative fields
+	[self resetDefaultIcons];
 }
 
 #pragma mark - Signign Certificate Methods
 
 - (void)showCertificateInfoAtIndex:(NSInteger)index
 {
-    if ([certificatesArray count] > 0 && index >= 0)
+    if ([[[FileHandler sharedInstance] certificatesArray] count] > 0 && index >= 0)
     {
-        NSString *certificate = certificatesArray[index];
+        NSString *certificate = [[FileHandler sharedInstance] certificatesArray][index];
         [self.statusField appendStringValue:certificate];
     }
     else
@@ -234,80 +119,16 @@ static NSString *kiTunesMetadataFileName = @"iTunesMetadata";
     [self disableControls];
     [self.statusField appendStringValue:@"Getting Signign Certificates..."];
     
-    certTask = [[NSTask alloc] init];
-    [certTask setLaunchPath:@"/usr/bin/security"];
-    [certTask setArguments:[NSArray arrayWithObjects:@"find-identity", @"-v", @"-p", @"codesigning", nil]];
-    [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(checkCerts:) userInfo:nil repeats:TRUE];
-    NSPipe *pipe = [NSPipe pipe];
-    [certTask setStandardOutput:pipe];
-    [certTask setStandardError:pipe];
-    NSFileHandle *handle=[pipe fileHandleForReading];
-    [certTask launch];
-    [NSThread detachNewThreadSelector:@selector(watchGetCerts:) toTarget:self withObject:handle];
-}
-
-- (void)checkCerts:(NSTimer *)timer
-{
-    // Check if the cert task finished: if yes invalidate the timer and do some operations
-    if ([certTask isRunning] == 0)
-    {
-        [timer invalidate];
-        certTask = nil;
+    [[FileHandler sharedInstance] getCertificatesSuccess:^(NSString *success){
+        [self.statusField appendStringValue:@"Signing Certificate IDs extracted"];
+        [self enableControls];
+        [self.certificateComboBox reloadData];
         
-        // The task found some cert identities
-        if ([certificatesArray count] > 0)
-        {
-            [self.statusField appendStringValue:@"Signing Certificate IDs extracted"];
-            [self enableControls];
-            [self.certificateComboBox reloadData];
-        }
-        // The task didn't find any cert identities
-        else
-        {
-            [self showAlertOfKind:NSCriticalAlertStyle WithTitle:@"Error" AndMessage:@"There aren't Signign Certificates"];
-            [self enableControls];
-            [self.statusField appendStringValue:@"There aren't Signign Certificates"];
-        }
-    }
-}
-
-- (void)watchGetCerts:(NSFileHandle*)streamHandle
-{
-    // Check if there are Identities Cert in KeyChain and saves them in certComboBoxItems to show in certComboBox
-    @autoreleasepool
-    {
-        NSString *securityResult = [[NSString alloc] initWithData:[streamHandle readDataToEndOfFile] encoding:NSASCIIStringEncoding];
-        if (securityResult == nil || securityResult.length < 1)
-            return;
-        NSArray *rawResult = [securityResult componentsSeparatedByString:@"\""];
-        NSMutableArray *tempGetCertsResult = [NSMutableArray arrayWithCapacity:20];
-        for (int i = 0; i <= [rawResult count] - 2; i+=2)
-        {
-            NSLog(@"i:%d", i+1);
-            if (rawResult.count - 1 < i + 1) {
-                // Invalid array, don't add an object to that position
-            } else {
-                // Valid object
-                [tempGetCertsResult addObject:[rawResult objectAtIndex:i+1]];
-            }
-        }
-        certificatesArray = [NSMutableArray arrayWithArray:tempGetCertsResult];
-    }
-}
-
-- (NSInteger)getCertificateIndexFromApp:(NSString*)cert
-{
-    __block NSInteger index = -1;
-    [certificatesArray enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-        NSString *c = (NSString*)obj;
-        NSRange range = [c rangeOfString:cert];
-        if (range.location != NSNotFound)
-        {
-            index = idx;
-            *stop = YES;
-        }
-    }];
-    return index;
+    } error:^(NSString *error) {
+        [self showAlertOfKind:NSCriticalAlertStyle WithTitle:@"Error" AndMessage:error];
+        [self enableControls];
+        [self.statusField appendStringValue:error];
+    }];    
 }
 
 
@@ -318,23 +139,8 @@ static NSString *kiTunesMetadataFileName = @"iTunesMetadata";
     [self disableControls];
     [self.statusField appendStringValue:@"Getting Provisoning Profiles..."];
     
-	NSArray *provisioningProfiles = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:[NSString stringWithFormat:@"%@/%@", NSHomeDirectory(), kMobileprovisionDirName] error:nil];
-	provisioningProfiles = [provisioningProfiles filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"self ENDSWITH '.mobileprovision'"]];
-	
-	[provisioningProfiles enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-		NSString *path = (NSString*)obj;
-		if ([[NSFileManager defaultManager] fileExistsAtPath:[NSString stringWithFormat:@"%@/%@/%@", NSHomeDirectory(), kMobileprovisionDirName, path] isDirectory:NO])
-		{
-			YAProvisioningProfile *profile = [[YAProvisioningProfile alloc] initWithPath:[NSString stringWithFormat:@"%@/%@/%@", NSHomeDirectory(), kMobileprovisionDirName, path]];
-			[provisioningArray addObject:profile];
-		}
-	}];
-	
-	provisioningArray = [[provisioningArray sortedArrayUsingComparator:^NSComparisonResult(id obj1, id obj2) {
-		return [((YAProvisioningProfile *)obj1).name compare:((YAProvisioningProfile *)obj2).name];
-	}] mutableCopy];
-	
-	if ([provisioningArray count] > 0)
+	[[FileHandler sharedInstance] getProvisioningProfiles];
+	if ([[[FileHandler sharedInstance] provisioningArray] count] > 0)
 	{
 		[self enableControls];
 		[self.provisioningComboBox reloadData];
@@ -350,105 +156,61 @@ static NSString *kiTunesMetadataFileName = @"iTunesMetadata";
 
 - (void)showProvisioningInfoAtIndex:(NSInteger)index
 {
-	if ([provisioningArray count] > 0 && index >= 0)
-	{
-		YAProvisioningProfile *profile = provisioningArray[index];
-		NSMutableString *message = @"".mutableCopy;
-		[message appendFormat:@"Profile name: %@\n", profile.name];
-		[message appendFormat:@"Bundle identifier: %@\n", profile.bundleIdentifier];
-		[message appendFormat:@"Expiration Date: %@\n", profile.expirationDate ? [formatter stringFromDate:profile.expirationDate] : @"Unknown"];
-		[message appendFormat:@"Team Name: %@\n", profile.teamName ? profile.teamName : @""];
-		[message appendFormat:@"App ID Name: %@\n", profile.appIdName];
-		[message appendFormat:@"Team Identifier: %@\n", profile.teamIdentifier];
-        [self.statusField appendStringValue:message];
-	}
-	else
-	{
-        [self.statusField appendStringValue:@"No Provisioning profile selected"];
-	}
+    NSString *provisioningInfo = [[FileHandler sharedInstance] getProvisioningInfoAtIndex:index];
+    [self.statusField appendStringValue:provisioningInfo];
 }
-
-- (NSInteger)getProvisioningIndexFromApp:(YAProvisioningProfile*)profile
-{
-    __block NSInteger index = -1;
-    [provisioningArray enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-        YAProvisioningProfile *p = (YAProvisioningProfile*)obj;
-        if ([p.name isEqualToString:profile.name] && [p.bundleIdentifier isEqualToString:profile.bundleIdentifier] && [p.creationDate isEqualToDate:profile.creationDate] && [p.teamName isEqualToString:profile.teamName] && [p.appIdName isEqualToString:profile.appIdName] && [p.teamIdentifier isEqualToString:profile.teamIdentifier])
-        {
-            index = idx;
-            *stop = YES;
-        }
-    }];
-    
-    return index;
-}
-
 
 #pragma mark - Bundle ID Methods
 
 - (void)resetDefaultBundleID
 {
-    NSString* infoPlistPath = [appPath stringByAppendingPathComponent:kInfoPlistFilename];
-    
     // Succeed to find the Info.plist
-    if ([[NSFileManager defaultManager] fileExistsAtPath:infoPlistPath])
-    {
-        NSDictionary* infoPlistDict = [NSDictionary dictionaryWithContentsOfFile:infoPlistPath];
-        NSString *bundleID = infoPlistDict[kCFBundleIdentifier];
+    [[FileHandler sharedInstance] getDefaultBundleIDWithSuccess:^(id bundleID) {
         [self.bundleIDButton setState:NSOnState];
         [self.bundleIDField setEditable:NO];
         [self.bundleIDField setSelectable:YES];
         [self.bundleIDField setStringValue:bundleID];
-    }
-    
+      
     // Failed to find the Info.plist
-    else
-    {
-        [self showAlertOfKind:NSWarningAlertStyle WithTitle:@"Warning" AndMessage:@"You didn't select any IPA file, or the IPA file you selected is corrupted."];
+    } error:^(NSString *error) {
+        [self showAlertOfKind:NSWarningAlertStyle WithTitle:@"Warning" AndMessage:error];
         [self.bundleIDButton setState:NSOffState];
         [self.bundleIDField setEditable:YES];
         [self.bundleIDField setSelectable:YES];
-    }
+    }];
 }
 
 #pragma mark - Product Name Methods
 
 - (void)resetDefaultProductName
 {
-	NSString* infoPlistPath = [appPath stringByAppendingPathComponent:kInfoPlistFilename];
-	
-	// Succeed to find the Info.plist
-	if ([[NSFileManager defaultManager] fileExistsAtPath:infoPlistPath])
-	{
-		NSDictionary* infoPlistDict = [NSDictionary dictionaryWithContentsOfFile:infoPlistPath];
-		NSString *displayName = infoPlistDict[kCFBundleDisplayName];
-		[self.displayNameButton setState:NSOnState];
-		[self.displayNameField setEditable:NO];
-		[self.displayNameField setSelectable:YES];
-		[self.displayNameField setStringValue:displayName];
-	}
-	
-	// Failed to find the Info.plist
-	else
-	{
-		[self showAlertOfKind:NSWarningAlertStyle WithTitle:@"Warning" AndMessage:@"You didn't select any IPA file, or the IPA file you selected is corrupted."];
-		[self.displayNameButton setState:NSOffState];
-		[self.displayNameField setEditable:YES];
-		[self.displayNameField setSelectable:YES];
-	}
+    // Succeed to find the Info.plist
+    [[FileHandler sharedInstance] getDefaultProductNameWithSuccess:^(id displayName) {
+        [self.displayNameButton setState:NSOnState];
+        [self.displayNameField setEditable:NO];
+        [self.displayNameField setSelectable:YES];
+        [self.displayNameField setStringValue:displayName];
+        
+    // Failed to find the Info.plist
+    } error:^(NSString *error) {
+        [self showAlertOfKind:NSWarningAlertStyle WithTitle:@"Warning" AndMessage:error];
+        [self.displayNameButton setState:NSOffState];
+        [self.displayNameField setEditable:YES];
+        [self.displayNameField setSelectable:YES];
+    }];
 }
 
 #pragma mark - Destination IPA Path Methods
 
 - (void)resetDestinationIpaPath
 {
-	NSString *documentFolderPath = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject];
+	NSString *documentFolderPath = [FileHandler getDocumentFolderPath];
 
 	[self.destinationIpaPathButton setState:NSOnState];
 	[self.destinationIpaPath setEditable:NO];
 	[self.destinationIpaPath setSelectable:YES];
 	[self.destinationIpaPath setStringValue:documentFolderPath];
-	destinationPath = documentFolderPath;
+	[FileHandler sharedInstance].destinationPath = documentFolderPath;
 }
 
 
@@ -456,103 +218,52 @@ static NSString *kiTunesMetadataFileName = @"iTunesMetadata";
 
 - (void)resetDefaultIcons
 {
-	[self.iconButton setEnabled:NO];
-	[self.retinaIconButton setEnabled:NO];
-
 	// Succeed to find the default icon files
-	AppIconSuccess success = [self getDefaultIconFiles];
-	if (success == RetinaAppIconFounded)
+	if ([self getDefaultIconFiles])
 	{
-		[self.defaultIconsButton setState:NSOnState];
-		[self.iconButton setEnabled:YES];
-		[self.retinaIconButton setEnabled:YES];
+        [self.defaultIconsButton setState:NSOnState];
+        
+        [self.iconButton setTappable:NO];
+        [self.retinaIconButton setTappable:NO];
 	}
 	// Failed to find the default product name
 	else
 	{
 		[self showAlertOfKind:NSWarningAlertStyle WithTitle:@"Warning" AndMessage:@"You didn't select any IPA file, or the IPA file you selected is corrupted."];
 		[self.defaultIconsButton setState:NSOffState];
-		[self.iconButton setEnabled:NO];
-		[self.retinaIconButton setEnabled:NO];
+        
+        [self.iconButton setTappable:YES];
+        [self.retinaIconButton setTappable:YES];
 	}
 }
 
-- (AppIconSuccess)getDefaultIconFiles
+- (BOOL)getDefaultIconFiles
 {
-	AppIconSuccess success = NoSuccess;
-	NSString* infoPlistPath = [appPath stringByAppendingPathComponent:kInfoPlistFilename];
-	
-	// Succeed to find the Info.plist
-	if ([[NSFileManager defaultManager] fileExistsAtPath:infoPlistPath])
-	{
-		NSDictionary* infoPlistDict = [NSDictionary dictionaryWithContentsOfFile:infoPlistPath];
-		NSArray *icons = infoPlistDict[kCFBundleIcons][kCFBundlePrimaryIcon][kCFBundleIconFiles];
-		NSArray *iconsAssets = infoPlistDict[kCFBundleIconsipad][kCFBundlePrimaryIcon][kCFBundleIconFiles];
-		
-		// array of bundle icons founded in the plist file
-		if (icons != nil && [icons count] > 0)
-		{
-			for (NSString *fileName in icons)
-			{
-				NSRange range = [fileName rangeOfString:@".png"options:NSCaseInsensitiveSearch];
-				if (range.location != NSNotFound)
-				{
-					NSString *iconName = [appPath stringByAppendingPathComponent:fileName];
-					NSImage *iconImage = [[NSImage alloc] initWithContentsOfFile:iconName];
-					if (NSEqualSizes(iconImage.size, CGSizeMake(76, 76)) && iconImage != nil)
-					{
-						self.iconButton.fileName = iconName;
-						[self.iconButton setImage:iconImage];
-						[self.statusField appendStringValue:[NSString stringWithFormat:@"The default icon file of 76x76 pixels is: %@", iconName]];
-						success = success+1;
-					}
-					else if (NSEqualSizes(iconImage.size, CGSizeMake(152, 152)) && iconImage != nil)
-					{
-						self.retinaIconButton.fileName = iconName;
-						[self.retinaIconButton setImage:iconImage];
-						[self.statusField appendStringValue:[NSString stringWithFormat:@"The default icon file of 152 pixels is: %@", iconName]];
-						success = success+1;
-					}
-				}
-			}
-		}
-		
-		// array of assets icons founded in the plist file
-		else if (iconsAssets != nil && [iconsAssets count] > 0)
-		{
-			NSString *appIcon = iconsAssets[0];//AppIcon76x76
-			NSString *iconName = [[appPath stringByAppendingPathComponent:appIcon] stringByAppendingString:@"~ipad.png"];
-			NSImage *iconImage = [[NSImage alloc] initWithContentsOfFile:iconName];
-			NSString *retinaIconName = [[appPath stringByAppendingPathComponent:appIcon] stringByAppendingString:@"@2x~ipad.png"];
-			NSImage *retinaIconImage = [[NSImage alloc] initWithContentsOfFile:retinaIconName];
-			if (iconImage != nil)
-			{
-				self.iconButton.fileName = iconName;
-				[self.iconButton setImage:iconImage];
-				[self.statusField appendStringValue:[NSString stringWithFormat:@"The default icon file of 76x76 pixels is: %@", iconName]];
-				success = success+1;
-			}
-			if (retinaIconImage != nil)
-			{
-				self.retinaIconButton.fileName = retinaIconName;
-				[self.retinaIconButton setImage:retinaIconImage];
-				[self.statusField appendStringValue:[NSString stringWithFormat:@"The default icon file of 152 pixels is: %@", retinaIconName]];
-				success = success+1;
-			}
-		}
-	}
-	
-	// Failed to find the Info.plist
-	else
-	{
-		[self showAlertOfKind:NSWarningAlertStyle WithTitle:@"Warning" AndMessage:@"You didn't select any IPA file, or the IPA file you selected is corrupted."];
-		[self.defaultIconsButton setState:NSOffState];
-		[self.iconButton setEnabled:YES];
-		[self.retinaIconButton setEnabled:YES];
-		success = NoSuccess;
-	}
-	
-	return success;
+    __block BOOL success = FALSE;
+    
+    // Succeed to find icons in the Info.plist
+    [[FileHandler sharedInstance] getDefaultIconFilesWithSuccess:^(id icons) {
+        NSDictionary *normalIcons = icons[kIconNormal];
+        self.iconButton.fileName = [normalIcons allKeys][0];
+        [self.iconButton setImage:[normalIcons allValues][0]];
+        [self.statusField appendStringValue:[NSString stringWithFormat:@"The default icon file of 76x76 pixels is: %@", self.iconButton.fileName]];
+        
+        NSDictionary *retinaIcons = icons[kIconRetina];
+        self.retinaIconButton.fileName = [retinaIcons allKeys][0];
+        [self.retinaIconButton setImage:[retinaIcons allValues][0]];
+        [self.statusField appendStringValue:[NSString stringWithFormat:@"The default icon file of 152 pixels is: %@", self.retinaIconButton.fileName]];
+        success = TRUE;
+        
+    // Failed to find the Info.plist or the icons
+    } error:^(NSString *error) {
+        [self showAlertOfKind:NSWarningAlertStyle WithTitle:@"Warning" AndMessage:error];
+        [self.defaultIconsButton setState:NSOffState];
+        [self.iconButton setEnabled:YES];
+        [self.retinaIconButton setEnabled:YES];
+        success = FALSE;
+    }];
+    
+    return success;
 }
 
 - (void)openNewIconFile:(NSNumber*)iconSize button:(IconButton*)button
@@ -679,7 +390,7 @@ static NSString *kiTunesMetadataFileName = @"iTunesMetadata";
 
 - (IBAction)changeDestinationIpaPath:(id)sender
 {
-	destinationPath = self.destinationIpaPath.stringValue;
+	[FileHandler sharedInstance].destinationPath = self.destinationIpaPath.stringValue;
 	[self.statusField appendStringValue:[NSString stringWithFormat:@"You typed the destination ipa path: %@", self.destinationIpaPath.stringValue]];
 }
 
@@ -718,12 +429,18 @@ static NSString *kiTunesMetadataFileName = @"iTunesMetadata";
 
 - (IBAction)changeIcon:(id)sender
 {
-	[self openNewIconFile:@76 button:sender];
+    IconButton *butt = (IconButton*)sender;
+    
+    if (butt.tappable)
+        [self openNewIconFile:@76 button:sender];
 }
 
 - (IBAction)changeRetinaIcon:(id)sender
 {
-	[self openNewIconFile:@152 button:sender];
+    IconButton *butt = (IconButton*)sender;
+    
+    if (butt.tappable)
+        [self openNewIconFile:@152 button:sender];
 }
 
 #pragma mark - IRTextFieldDragDelegate
@@ -802,10 +519,10 @@ static NSString *kiTunesMetadataFileName = @"iTunesMetadata";
 	NSInteger count = 0;
 	
 	if ([aComboBox isEqual:self.provisioningComboBox])
-		count = [provisioningArray count];
+		count = [[[FileHandler sharedInstance] provisioningArray] count];
     
     else if ([aComboBox isEqual:self.certificateComboBox])
-        count = [certificatesArray count];
+        count = [[[FileHandler sharedInstance] certificatesArray] count];
 	
 	return count;
 }
@@ -816,13 +533,13 @@ static NSString *kiTunesMetadataFileName = @"iTunesMetadata";
 	
 	if ([aComboBox isEqual:self.provisioningComboBox])
 	{
-		YAProvisioningProfile *profile = provisioningArray[index];
+		YAProvisioningProfile *profile = [[FileHandler sharedInstance] provisioningArray][index];
 		item = profile.name;
 	}
     
     else if ([aComboBox isEqual:self.certificateComboBox])
     {
-        item = certificatesArray[index];
+        item = [[FileHandler sharedInstance] certificatesArray][index];
     }
 	
 	

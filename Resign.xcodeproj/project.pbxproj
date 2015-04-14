@@ -15,6 +15,7 @@
 		17492E261AB882F3004060A3 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 17492E241AB882F3004060A3 /* ViewController.m */; };
 		17492E271AB882F3004060A3 /* ViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 17492E251AB882F3004060A3 /* ViewController.xib */; };
 		17492E291AB898EA004060A3 /* entitlements.plist in Resources */ = {isa = PBXBuildFile; fileRef = 17492E281AB898EA004060A3 /* entitlements.plist */; };
+		DF236F551ADAFA8700A25185 /* FileHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = DF236F541ADAFA8700A25185 /* FileHandler.m */; };
 		DF27F1851AB97D2D00E54B7D /* Icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = DF27F1841AB97D2D00E54B7D /* Icon.icns */; };
 		DF8270A01AB9DE4700254F27 /* info-24.png in Resources */ = {isa = PBXBuildFile; fileRef = DF82709A1AB9DE4700254F27 /* info-24.png */; };
 		DF8270A11AB9DE4700254F27 /* info-26.png in Resources */ = {isa = PBXBuildFile; fileRef = DF82709B1AB9DE4700254F27 /* info-26.png */; };
@@ -44,6 +45,8 @@
 		17492E241AB882F3004060A3 /* ViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
 		17492E251AB882F3004060A3 /* ViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ViewController.xib; sourceTree = "<group>"; };
 		17492E281AB898EA004060A3 /* entitlements.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = entitlements.plist; sourceTree = "<group>"; };
+		DF236F531ADAFA8700A25185 /* FileHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FileHandler.h; sourceTree = "<group>"; };
+		DF236F541ADAFA8700A25185 /* FileHandler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FileHandler.m; sourceTree = "<group>"; };
 		DF27F1841AB97D2D00E54B7D /* Icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = Icon.icns; sourceTree = "<group>"; };
 		DF82709A1AB9DE4700254F27 /* info-24.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "info-24.png"; sourceTree = "<group>"; };
 		DF82709B1AB9DE4700254F27 /* info-26.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "info-26.png"; sourceTree = "<group>"; };
@@ -123,6 +126,8 @@
 				17492E1F1AB882AF004060A3 /* YAProvisioningProfile.m */,
 				DFD6A04E1AD98F2800FB6A11 /* IconButton.h */,
 				DFD6A04F1AD98F2800FB6A11 /* IconButton.m */,
+				DF236F531ADAFA8700A25185 /* FileHandler.h */,
+				DF236F541ADAFA8700A25185 /* FileHandler.m */,
 			);
 			path = Helper;
 			sourceTree = "<group>";
@@ -236,6 +241,7 @@
 			files = (
 				17492E211AB882AF004060A3 /* YAProvisioningProfile.m in Sources */,
 				DF8270AE1AB9ED5500254F27 /* NSScrollView+MultiLine.m in Sources */,
+				DF236F551ADAFA8700A25185 /* FileHandler.m in Sources */,
 				17492E011AB8827C004060A3 /* main.m in Sources */,
 				17492DFF1AB8827C004060A3 /* AppDelegate.m in Sources */,
 				DFD6A0501AD98F2800FB6A11 /* IconButton.m in Sources */,

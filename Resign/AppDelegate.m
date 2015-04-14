@@ -7,6 +7,7 @@
 //
 
 #import "AppDelegate.h"
+#import "FileHandler.h"
 
 @interface AppDelegate ()
 
@@ -23,8 +24,9 @@
 	self.viewController.view.frame = ((NSView*)self.window.contentView).bounds;
 }
 
-- (void)applicationWillTerminate:(NSNotification *)aNotification {
-	// Insert code here to tear down your application
+- (void)applicationWillTerminate:(NSNotification *)aNotification
+{
+    [[FileHandler sharedInstance] removeWorkingDirectory];
 }
 
 @end

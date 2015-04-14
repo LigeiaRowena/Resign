@@ -10,36 +10,7 @@
 #import "IRTextFieldDrag.h"
 #import "IconButton.h"
 
-typedef NS_ENUM(NSInteger, AppIconSuccess){
-	NoSuccess,
-	AppIconFounded,
-	RetinaAppIconFounded
-};
-
-
 @interface ViewController : NSViewController <IRTextFieldDragDelegate>
-{
-    // datas for combobox
-	NSMutableArray *provisioningArray;
-    NSMutableArray *certificatesArray;
-	NSDateFormatter *formatter;
-	
-	// source ipa path
-    NSString *sourcePath;
-	
-	// temp working directory
-    NSString *workingPath;
-	
-	// path of the unzipped ipa (inside the workingPath)
-    NSString *appPath;
-	
-	// destination ipa path
-	NSString *destinationPath;
-    
-    // tasks
-    NSTask *unzipTask;
-    NSTask *certTask;
-}
 
 // Resign UI
 @property (weak) IBOutlet IRTextFieldDrag *ipaField;
@@ -57,7 +28,6 @@ typedef NS_ENUM(NSInteger, AppIconSuccess){
 @property (weak) IBOutlet NSButton *defaultIconsButton;
 @property (weak) IBOutlet IconButton *iconButton;
 @property (weak) IBOutlet IconButton *retinaIconButton;
-
 
 // Console UI
 @property (weak) IBOutlet NSButton *cleanConsoleButton;
