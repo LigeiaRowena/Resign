@@ -222,7 +222,6 @@
 	if ([self getDefaultIconFiles])
 	{
         [self.defaultIconsButton setState:NSOnState];
-        
         [self.iconButton setTappable:NO];
         [self.retinaIconButton setTappable:NO];
 	}
@@ -231,7 +230,6 @@
 	{
 		[self showAlertOfKind:NSWarningAlertStyle WithTitle:@"Warning" AndMessage:@"You didn't select any IPA file, or the IPA file you selected is corrupted."];
 		[self.defaultIconsButton setState:NSOffState];
-        
         [self.iconButton setTappable:YES];
         [self.retinaIconButton setTappable:YES];
 	}
@@ -327,7 +325,8 @@
 
 - (IBAction)resetAll:(id)sender
 {
-    
+    // Reset all the values about the IPA source file
+    [self showIpaInfo];
 }
 
 - (IBAction)resign:(id)sender
