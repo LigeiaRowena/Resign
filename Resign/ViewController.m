@@ -169,6 +169,9 @@
 
 - (void)showProvisioningInfoAtIndex:(NSInteger)index
 {
+	[[FileHandler sharedInstance] setProvisioningIndex:(int)index];
+	[[FileHandler sharedInstance] setEditProvisioning:YES];
+	
     NSString *provisioningInfo = [[FileHandler sharedInstance] getProvisioningInfoAtIndex:index];
     [self.statusField appendStringValue:provisioningInfo];
 }
@@ -375,7 +378,7 @@
         return;
     }
 	
-	[[FileHandler sharedInstance] resignFromProvisioning:(int)self.provisioningComboBox.indexOfSelectedItem bundleId:self.bundleIDField.stringValue displayName:self.displayNameField.stringValue log:^(NSString *log) {
+	[[FileHandler sharedInstance] resignWithBundleId:self.bundleIDField.stringValue displayName:self.displayNameField.stringValue log:^(NSString *log) {
 		[self.statusField appendStringValue:log];
 		
 	} error:^(NSString *error) {

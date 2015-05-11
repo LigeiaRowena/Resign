@@ -365,6 +365,8 @@ static FileHandler *istance;
         NSInteger indexProvisioning = [self getProvisioningIndexFromApp:profile];
         if (indexProvisioning >= 0)
         {
+			self.provisioningIndex = (int)indexProvisioning;
+			self.editProvisioning = NO;
             if (successBlock != nil)
                 successBlock([NSNumber numberWithInteger:indexProvisioning]);
         }
@@ -428,6 +430,8 @@ static FileHandler *istance;
 - (void)getProvisioningProfiles
 {
     [self.provisioningArray removeAllObjects];
+	self.editProvisioning = NO;
+	
 	NSArray *provisioningProfiles = [manager contentsOfDirectoryAtPath:[NSString stringWithFormat:@"%@/%@", NSHomeDirectory(), kMobileprovisionDirName] error:nil];
 	provisioningProfiles = [provisioningProfiles filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"self ENDSWITH '.mobileprovision'"]];
 	
@@ -479,6 +483,91 @@ static FileHandler *istance;
     {
         return @"No Provisioning profile selected";
     }
+}
+
+- (void)editProvisioningWithLog:(LogBlock)log error:(ErrorBlock)error success:(SuccessBlock)success
+{
+	logBlock = [log copy];
+	errorBlock = [error copy];
+	successBlock = [success copy];
+	
+	if (logBlock)
+		logBlock(@"Editing the Provisioning Profile...");
+	
+	// Payload directory
+	NSString *payloadPath = [self.workingPath stringByAppendingPathComponent:kPayloadDirName];
+	NSArray *payloadContents = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:payloadPath error:nil];
+	
+	// Delete the embedded.mobileprovision file
+	for (NSString *file in payloadContents)
+	{
+		if ([[[file pathExtension] lowercaseString] isEqualToString:@"app"])
+		{
+			self.appPath = [payloadPath stringByAppendingPathComponent:file];
+			if ([[NSFileManager defaultManager] fileExistsAtPath:[self.appPath stringByAppendingPathComponent:kMobileprovisionFilename]])
+			{
+				NSLog(@"Found embedded.mobileprovision, deleting.");
+				[[NSFileManager defaultManager] removeItemAtPath:[self.appPath stringByAppendingPathComponent:kMobileprovisionFilename] error:nil];
+			}
+			break;
+		}
+	}
+	
+	// Create the provisioning task
+	NSString *targetPath = [self.appPath stringByAppendingPathComponent:kMobileprovisionFilename];
+	NSString *provisioningPath = [(YAProvisioningProfile*)self.provisioningArray[self.provisioningIndex] path];
+	NSTask *provisioningTask = [[NSTask alloc] init];
+	[provisioningTask setLaunchPath:@"/bin/cp"];
+	[provisioningTask setArguments:[NSArray arrayWithObjects:provisioningPath, targetPath, nil]];
+	[provisioningTask launch];
+	[NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(checkProvisioning:) userInfo:@{@"task": provisioningTask} repeats:TRUE];
+}
+
+- (void)checkProvisioning:(NSTimer *)timer
+{
+	// Check if the provisioning task finished: if yes invalidate the timer and do some operations
+	NSTask *provisioningTask = timer.userInfo[@"task"];
+	if ([provisioningTask isRunning] == 0)
+	{
+		int terminationStatus = provisioningTask.terminationStatus;
+		[timer invalidate];
+		provisioningTask = nil;
+		// The task succeed
+		if (terminationStatus == 0)
+		{
+			// Detech if the provisioning was successfully created
+			BOOL success = NO;
+			NSString *payloadPath = [self.workingPath stringByAppendingPathComponent:kPayloadDirName];
+			NSArray *payloadContents = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:payloadPath error:nil];
+			for (NSString *file in payloadContents)
+			{
+				if ([[[file pathExtension] lowercaseString] isEqualToString:@"app"])
+				{
+					self.appPath = [payloadPath stringByAppendingPathComponent:file];
+					if ([[NSFileManager defaultManager] fileExistsAtPath:[self.appPath stringByAppendingPathComponent:kMobileprovisionFilename]])
+						success = YES;
+					break;
+				}
+			}
+			
+			if (success)
+			{
+				if (successBlock != nil)
+					successBlock(@"Provisioning Profile edited successfully");
+			}
+			else
+			{
+				if (errorBlock != nil)
+					errorBlock(@"Provisioning Profile editing failed. Please try again");
+			}
+		}
+		// The task failed
+		else
+		{
+			if (errorBlock != nil)
+				errorBlock(@"Provisioning Profile editing failed. Please try again");
+		}
+	}
 }
 
 #pragma mark - Signign Certificate
@@ -566,12 +655,11 @@ static FileHandler *istance;
 
 #pragma mark - Resign
 
-- (void)resignFromProvisioning:(int)provisioningIndex bundleId:(NSString*)bundleId displayName:(NSString*)displayName log:(LogBlock)log error:(ErrorBlock)error success:(SuccessBlock)success
+- (void)resignWithBundleId:(NSString*)bundleId displayName:(NSString*)displayName log:(LogBlock)log error:(ErrorBlock)error success:(SuccessBlock)success
 {
 	logResignBlock = [log copy];
 	errorResignBlock = [error copy];
 	successResignBlock = [success copy];
-	self.provisioningIndex = provisioningIndex;
 	self.bundleId = bundleId;
 	self.displayName = displayName;
 	
@@ -600,15 +688,25 @@ static FileHandler *istance;
 		} success:^(id message) {
 			if (logResignBlock)
 				logResignBlock(message);
+			
+			// Edit the Provisioning Profile
+			if (self.editProvisioning)
+			{
+				[self editProvisioningWithLog:^(NSString *log) {
+					if (logResignBlock)
+						logResignBlock(log);
+					
+				} error:^(NSString *error) {
+					if (errorResignBlock)
+						errorResignBlock(error);
+					
+				} success:^(id message) {
+					if (logResignBlock)
+						logResignBlock(message);
+				}];
+			}
 		}];
 	}];
-	
-	
-	
-	/*
-	4) Se ho cambiato il mobileprovision originale:
-	Rimuovere il file "embedded.mobileprovision" dalla cartella /Payload/NomeApp/, e copiaci quello preso dal path indicato, rinominandolo in "embedded.mobileprovision" (metodo doProvision...)
-	*/
 }
 
 #pragma mark - Info.plist

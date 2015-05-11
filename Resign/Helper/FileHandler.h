@@ -67,6 +67,10 @@ static NSString *kIconRetina = @"iconRetina";
 // index of the provisioning profile selected in the combo for the resign
 @property (nonatomic) int provisioningIndex;
 
+// YES: the provisioning was edited
+// NO: the provisioning is the default one of the original IPA file
+@property (nonatomic) BOOL editProvisioning;
+
 // bundle id selected for the resign
 @property (nonatomic, strong) NSString *bundleId;
 
@@ -112,6 +116,6 @@ static NSString *kIconRetina = @"iconRetina";
 
 - (void)getCertificatesSuccess:(SuccessBlock)success error:(ErrorBlock)error;
 
-- (void)resignFromProvisioning:(int)provisioningIndex bundleId:(NSString*)bundleId displayName:(NSString*)displayName log:(LogBlock)log error:(ErrorBlock)error success:(SuccessBlock)success;
+- (void)resignWithBundleId:(NSString*)bundleId displayName:(NSString*)displayName log:(LogBlock)log error:(ErrorBlock)error success:(SuccessBlock)success;
 
 @end

@@ -35,6 +35,4 @@
 @property (weak) IBOutlet NSButton *resignButton;
 @property (weak) IBOutlet NSScrollView *statusField;
 
-
-
 @end
