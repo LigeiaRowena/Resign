@@ -77,6 +77,12 @@ static NSString *kIconRetina = @"iconRetina";
 // display name selected for the resign
 @property (nonatomic, strong) NSString *displayName;
 
+// short version selected for the resign
+@property (nonatomic, strong) NSString *shortVersion;
+
+// build version selected for the resign
+@property (nonatomic, strong) NSString *buildVersion;
+
 // array of certificates available
 @property (nonatomic, strong) NSMutableArray *certificatesArray;
 
@@ -101,6 +107,10 @@ static NSString *kIconRetina = @"iconRetina";
 
 - (void)getDefaultBundleIDWithSuccess:(SuccessBlock)success error:(ErrorBlock)error;
 
+- (void)getDefaultShortVersionWithSuccess:(SuccessBlock)success error:(ErrorBlock)error;
+
+- (void)getDefaultBuildVersionWithSuccess:(SuccessBlock)success error:(ErrorBlock)error;
+
 - (void)getDefaultProductNameWithSuccess:(SuccessBlock)success error:(ErrorBlock)error;
 
 - (void)getDefaultIconFilesWithSuccess:(SuccessBlock)success error:(ErrorBlock)error;
@@ -116,6 +126,6 @@ static NSString *kIconRetina = @"iconRetina";
 
 - (void)getCertificatesSuccess:(SuccessBlock)success error:(ErrorBlock)error;
 
-- (void)resignWithBundleId:(NSString*)bundleId displayName:(NSString*)displayName log:(LogBlock)log error:(ErrorBlock)error success:(SuccessBlock)success;
+- (void)resignWithBundleId:(NSString*)bundleId displayName:(NSString*)displayName shortVersion:(NSString*)shortVersion buildVersion:(NSString*)buildVersion log:(LogBlock)log error:(ErrorBlock)error success:(SuccessBlock)success;
 
 @end

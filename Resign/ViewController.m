@@ -25,6 +25,8 @@
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(controlTextDidChange:) name:NSControlTextDidChangeNotification object:self.bundleIDField];
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(controlTextDidChange:) name:NSControlTextDidChangeNotification object:self.displayNameField];
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(controlTextDidChange:) name:NSControlTextDidChangeNotification object:self.destinationIpaPath];
+	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(controlTextDidChange:) name:NSControlTextDidChangeNotification object:self.shortVersionField];
+
 
 	
 	// Search for zip utilities
@@ -107,6 +109,12 @@
 	
 	//Show the Product Name of the app in the relative field
 	[self resetDefaultProductName];
+	
+	//Show the short version of the app in the relative field
+	[self resetShortVersion];
+	
+	//Show the build version of the app in the relative field
+	[self resetBuildVersion];
 	
 	//Show the default icons of the app in the relative fields
 	[self resetDefaultIcons];
@@ -309,6 +317,46 @@
 	}
 }
 
+#pragma mark - Short Version Methods
+
+- (void)resetShortVersion
+{
+	// Succeed to find the Info.plist
+	[[FileHandler sharedInstance] getDefaultShortVersionWithSuccess:^(id bundleID) {
+		[self.defaultShortVersionButton setState:NSOnState];
+		[self.shortVersionField setEditable:NO];
+		[self.shortVersionField setSelectable:YES];
+		[self.shortVersionField setStringValue:bundleID];
+		
+	// Failed to find the Info.plist
+	} error:^(NSString *error) {
+		[self showAlertOfKind:NSWarningAlertStyle WithTitle:@"Warning" AndMessage:error];
+		[self.defaultShortVersionButton setState:NSOffState];
+		[self.shortVersionField setEditable:YES];
+		[self.shortVersionField setSelectable:YES];
+	}];
+}
+
+#pragma mark - Build Version Methods
+
+- (void)resetBuildVersion
+{
+	// Succeed to find the Info.plist
+	[[FileHandler sharedInstance] getDefaultBuildVersionWithSuccess:^(id bundleID) {
+		[self.defaultBuildVersionButton setState:NSOnState];
+		[self.buildVersionField setEditable:NO];
+		[self.buildVersionField setSelectable:YES];
+		[self.buildVersionField setStringValue:bundleID];
+		
+		// Failed to find the Info.plist
+	} error:^(NSString *error) {
+		[self showAlertOfKind:NSWarningAlertStyle WithTitle:@"Warning" AndMessage:error];
+		[self.defaultBuildVersionButton setState:NSOffState];
+		[self.buildVersionField setEditable:YES];
+		[self.buildVersionField setSelectable:YES];
+	}];
+}
+
 #pragma mark - Actions
 
 - (IBAction)browseIpa:(id)sender
@@ -378,7 +426,7 @@
         return;
     }
 	
-	[[FileHandler sharedInstance] resignWithBundleId:self.bundleIDField.stringValue displayName:self.displayNameField.stringValue log:^(NSString *log) {
+	[[FileHandler sharedInstance] resignWithBundleId:self.bundleIDField.stringValue displayName:self.displayNameField.stringValue shortVersion:self.shortVersionField.stringValue buildVersion:self.shortVersionField.stringValue log:^(NSString *log) {
 		[self.statusField appendStringValue:log];
 		
 	} error:^(NSString *error) {
@@ -489,6 +537,56 @@
 	}
 }
 
+- (IBAction)changeShortVersion:(id)sender
+{
+	[self.statusField appendStringValue:[NSString stringWithFormat:@"You typed the IPA short version: %@", self.shortVersionField.stringValue]];
+}
+
+- (IBAction)defaultShortVersion:(id)sender
+{
+	// resign as first responder the other controls
+	AppDelegate *appDelegate = (AppDelegate *)[NSApp delegate];
+	[appDelegate.window makeFirstResponder: nil];
+	
+	// reset default Short Version
+	if (self.defaultShortVersionButton.state == NSOnState)
+	{
+		[self resetShortVersion];
+	}
+	
+	// customized default Short Version
+	else if (self.defaultShortVersionButton.state == NSOffState)
+	{
+		[self.shortVersionField setEditable:YES];
+		[self.shortVersionField setSelectable:YES];
+	}
+}
+
+- (IBAction)changeBuildVersion:(id)sender
+{
+	[self.statusField appendStringValue:[NSString stringWithFormat:@"You typed the IPA build version: %@", self.buildVersionField.stringValue]];
+}
+
+- (IBAction)defaultBuildVersion:(id)sender
+{
+	// resign as first responder the other controls
+	AppDelegate *appDelegate = (AppDelegate *)[NSApp delegate];
+	[appDelegate.window makeFirstResponder: nil];
+	
+	// reset default Build Version
+	if (self.defaultBuildVersionButton.state == NSOnState)
+	{
+		[self resetBuildVersion];
+	}
+	
+	// customized default Short Version
+	else if (self.defaultBuildVersionButton.state == NSOffState)
+	{
+		[self.buildVersionField setEditable:YES];
+		[self.buildVersionField setSelectable:YES];
+	}
+}
+
 - (IBAction)defaultIcons:(id)sender
 {
 	// resign as first responder the other controls
@@ -570,6 +668,10 @@
 	[self.displayNameButton setEnabled:FALSE];
 	[self.destinationIpaPath setEnabled:FALSE];
 	[self.destinationIpaPathButton setEnabled:FALSE];
+	[self.shortVersionField setEnabled:FALSE];
+	[self.defaultShortVersionButton setEnabled:FALSE];
+	[self.buildVersionField setEnabled:FALSE];
+	[self.defaultBuildVersionButton setEnabled:FALSE];
 	[self.defaultIconsButton setEnabled:FALSE];
 	[self.iconButton setEnabled:FALSE];
 	[self.retinaIconButton setEnabled:FALSE];
@@ -593,6 +695,10 @@
 	[self.displayNameButton setEnabled:TRUE];
 	[self.destinationIpaPath setEnabled:TRUE];
 	[self.destinationIpaPathButton setEnabled:TRUE];
+	[self.shortVersionField setEnabled:TRUE];
+	[self.defaultShortVersionButton setEnabled:TRUE];
+	[self.buildVersionField setEnabled:TRUE];
+	[self.defaultBuildVersionButton setEnabled:TRUE];
 	[self.defaultIconsButton setEnabled:TRUE];
 	[self.iconButton setEnabled:TRUE];
 	[self.retinaIconButton setEnabled:TRUE];

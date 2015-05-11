@@ -25,6 +25,10 @@
 @property (weak) IBOutlet NSButton *displayNameButton;
 @property (weak) IBOutlet NSTextField *destinationIpaPath;
 @property (weak) IBOutlet NSButton *destinationIpaPathButton;
+@property (weak) IBOutlet NSTextField *shortVersionField;
+@property (weak) IBOutlet NSButton *defaultShortVersionButton;
+@property (weak) IBOutlet NSTextField *buildVersionField;
+@property (weak) IBOutlet NSButton *defaultBuildVersionButton;
 @property (weak) IBOutlet NSButton *defaultIconsButton;
 @property (weak) IBOutlet IconButton *iconButton;
 @property (weak) IBOutlet IconButton *retinaIconButton;

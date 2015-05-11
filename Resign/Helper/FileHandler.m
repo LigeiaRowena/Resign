@@ -112,6 +112,56 @@ static FileHandler *istance;
     }
 }
 
+#pragma mark - Short Version
+
+- (void)getDefaultShortVersionWithSuccess:(SuccessBlock)success error:(ErrorBlock)error
+{
+	successBlock = [success copy];
+	errorBlock = [error copy];
+	NSString* infoPlistPath = [self.appPath stringByAppendingPathComponent:kInfoPlistFilename];
+	
+	// Succeed to find the Info.plist
+	if ([[NSFileManager defaultManager] fileExistsAtPath:infoPlistPath])
+	{
+		NSDictionary* infoPlistDict = [NSDictionary dictionaryWithContentsOfFile:infoPlistPath];
+		NSString *shortVersion = infoPlistDict[kCFBundleShortVersionString];
+		if (successBlock != nil)
+			successBlock(shortVersion);
+	}
+	
+	// Failed to find the Info.plist
+	else
+	{
+		if (errorBlock != nil)
+			errorBlock(@"You didn't select any IPA file, or the IPA file you selected is corrupted.");
+	}
+}
+
+#pragma mark - Build Version
+
+- (void)getDefaultBuildVersionWithSuccess:(SuccessBlock)success error:(ErrorBlock)error
+{
+	successBlock = [success copy];
+	errorBlock = [error copy];
+	NSString* infoPlistPath = [self.appPath stringByAppendingPathComponent:kInfoPlistFilename];
+	
+	// Succeed to find the Info.plist
+	if ([[NSFileManager defaultManager] fileExistsAtPath:infoPlistPath])
+	{
+		NSDictionary* infoPlistDict = [NSDictionary dictionaryWithContentsOfFile:infoPlistPath];
+		NSString *buildVersion = infoPlistDict[kCFBundleVersion];
+		if (successBlock != nil)
+			successBlock(buildVersion);
+	}
+	
+	// Failed to find the Info.plist
+	else
+	{
+		if (errorBlock != nil)
+			errorBlock(@"You didn't select any IPA file, or the IPA file you selected is corrupted.");
+	}
+}
+
 #pragma mark - Product Name
 
 - (void)getDefaultProductNameWithSuccess:(SuccessBlock)success error:(ErrorBlock)error
@@ -655,13 +705,15 @@ static FileHandler *istance;
 
 #pragma mark - Resign
 
-- (void)resignWithBundleId:(NSString*)bundleId displayName:(NSString*)displayName log:(LogBlock)log error:(ErrorBlock)error success:(SuccessBlock)success
+- (void)resignWithBundleId:(NSString*)bundleId displayName:(NSString*)displayName shortVersion:(NSString*)shortVersion buildVersion:(NSString*)buildVersion log:(LogBlock)log error:(ErrorBlock)error success:(SuccessBlock)success
 {
 	logResignBlock = [log copy];
 	errorResignBlock = [error copy];
 	successResignBlock = [success copy];
 	self.bundleId = bundleId;
 	self.displayName = displayName;
+	self.shortVersion = shortVersion;
+	self.buildVersion = buildVersion;
 	
 	// Create the entitlements file
 	[self createEntitlementsWithLog:^(NSString *log) {
@@ -729,7 +781,9 @@ static FileHandler *istance;
 		NSMutableDictionary *plist = [[NSMutableDictionary alloc] initWithContentsOfFile:infoPlistPath];
 		[plist setObject:self.displayName forKey:kCFBundleDisplayName];
 		[plist setObject:self.bundleId forKey:kCFBundleIdentifier];
-		
+		[plist setObject:self.shortVersion forKey:kCFBundleShortVersionString];
+		[plist setObject:self.buildVersion forKey:kCFBundleVersion];
+
 		// Save the Info.plist file overwriting
 		NSData *xmlData = [NSPropertyListSerialization dataWithPropertyList:plist format:NSPropertyListXMLFormat_v1_0 options:kCFPropertyListImmutable error:nil];
 		if ([xmlData writeToFile:infoPlistPath atomically:YES])
