@@ -436,7 +436,8 @@ static FileHandler *istance;
 		if ([manager fileExistsAtPath:[NSString stringWithFormat:@"%@/%@/%@", NSHomeDirectory(), kMobileprovisionDirName, path] isDirectory:NO])
 		{
 			YAProvisioningProfile *profile = [[YAProvisioningProfile alloc] initWithPath:[NSString stringWithFormat:@"%@/%@/%@", NSHomeDirectory(), kMobileprovisionDirName, path]];
-			[self.provisioningArray addObject:profile];
+			if ([profile.debug isEqualToString:@"NO"])
+				[self.provisioningArray addObject:profile];
 		}
 	}];
 	
@@ -601,6 +602,13 @@ static FileHandler *istance;
 				logResignBlock(message);
 		}];
 	}];
+	
+	
+	
+	/*
+	4) Se ho cambiato il mobileprovision originale:
+	Rimuovere il file "embedded.mobileprovision" dalla cartella /Payload/NomeApp/, e copiaci quello preso dal path indicato, rinominandolo in "embedded.mobileprovision" (metodo doProvision...)
+	*/
 }
 
 #pragma mark - Info.plist
