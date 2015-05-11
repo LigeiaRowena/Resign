@@ -45,7 +45,12 @@ static NSString *kIconRetina = @"iconRetina";
 	SuccessBlock successBlock;
 	ErrorBlock errorBlock;
     LogBlock logBlock;
-    
+	
+	// blocks
+	SuccessBlock successResignBlock;
+	ErrorBlock errorResignBlock;
+	LogBlock logResignBlock;
+	
     // date formatter
     NSDateFormatter *formatter;
     
@@ -64,6 +69,9 @@ static NSString *kIconRetina = @"iconRetina";
 
 // bundle id selected for the resign
 @property (nonatomic, strong) NSString *bundleId;
+
+// display name selected for the resign
+@property (nonatomic, strong) NSString *displayName;
 
 // array of certificates available
 @property (nonatomic, strong) NSMutableArray *certificatesArray;
@@ -104,6 +112,6 @@ static NSString *kIconRetina = @"iconRetina";
 
 - (void)getCertificatesSuccess:(SuccessBlock)success error:(ErrorBlock)error;
 
-- (void)createEntitlementsFromProvisioning:(int)provisioningIndex bundleId:(NSString*)bundleId log:(LogBlock)log error:(ErrorBlock)error success:(SuccessBlock)success;
+- (void)resignFromProvisioning:(int)provisioningIndex bundleId:(NSString*)bundleId displayName:(NSString*)displayName log:(LogBlock)log error:(ErrorBlock)error success:(SuccessBlock)success;
 
 @end

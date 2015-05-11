@@ -563,22 +563,102 @@ static FileHandler *istance;
     return index;
 }
 
+#pragma mark - Resign
+
+- (void)resignFromProvisioning:(int)provisioningIndex bundleId:(NSString*)bundleId displayName:(NSString*)displayName log:(LogBlock)log error:(ErrorBlock)error success:(SuccessBlock)success
+{
+	logResignBlock = [log copy];
+	errorResignBlock = [error copy];
+	successResignBlock = [success copy];
+	self.provisioningIndex = provisioningIndex;
+	self.bundleId = bundleId;
+	self.displayName = displayName;
+	
+	// Create the entitlements file
+	[self createEntitlementsWithLog:^(NSString *log) {
+		if (logResignBlock)
+			logResignBlock(log);
+			
+	} error:^(NSString *error) {
+		if (errorResignBlock)
+			errorResignBlock(error);
+		
+	} success:^(id message) {
+		if (logResignBlock)
+			logResignBlock(message);
+		
+		// Edit the Info.plis file
+		[self editInfoPlistWithLog:^(NSString *log) {
+			if (logResignBlock)
+				logResignBlock(log);
+			
+		} error:^(NSString *error) {
+			if (errorResignBlock)
+				errorResignBlock(error);
+			
+		} success:^(id message) {
+			if (logResignBlock)
+				logResignBlock(message);
+		}];
+	}];
+}
+
+#pragma mark - Info.plist
+
+- (void)editInfoPlistWithLog:(LogBlock)log error:(ErrorBlock)error success:(SuccessBlock)success
+{
+	logBlock = [log copy];
+	errorBlock = [error copy];
+	successBlock = [success copy];
+	
+	if (logBlock)
+		logBlock(@"Editing the Info.plist file...");
+	
+	NSString* infoPlistPath = [self.appPath stringByAppendingPathComponent:kInfoPlistFilename];
+	
+	// Succeed to find the Info.plist
+	if ([[NSFileManager defaultManager] fileExistsAtPath:infoPlistPath])
+	{
+		// Set the value of kCFBundleDisplayName/kCFBundleIdentifier in the Info.plist file
+		NSMutableDictionary *plist = [[NSMutableDictionary alloc] initWithContentsOfFile:infoPlistPath];
+		[plist setObject:self.displayName forKey:kCFBundleDisplayName];
+		[plist setObject:self.bundleId forKey:kCFBundleIdentifier];
+		
+		// Save the Info.plist file overwriting
+		NSData *xmlData = [NSPropertyListSerialization dataWithPropertyList:plist format:NSPropertyListXMLFormat_v1_0 options:kCFPropertyListImmutable error:nil];
+		if ([xmlData writeToFile:infoPlistPath atomically:YES])
+		{
+			if (successBlock != nil)
+				successBlock(@"File Info.plist edited properly");
+		}
+		else
+		{
+			if (errorBlock != nil)
+				errorBlock(@"Failed to re-save the Info.plist file properly");
+		}
+	}
+	
+	// Failed to find the Info.plist
+	else
+	{
+		if (errorBlock != nil)
+			errorBlock(@"The IPA file you selected is corrupted: the app is unable to find a proper Info.plist file");
+	}
+}
 
 #pragma mark - Entitlements
 
-- (void)createEntitlementsFromProvisioning:(int)provisioningIndex bundleId:(NSString*)bundleId log:(LogBlock)log error:(ErrorBlock)error success:(SuccessBlock)success
+- (void)createEntitlementsWithLog:(LogBlock)log error:(ErrorBlock)error success:(SuccessBlock)success
 {
     logBlock = [log copy];
     errorBlock = [error copy];
     successBlock = [success copy];
     
     if (logBlock)
-        logBlock(@"Generating entitlements");
+        logBlock(@"Generating entitlements..");
     
     // The provisioning selected is valid
-	self.provisioningIndex = provisioningIndex;
-	self.bundleId = bundleId;
-    YAProvisioningProfile *profile = self.provisioningArray[provisioningIndex];
+    YAProvisioningProfile *profile = self.provisioningArray[self.provisioningIndex];
     if (profile != nil)
     {
         NSTask *generateEntitlementsTask = [[NSTask alloc] init];

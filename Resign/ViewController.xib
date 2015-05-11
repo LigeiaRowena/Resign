@@ -44,6 +44,7 @@
                     </buttonCell>
                     <connections>
                         <action selector="browseIpa:" target="-2" id="clI-OR-KI3"/>
+                        <outlet property="nextKeyView" destination="aCJ-CN-poy" id="UBX-mx-Fy7"/>
                     </connections>
                 </button>
                 <textField verticalHuggingPriority="750" id="aCJ-CN-poy" customClass="IRTextFieldDrag">
@@ -56,6 +57,7 @@
                     </textFieldCell>
                     <connections>
                         <outlet property="dragDelegate" destination="-2" id="Hg4-oo-N9r"/>
+                        <outlet property="nextKeyView" destination="p3D-Yx-YRY" id="bdS-DU-cAu"/>
                     </connections>
                 </textField>
                 <comboBox verticalHuggingPriority="750" id="p3D-Yx-YRY">
@@ -69,6 +71,7 @@
                     <connections>
                         <outlet property="dataSource" destination="-2" id="Smm-Ak-PHl"/>
                         <outlet property="delegate" destination="-2" id="iXI-zR-ehY"/>
+                        <outlet property="nextKeyView" destination="gGv-Tn-fZy" id="Ke7-pw-ctM"/>
                     </connections>
                 </comboBox>
                 <box verticalHuggingPriority="750" title="Box" boxType="separator" titlePosition="noTitle" id="FMa-Ud-XXt">
@@ -133,6 +136,7 @@
                     <connections>
                         <outlet property="dataSource" destination="-2" id="Ixx-8v-9Nf"/>
                         <outlet property="delegate" destination="-2" id="miX-Bh-a6N"/>
+                        <outlet property="nextKeyView" destination="nAX-jd-Dyv" id="vpi-3P-ncn"/>
                     </connections>
                 </comboBox>
                 <button horizontalHuggingPriority="750" verticalHuggingPriority="750" id="j6B-db-UbM">
@@ -203,6 +207,7 @@
                     </buttonCell>
                     <connections>
                         <action selector="defaultBundleIDButton:" target="-2" id="pby-GF-igK"/>
+                        <outlet property="nextKeyView" destination="IEa-37-rdz" id="ldY-5V-KJb"/>
                     </connections>
                 </button>
                 <textField verticalHuggingPriority="750" id="IEa-37-rdz">
@@ -215,6 +220,7 @@
                     </textFieldCell>
                     <connections>
                         <action selector="changeDisplayName:" target="-2" id="jvw-wP-kca"/>
+                        <outlet property="nextKeyView" destination="JcK-Rt-8Hb" id="79n-8l-xSy"/>
                     </connections>
                 </textField>
                 <button id="JcK-Rt-8Hb">
@@ -226,6 +232,7 @@
                     </buttonCell>
                     <connections>
                         <action selector="defaultDisplayNameButton:" target="-2" id="VsT-3Q-RYD"/>
+                        <outlet property="nextKeyView" destination="e9o-Sf-yHP" id="3KU-AR-wFH"/>
                     </connections>
                 </button>
                 <textField verticalHuggingPriority="750" id="nAX-jd-Dyv">
@@ -238,6 +245,7 @@
                     </textFieldCell>
                     <connections>
                         <action selector="changeBundleID:" target="-2" id="jiz-GU-gK0"/>
+                        <outlet property="nextKeyView" destination="0JQ-du-0rp" id="M2F-Ca-uxw"/>
                     </connections>
                 </textField>
                 <textField verticalHuggingPriority="750" id="e9o-Sf-yHP">
@@ -250,6 +258,7 @@
                     </textFieldCell>
                     <connections>
                         <action selector="changeDestinationIpaPath:" target="-2" id="S4Z-NQ-V4t"/>
+                        <outlet property="nextKeyView" destination="Cin-Tb-x1Y" id="RTs-Lc-bUT"/>
                     </connections>
                 </textField>
                 <button id="Cin-Tb-x1Y">
@@ -261,6 +270,7 @@
                     </buttonCell>
                     <connections>
                         <action selector="defaultDestinationIpaPath:" target="-2" id="Cv9-uM-7da"/>
+                        <outlet property="nextKeyView" destination="C2p-Ln-YO1" id="one-ku-IMU"/>
                     </connections>
                 </button>
                 <button id="KiK-l5-riv" customClass="IconButton">
@@ -272,6 +282,7 @@
                     </buttonCell>
                     <connections>
                         <action selector="changeIcon:" target="-2" id="q96-Lg-2f7"/>
+                        <outlet property="nextKeyView" destination="hJG-se-CtT" id="Q2L-pf-La7"/>
                     </connections>
                 </button>
                 <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="tsH-jt-NBo">
@@ -292,6 +303,7 @@
                     </buttonCell>
                     <connections>
                         <action selector="changeRetinaIcon:" target="-2" id="he8-5x-U1b"/>
+                        <outlet property="nextKeyView" destination="s7p-b4-gV5" id="bxu-HC-H00"/>
                     </connections>
                 </button>
                 <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="7CT-8a-U14">
@@ -312,6 +324,7 @@
                     </buttonCell>
                     <connections>
                         <action selector="defaultIcons:" target="-2" id="4lE-aw-S3c"/>
+                        <outlet property="nextKeyView" destination="KiK-l5-riv" id="cSX-iW-XA9"/>
                     </connections>
                 </button>
             </subviews>

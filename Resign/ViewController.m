@@ -9,6 +9,7 @@
 #import "ViewController.h"
 #import "NSScrollView+MultiLine.h"
 #import "FileHandler.h"
+#import "AppDelegate.h"
 
 @interface ViewController ()
 @end
@@ -20,8 +21,10 @@
 {
 	[super loadView];
 	
+	// added observers for NSTextField
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(controlTextDidChange:) name:NSControlTextDidChangeNotification object:self.bundleIDField];
-
+	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(controlTextDidChange:) name:NSControlTextDidChangeNotification object:self.displayNameField];
+	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(controlTextDidChange:) name:NSControlTextDidChangeNotification object:self.destinationIpaPath];
 
 	
 	// Search for zip utilities
@@ -307,6 +310,10 @@
 
 - (IBAction)browseIpa:(id)sender
 {
+	// resign as first responder the other controls
+	AppDelegate *appDelegate = (AppDelegate *)[NSApp delegate];
+	[appDelegate.window makeFirstResponder: nil];
+
 	// Browse the IPA file
 	NSOpenPanel* openDlg = [NSOpenPanel openPanel];
 	[openDlg setCanChooseFiles:TRUE];
@@ -325,22 +332,38 @@
 
 - (IBAction)showProvisioningInfo:(id)sender
 {
+	// resign as first responder the other controls
+	AppDelegate *appDelegate = (AppDelegate *)[NSApp delegate];
+	[appDelegate.window makeFirstResponder: nil];
+
 	[self showProvisioningInfoAtIndex:self.provisioningComboBox.indexOfSelectedItem];
 }
 
 - (IBAction)showIpaInfo:(id)sender
 {
+	// resign as first responder the other controls
+	AppDelegate *appDelegate = (AppDelegate *)[NSApp delegate];
+	[appDelegate.window makeFirstResponder: nil];
+
 	[self showIpaInfo];
 }
 
 - (IBAction)resetAll:(id)sender
 {
+	// resign as first responder the other controls
+	AppDelegate *appDelegate = (AppDelegate *)[NSApp delegate];
+	[appDelegate.window makeFirstResponder: nil];
+
     // Reset all the values about the IPA source file
     [self showIpaInfo];
 }
 
 - (IBAction)resign:(id)sender
 {
+	// resign as first responder the other controls
+	AppDelegate *appDelegate = (AppDelegate *)[NSApp delegate];
+	[appDelegate.window makeFirstResponder: nil];
+	
     [self disableControls];
 
     // Delete the _CodeSignature directory
@@ -351,36 +374,46 @@
         [self.statusField appendStringValue:@"Unable to delete the _CodeSignature directory in order to resign the IPA: please try again"];
         return;
     }
-    
-    // Create the entitlements file
-	[[FileHandler sharedInstance] createEntitlementsFromProvisioning:(int)self.provisioningComboBox.indexOfSelectedItem bundleId:self.bundleIDField.stringValue log:^(NSString *log) {
-        [self.statusField appendStringValue:log];
-        
-    } error:^(NSString *error) {
-        [self enableControls];
-        [self showAlertOfKind:NSWarningAlertStyle WithTitle:@"Warning" AndMessage:error];
-        [self.statusField appendStringValue:error];
-        return;
-        
-    } success:^(id message) {
-        [self.statusField appendStringValue:message];
-    }];
-       
-    
+	
+	[[FileHandler sharedInstance] resignFromProvisioning:(int)self.provisioningComboBox.indexOfSelectedItem bundleId:self.bundleIDField.stringValue displayName:self.displayNameField.stringValue log:^(NSString *log) {
+		[self.statusField appendStringValue:log];
+		
+	} error:^(NSString *error) {
+		[self enableControls];
+		[self showAlertOfKind:NSWarningAlertStyle WithTitle:@"Warning" AndMessage:error];
+		[self.statusField appendStringValue:error];
+		return;
+		
+	} success:^(id message) {
+		[self enableControls];
+		[self.statusField appendStringValue:message];
+	}];
 }
 
 - (IBAction)cleanConsole:(id)sender
 {
+	// resign as first responder the other controls
+	AppDelegate *appDelegate = (AppDelegate *)[NSApp delegate];
+	[appDelegate.window makeFirstResponder: nil];
+
     [self.statusField setStringValue:@""];
 }
 
 - (IBAction)showCertificateInfo:(id)sender
 {
+	// resign as first responder the other controls
+	AppDelegate *appDelegate = (AppDelegate *)[NSApp delegate];
+	[appDelegate.window makeFirstResponder: nil];
+
     [self showCertificateInfoAtIndex:self.certificateComboBox.indexOfSelectedItem];
 }
 
 - (IBAction)defaultBundleIDButton:(id)sender
 {
+	// resign as first responder the other controls
+	AppDelegate *appDelegate = (AppDelegate *)[NSApp delegate];
+	[appDelegate.window makeFirstResponder: nil];
+
     // reset default bundle id
     if (self.bundleIDButton.state == NSOnState)
     {
@@ -408,6 +441,10 @@
 
 - (IBAction)defaultDisplayNameButton:(id)sender
 {
+	// resign as first responder the other controls
+	AppDelegate *appDelegate = (AppDelegate *)[NSApp delegate];
+	[appDelegate.window makeFirstResponder: nil];
+
 	// reset default display name
 	if (self.displayNameButton.state == NSOnState)
 	{
@@ -431,6 +468,10 @@
 
 - (IBAction)defaultDestinationIpaPath:(id)sender
 {
+	// resign as first responder the other controls
+	AppDelegate *appDelegate = (AppDelegate *)[NSApp delegate];
+	[appDelegate.window makeFirstResponder: nil];
+
 	// reset default Destination Ipa Path (Documents)
 	if (self.destinationIpaPathButton.state == NSOnState)
 	{
@@ -447,6 +488,10 @@
 
 - (IBAction)defaultIcons:(id)sender
 {
+	// resign as first responder the other controls
+	AppDelegate *appDelegate = (AppDelegate *)[NSApp delegate];
+	[appDelegate.window makeFirstResponder: nil];
+
 	// reset default icons
 	if (self.defaultIconsButton.state == NSOnState)
 	{
@@ -463,6 +508,10 @@
 
 - (IBAction)changeIcon:(id)sender
 {
+	// resign as first responder the other controls
+	AppDelegate *appDelegate = (AppDelegate *)[NSApp delegate];
+	[appDelegate.window makeFirstResponder: nil];
+
     IconButton *butt = (IconButton*)sender;
     
     if (butt.tappable)
@@ -471,6 +520,10 @@
 
 - (IBAction)changeRetinaIcon:(id)sender
 {
+	// resign as first responder the other controls
+	AppDelegate *appDelegate = (AppDelegate *)[NSApp delegate];
+	[appDelegate.window makeFirstResponder: nil];
+
     IconButton *butt = (IconButton*)sender;
     
     if (butt.tappable)
