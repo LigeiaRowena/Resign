@@ -63,6 +63,22 @@ static FileHandler *istance;
     return success;
 }
 
+- (BOOL)removeCodeSignatureDirectory
+{
+    // Delete the _CodeSignature directory
+    
+    BOOL success = FALSE;
+    NSString* codeSignaturePath = [self.appPath stringByAppendingPathComponent:kCodeSignatureDirectory];
+
+    if (codeSignaturePath != nil && [manager fileExistsAtPath:codeSignaturePath])
+    {
+        NSError *error = nil;
+        success = [manager removeItemAtPath:codeSignaturePath error:&error];
+    }
+    
+    return success;
+}
+
 #pragma mark - NSFileManagerDelegate
 
 - (BOOL)fileManager:(NSFileManager *)fileManager shouldProceedAfterError:(NSError *)error removingItemAtPath:(NSString *)path
@@ -546,6 +562,108 @@ static FileHandler *istance;
     }];
     return index;
 }
+
+
+#pragma mark - Entitlements
+
+- (void)createEntitlementsFromProvisioning:(int)provisioningIndex bundleId:(NSString*)bundleId log:(LogBlock)log error:(ErrorBlock)error success:(SuccessBlock)success
+{
+    logBlock = [log copy];
+    errorBlock = [error copy];
+    successBlock = [success copy];
+    
+    if (logBlock)
+        logBlock(@"Generating entitlements");
+    
+    // The provisioning selected is valid
+	self.provisioningIndex = provisioningIndex;
+	self.bundleId = bundleId;
+    YAProvisioningProfile *profile = self.provisioningArray[provisioningIndex];
+    if (profile != nil)
+    {
+        NSTask *generateEntitlementsTask = [[NSTask alloc] init];
+        [generateEntitlementsTask setLaunchPath:@"/usr/bin/security"];
+        [generateEntitlementsTask setArguments:@[@"cms", @"-D", @"-i", profile.path]];
+        [generateEntitlementsTask setCurrentDirectoryPath:self.workingPath];
+        [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(checkEntitlements:) userInfo:@{@"task": generateEntitlementsTask}  repeats:TRUE];
+        NSPipe *pipe = [NSPipe pipe];
+        [generateEntitlementsTask setStandardOutput:pipe];
+        [generateEntitlementsTask setStandardError:pipe];
+        NSFileHandle *handle = [pipe fileHandleForReading];
+        [generateEntitlementsTask launch];
+        [NSThread detachNewThreadSelector:@selector(watchEntitlements:)
+                                 toTarget:self withObject:handle];
+
+    }
+    // The provisioning selected is not valid
+    else
+    {
+        if (errorBlock != nil)
+            errorBlock(@"You must choose a valid *.mobileprovision file");
+    }
+}
+
+- (void)watchEntitlements:(NSFileHandle*)streamHandle
+{
+    @autoreleasepool {
+        // Set the entitlements result string
+        entitlementsResult = [[NSString alloc] initWithData:[streamHandle readDataToEndOfFile] encoding:NSASCIIStringEncoding];
+    }
+}
+
+- (void)checkEntitlements:(NSTimer *)timer
+{
+    // Check if the generate-entitlements task finished: if yes invalidate the timer and do some operations
+    NSTask *generateEntitlementsTask = timer.userInfo[@"task"];
+    if ([generateEntitlementsTask isRunning] == 0)
+    {
+        int terminationStatus = generateEntitlementsTask.terminationStatus;
+        [timer invalidate];
+        generateEntitlementsTask = nil;
+        // The task succeed
+        if (terminationStatus == 0)
+        {
+			[self doEntitlements];
+        }
+        // The task failed
+        else
+        {
+            if (errorBlock != nil)
+                errorBlock(@"Entitlements generation failed. Please try again");
+        }
+    }
+}
+
+- (void)doEntitlements
+{
+	// Edit the Entitlements file and save in the workingPath
+    NSMutableDictionary* entitlements = [entitlementsResult.propertyList mutableCopy];
+    entitlements = entitlements[@"Entitlements"];
+	YAProvisioningProfile *profile = self.provisioningArray[self.provisioningIndex];
+	NSString *appIdentifier = [NSString stringWithFormat:@"%@.%@", profile.teamIdentifier, self.bundleId];
+	[entitlements setObject:appIdentifier forKey:kAppIdentifier];
+	[entitlements removeObjectForKey:kTeamIdentifier];
+	[entitlements removeObjectForKey:kKeychainAccessGroups];
+
+    NSString* entitlementsPath = [self.workingPath stringByAppendingPathComponent:kEntitlementsPlistFilename];
+    NSData *xmlData = [NSPropertyListSerialization dataWithPropertyList:entitlements format:NSPropertyListXMLFormat_v1_0 options:kCFPropertyListImmutable error:nil];
+    
+    // Saving Entitlements failed
+    if (![xmlData writeToFile:entitlementsPath atomically:YES])
+    {
+		if (errorBlock != nil)
+			errorBlock(@"Entitlements generation failed. Please try again");
+	}
+    
+    // Saving Entitlements succeed
+    else
+    {
+		if (successBlock != nil)
+			successBlock(@"Entitlements generated");
+    }
+}
+
+
 
 
 

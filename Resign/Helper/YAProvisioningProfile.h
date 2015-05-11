@@ -28,5 +28,6 @@
 @property (nonatomic, assign, readonly) NSArray *prefixes;
 @property (nonatomic, strong, readonly) NSString *appIdName;
 @property (nonatomic, strong, readonly) NSString *teamIdentifier;
+@property (nonatomic, strong, readonly) NSString *path;
 
 @end

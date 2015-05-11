@@ -19,7 +19,11 @@
 - (void)loadView
 {
 	[super loadView];
-		
+	
+	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(controlTextDidChange:) name:NSControlTextDidChangeNotification object:self.bundleIDField];
+
+
+	
 	// Search for zip utilities
 	if (![[FileHandler sharedInstance] searchForZipUtility])
 	{
@@ -35,6 +39,12 @@
 	
 	// Show the default destination ipa path
 	[self resetDestinationIpaPath];
+}
+
+- (void)controlTextDidChange:(NSNotification *)aNotification
+{
+	//NSTextField *textfield = (NSTextField*)aNotification.object;
+	//NSLog(@"controlTextDidChange %@", textfield.stringValue);
 }
 
 #pragma mark - ZIP Methods
@@ -331,6 +341,31 @@
 
 - (IBAction)resign:(id)sender
 {
+    [self disableControls];
+
+    // Delete the _CodeSignature directory
+    if (![[FileHandler sharedInstance] removeCodeSignatureDirectory])
+    {
+        [self enableControls];
+        [self showAlertOfKind:NSWarningAlertStyle WithTitle:@"Warning" AndMessage:@"You didn't select any IPA file, or the IPA file you selected is corrupted."];
+        [self.statusField appendStringValue:@"Unable to delete the _CodeSignature directory in order to resign the IPA: please try again"];
+        return;
+    }
+    
+    // Create the entitlements file
+	[[FileHandler sharedInstance] createEntitlementsFromProvisioning:(int)self.provisioningComboBox.indexOfSelectedItem bundleId:self.bundleIDField.stringValue log:^(NSString *log) {
+        [self.statusField appendStringValue:log];
+        
+    } error:^(NSString *error) {
+        [self enableControls];
+        [self showAlertOfKind:NSWarningAlertStyle WithTitle:@"Warning" AndMessage:error];
+        [self.statusField appendStringValue:error];
+        return;
+        
+    } success:^(id message) {
+        [self.statusField appendStringValue:message];
+    }];
+       
     
 }
 

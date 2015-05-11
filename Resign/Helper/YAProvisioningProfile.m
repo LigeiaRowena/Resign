@@ -27,6 +27,7 @@
 @property (readwrite) NSArray *prefixes;
 @property (readwrite) NSString *appIdName;
 @property (readwrite) NSString *teamIdentifier;
+@property (readwrite) NSString *path;
 
 @end
 
@@ -36,6 +37,7 @@
 {
     self = [super init];
     if (self) {
+        self.path = path;
         self.profileDictionary = [self provisioningProfileAtPath:path];
         [self processDictionary];
     }

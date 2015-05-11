@@ -25,15 +25,15 @@ static NSString *kCFBundlePrimaryIcon = @"CFBundlePrimaryIcon";
 static NSString *kCFBundleIconFiles = @"CFBundleIconFiles";
 static NSString *kCFBundleIconsipad = @"CFBundleIcons~ipad";
 static NSString *kMinimumOSVersion = @"MinimumOSVersion";
-static NSString *kSoftwareVersionBundleId = @"softwareVersionBundleId";
-static NSString *kApplicationProperties = @"ApplicationProperties";
-static NSString *kApplicationPath = @"ApplicationPath";
 static NSString *kPayloadDirName = @"Payload";
-static NSString *kProductsDirName = @"Products";
 static NSString *kInfoPlistFilename = @"Info.plist";
+static NSString *kEntitlementsPlistFilename = @"Entitlements.plist";
+static NSString *kCodeSignatureDirectory = @"_CodeSignature";
 static NSString *kMobileprovisionDirName = @"Library/MobileDevice/Provisioning Profiles";
 static NSString *kMobileprovisionFilename = @"embedded.mobileprovision";
-static NSString *kiTunesMetadataFileName = @"iTunesMetadata";
+static NSString *kAppIdentifier = @"application-identifier";
+static NSString *kTeamIdentifier = @"com.apple.developer.team-identifier";
+static NSString *kKeychainAccessGroups = @"keychain-access-groups";
 
 static NSString *kIconNormal = @"iconNormal";
 static NSString *kIconRetina = @"iconRetina";
@@ -51,10 +51,19 @@ static NSString *kIconRetina = @"iconRetina";
     
     // global file manager
     NSFileManager *manager;
+    
+    // result of entitlements creation task
+    NSString *entitlementsResult;
 }
 
 // array of provisioning profiles available
 @property (nonatomic, strong) NSMutableArray *provisioningArray;
+
+// index of the provisioning profile selected in the combo for the resign
+@property (nonatomic) int provisioningIndex;
+
+// bundle id selected for the resign
+@property (nonatomic, strong) NSString *bundleId;
 
 // array of certificates available
 @property (nonatomic, strong) NSMutableArray *certificatesArray;
@@ -71,10 +80,12 @@ static NSString *kIconRetina = @"iconRetina";
 // destination ipa path
 @property (nonatomic, strong) NSString *destinationPath;
 
+
 + (instancetype)sharedInstance;
 
 + (NSString*)getDocumentFolderPath;
 - (BOOL)removeWorkingDirectory;
+- (BOOL)removeCodeSignatureDirectory;
 
 - (void)getDefaultBundleIDWithSuccess:(SuccessBlock)success error:(ErrorBlock)error;
 
@@ -92,5 +103,7 @@ static NSString *kIconRetina = @"iconRetina";
 - (NSString*)getProvisioningInfoAtIndex:(NSInteger)index;
 
 - (void)getCertificatesSuccess:(SuccessBlock)success error:(ErrorBlock)error;
+
+- (void)createEntitlementsFromProvisioning:(int)provisioningIndex bundleId:(NSString*)bundleId log:(LogBlock)log error:(ErrorBlock)error success:(SuccessBlock)success;
 
 @end
