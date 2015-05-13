@@ -39,6 +39,7 @@ static FileHandler *istance;
         formatter.dateFormat = @"dd-MM-yyyy";
         manager = [NSFileManager defaultManager];
         manager.delegate = self;
+		self.originalProvisioningIndex = -1;
 	}
 	return self;
 }
@@ -593,6 +594,7 @@ static FileHandler *istance;
         if (indexProvisioning >= 0)
         {
 			self.provisioningIndex = (int)indexProvisioning;
+			self.originalProvisioningIndex = (int)indexProvisioning;
 			self.editProvisioning = NO;
             if (successBlock != nil)
                 successBlock([NSNumber numberWithInteger:indexProvisioning]);

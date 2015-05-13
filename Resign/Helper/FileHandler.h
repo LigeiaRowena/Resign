@@ -76,6 +76,9 @@ static NSString *kIconRetina = @"iconRetina";
 // index of the provisioning profile selected in the combo for the resign
 @property (nonatomic) int provisioningIndex;
 
+// original index of the provisioning profile from the original IPA file
+@property (nonatomic) int originalProvisioningIndex;
+
 // YES: the provisioning was edited
 // NO: the provisioning is the default one of the original IPA file
 @property (nonatomic) BOOL editProvisioning;

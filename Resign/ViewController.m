@@ -49,8 +49,6 @@
 
 - (void)controlTextDidChange:(NSNotification *)aNotification
 {
-	//NSTextField *textfield = (NSTextField*)aNotification.object;
-	//NSLog(@"controlTextDidChange %@", textfield.stringValue);
 }
 
 #pragma mark - ZIP Methods
@@ -180,7 +178,8 @@
 - (void)showProvisioningInfoAtIndex:(NSInteger)index
 {
 	[[FileHandler sharedInstance] setProvisioningIndex:(int)index];
-	[[FileHandler sharedInstance] setEditProvisioning:YES];
+	if (index != [[FileHandler sharedInstance] provisioningIndex])
+		[[FileHandler sharedInstance] setEditProvisioning:YES];
 	
     NSString *provisioningInfo = [[FileHandler sharedInstance] getProvisioningInfoAtIndex:index];
     [self.statusField appendStringValue:provisioningInfo];
