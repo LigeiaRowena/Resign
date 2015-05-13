@@ -265,14 +265,14 @@
     
     // Succeed to find icons in the Info.plist
     [[FileHandler sharedInstance] getDefaultIconFilesWithSuccess:^(id icons) {
-        NSDictionary *normalIcons = icons[kIconNormal];
-        self.iconButton.fileName = [normalIcons allKeys][0];
-        [self.iconButton setImage:[normalIcons allValues][0]];
+        self.iconButton.fileName = icons[kIconNormal];
+		NSImage *iconImage = [[NSImage alloc] initWithContentsOfFile:icons[kIconNormal]];
+        [self.iconButton setImage:iconImage];
         [self.statusField appendStringValue:[NSString stringWithFormat:@"The default icon file of 76x76 pixels is: %@", self.iconButton.fileName]];
-        
-        NSDictionary *retinaIcons = icons[kIconRetina];
-        self.retinaIconButton.fileName = [retinaIcons allKeys][0];
-        [self.retinaIconButton setImage:[retinaIcons allValues][0]];
+		
+		self.retinaIconButton.fileName = icons[kIconRetina];
+		NSImage *retinaIconImage = [[NSImage alloc] initWithContentsOfFile:icons[kIconRetina]];
+        [self.retinaIconButton setImage:retinaIconImage];
         [self.statusField appendStringValue:[NSString stringWithFormat:@"The default icon file of 152 pixels is: %@", self.retinaIconButton.fileName]];
         success = TRUE;
         
@@ -309,6 +309,12 @@
 			button.fileName = path;
 			[button setImage:image];
 			[self.statusField appendStringValue:[NSString stringWithFormat:@"You selected the icon file: %@ of size %@x%@ pixels", path, iconSize, iconSize]];
+			
+			if ([iconSize isEqualToNumber:@76])
+				[[FileHandler sharedInstance] setIconPath:path];
+			else if ([iconSize isEqualToNumber:@152])
+				[[FileHandler sharedInstance] setIconRetinaPath:path];
+			[[FileHandler sharedInstance] setEditIcons:YES];
 		}
 		else
 		{
@@ -426,6 +432,7 @@
         return;
     }
 	
+	// Resign
 	[[FileHandler sharedInstance] resignWithBundleId:self.bundleIDField.stringValue displayName:self.displayNameField.stringValue shortVersion:self.shortVersionField.stringValue buildVersion:self.shortVersionField.stringValue log:^(NSString *log) {
 		[self.statusField appendStringValue:log];
 		
@@ -602,8 +609,8 @@
 	// customized icons
 	else if (self.defaultIconsButton.state == NSOffState)
 	{
-		[self.iconButton setEnabled:YES];
-		[self.retinaIconButton setEnabled:YES];
+		[self.iconButton setTappable:YES];
+		[self.retinaIconButton setTappable:YES];
 	}
 }
 

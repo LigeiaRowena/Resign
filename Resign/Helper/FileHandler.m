@@ -34,6 +34,7 @@ static FileHandler *istance;
 	if (self) {
 		self.provisioningArray = @[].mutableCopy;
 		self.certificatesArray = @[].mutableCopy;
+		iconsDictionary = @{}.mutableCopy;
         formatter = [[NSDateFormatter alloc] init];
         formatter.dateFormat = @"dd-MM-yyyy";
         manager = [NSFileManager defaultManager];
@@ -202,6 +203,7 @@ static FileHandler *istance;
 {
     successBlock = [success copy];
     errorBlock = [error copy];
+	
     NSString* infoPlistPath = [self.appPath stringByAppendingPathComponent:kInfoPlistFilename];
     
     // Succeed to find the Info.plist
@@ -210,54 +212,11 @@ static FileHandler *istance;
         NSDictionary* infoPlistDict = [NSDictionary dictionaryWithContentsOfFile:infoPlistPath];
         NSArray *icons = infoPlistDict[kCFBundleIcons][kCFBundlePrimaryIcon][kCFBundleIconFiles];
         NSArray *iconsAssets = infoPlistDict[kCFBundleIconsipad][kCFBundlePrimaryIcon][kCFBundleIconFiles];
-        NSMutableDictionary *iconsDictionary = @{}.mutableCopy;
-        
-        // array of bundle icons founded in the plist file
-        if (icons != nil && [icons count] > 0)
-        {
-            for (NSString *fileName in icons)
-            {
-                NSRange range = [fileName rangeOfString:@".png"options:NSCaseInsensitiveSearch];
-                if (range.location != NSNotFound)
-                {
-                    NSString *iconName = [self.appPath stringByAppendingPathComponent:fileName];
-                    NSImage *iconImage = [[NSImage alloc] initWithContentsOfFile:iconName];
-                    if (NSEqualSizes(iconImage.size, CGSizeMake(76, 76)) && iconImage != nil)
-                    {
-                        NSDictionary *dict = @{iconName: iconImage};
-                        [iconsDictionary setObject:dict forKey:kIconNormal];
-                    }
-                    else if (NSEqualSizes(iconImage.size, CGSizeMake(152, 152)) && iconImage != nil)
-                    {
-                        NSDictionary *dict = @{iconName: iconImage};
-                        [iconsDictionary setObject:dict forKey:kIconRetina];
-                    }
-                }
-            }
-        }
-        
-        // array of assets icons founded in the plist file
-        else if (iconsAssets != nil && [iconsAssets count] > 0)
-        {
-            NSString *appIcon = iconsAssets[0];//AppIcon76x76
-            NSString *iconName = [[self.appPath stringByAppendingPathComponent:appIcon] stringByAppendingString:@"~ipad.png"];
-            NSImage *iconImage = [[NSImage alloc] initWithContentsOfFile:iconName];
-            NSString *retinaIconName = [[self.appPath stringByAppendingPathComponent:appIcon] stringByAppendingString:@"@2x~ipad.png"];
-            NSImage *retinaIconImage = [[NSImage alloc] initWithContentsOfFile:retinaIconName];
-            if (NSEqualSizes(iconImage.size, CGSizeMake(76, 76)) && iconImage != nil)
-            {
-                NSDictionary *dict = @{iconName: iconImage};
-                [iconsDictionary setObject:dict forKey:kIconNormal];
-            }
-            if (NSEqualSizes(retinaIconImage.size, CGSizeMake(152, 152)) && retinaIconImage != nil)
-            {
-                NSDictionary *dict = @{retinaIconName: retinaIconImage};
-                [iconsDictionary setObject:dict forKey:kIconRetina];
-            }
-        }
-     
+		iconsDictionary = [self getIconsDictionaryFromPlist:infoPlistDict icons:icons iconsAssets:iconsAssets].mutableCopy;
+		
         if ([iconsDictionary count] == 2)
         {
+			self.editIcons = NO;
             if (successBlock != nil)
                 successBlock(iconsDictionary);
         }
@@ -274,6 +233,149 @@ static FileHandler *istance;
         if (errorBlock != nil)
             errorBlock(@"You didn't select any IPA file, or the IPA file you selected is corrupted.");
     }
+}
+
+- (NSDictionary*)getIconsDictionaryFromPlist:(NSDictionary*)infoPlistDict icons:(NSArray*)icons iconsAssets:(NSArray*)iconsAssets
+{
+	NSMutableDictionary *iconsMap = @{}.mutableCopy;
+	
+	// array of bundle icons founded in the plist file
+	if (icons != nil && [icons count] > 0)
+	{
+		for (NSString *fileName in icons)
+		{
+			NSRange range = [fileName rangeOfString:@".png"options:NSCaseInsensitiveSearch];
+			if (range.location != NSNotFound)
+			{
+				NSString *iconName = [self.appPath stringByAppendingPathComponent:fileName];
+				NSImage *iconImage = [[NSImage alloc] initWithContentsOfFile:iconName];
+				if (NSEqualSizes(iconImage.size, CGSizeMake(76, 76)) && iconImage != nil)
+				{
+					[iconsMap setObject:iconName forKey:kIconNormal];
+				}
+				else if (NSEqualSizes(iconImage.size, CGSizeMake(152, 152)) && iconImage != nil)
+				{
+					[iconsMap setObject:iconName forKey:kIconRetina];
+				}
+			}
+		}
+	}
+	
+	// array of assets icons founded in the plist file
+	else if (iconsAssets != nil && [iconsAssets count] > 0)
+	{
+		NSString *appIcon = iconsAssets[0];//AppIcon76x76
+		NSString *iconName = [[self.appPath stringByAppendingPathComponent:appIcon] stringByAppendingString:@"~ipad.png"];
+		NSImage *iconImage = [[NSImage alloc] initWithContentsOfFile:iconName];
+		NSString *retinaIconName = [[self.appPath stringByAppendingPathComponent:appIcon] stringByAppendingString:@"@2x~ipad.png"];
+		NSImage *retinaIconImage = [[NSImage alloc] initWithContentsOfFile:retinaIconName];
+		if (NSEqualSizes(iconImage.size, CGSizeMake(76, 76)) && iconImage != nil)
+		{
+			[iconsMap setObject:iconName forKey:kIconNormal];
+		}
+		if (NSEqualSizes(retinaIconImage.size, CGSizeMake(152, 152)) && retinaIconImage != nil)
+		{
+			[iconsMap setObject:retinaIconName forKey:kIconRetina];
+		}
+	}
+	
+	return iconsMap;
+}
+
+- (void)editIconsWithLog:(LogBlock)log error:(ErrorBlock)error success:(SuccessBlock)success
+{
+	logBlock = [log copy];
+	errorBlock = [error copy];
+	successBlock = [success copy];
+	
+	if (!self.editIcons)
+	{
+		if (successBlock)
+			successBlock(@"You selected the default Icons");
+		return;
+	}
+	
+	if (logBlock)
+		logBlock(@"Editing the Icon files...");
+	
+	
+	// Delete the old icon files
+	NSLog(@"Found the old icon files, deleting them...");
+	NSString *targetIconPath = iconsDictionary[kIconNormal];
+	NSString *targetIconRetinaPath = iconsDictionary[kIconRetina];
+	[[NSFileManager defaultManager] removeItemAtPath:targetIconPath error:nil];
+	[[NSFileManager defaultManager] removeItemAtPath:targetIconRetinaPath  error:nil];
+	
+	
+	// Create the icons task
+	NSTask *iconTask = [[NSTask alloc] init];
+	[iconTask setLaunchPath:@"/bin/cp"];
+	[iconTask setArguments:@[@"-R", self.iconPath, targetIconPath]];
+	[iconTask launch];
+	NSTask *iconRetinaTask = [[NSTask alloc] init];
+	[iconRetinaTask setLaunchPath:@"/bin/cp"];
+	[iconRetinaTask setArguments:@[@"-R", self.iconRetinaPath, targetIconRetinaPath]];
+	[iconRetinaTask launch];
+	[NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(checkIcons:) userInfo:@{@"iconTask": iconTask, @"iconRetinaTask": iconRetinaTask} repeats:TRUE];
+}
+
+- (void)checkIcons:(NSTimer *)timer
+{
+	int operationsCounter = 0;
+	
+	// Check if the icon task finished: if yes invalidate the timer and do some operations
+	NSTask *iconTask = timer.userInfo[@"iconTask"];
+	NSTask *iconRetinaTask = timer.userInfo[@"iconRetinaTask"];
+	
+	
+	if ([iconTask isRunning] == 0)
+	{
+		int terminationStatus = iconTask.terminationStatus;
+		// The task succeed and the icon was successfully created
+		if (terminationStatus == 0 && [[NSFileManager defaultManager] fileExistsAtPath:iconsDictionary[kIconNormal]])
+		{
+			iconTask = nil;
+			operationsCounter++;
+		}
+
+		// The task failed
+		else
+		{
+			[timer invalidate];
+			iconTask = nil;
+			iconRetinaTask = nil;
+			if (errorBlock != nil)
+				errorBlock(@"Icon editing failed. Please try again");
+		}
+	}
+	
+	// Check if the icon retina task finished: if yes invalidate the timer and do some operations
+	if ([iconRetinaTask isRunning] == 0)
+	{
+		int terminationStatus = iconRetinaTask.terminationStatus;
+		// The task succeed and the icon was successfully created
+		if (terminationStatus == 0 && [[NSFileManager defaultManager] fileExistsAtPath:iconsDictionary[kIconRetina]])
+		{
+			iconRetinaTask = nil;
+			operationsCounter++;
+		}
+
+		// The task failed
+		else
+		{
+			[timer invalidate];
+			iconTask = nil;
+			iconRetinaTask = nil;
+			if (errorBlock != nil)
+				errorBlock(@"Icon retina editing failed. Please try again");
+		}
+	}
+	
+	if (operationsCounter == 2)
+	{
+		if (successBlock)
+			successBlock(@"Successfully editing the Icon files");
+	}
 }
 
 #pragma mark - ZIP
@@ -541,6 +643,13 @@ static FileHandler *istance;
 	errorBlock = [error copy];
 	successBlock = [success copy];
 	
+	if (!self.editProvisioning)
+	{
+		if (successBlock)
+			successBlock(@"You selected the default Provisioning Profile");
+		return;
+	}
+	
 	if (logBlock)
 		logBlock(@"Editing the Provisioning Profile...");
 	
@@ -556,7 +665,7 @@ static FileHandler *istance;
 			self.appPath = [payloadPath stringByAppendingPathComponent:file];
 			if ([[NSFileManager defaultManager] fileExistsAtPath:[self.appPath stringByAppendingPathComponent:kMobileprovisionFilename]])
 			{
-				NSLog(@"Found embedded.mobileprovision, deleting.");
+				NSLog(@"Found embedded.mobileprovision, deleting it...");
 				[[NSFileManager defaultManager] removeItemAtPath:[self.appPath stringByAppendingPathComponent:kMobileprovisionFilename] error:nil];
 			}
 			break;
@@ -585,7 +694,7 @@ static FileHandler *istance;
 		// The task succeed
 		if (terminationStatus == 0)
 		{
-			// Detech if the provisioning was successfully created
+			// Detect if the provisioning was successfully created
 			BOOL success = NO;
 			NSString *payloadPath = [self.workingPath stringByAppendingPathComponent:kPayloadDirName];
 			NSArray *payloadContents = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:payloadPath error:nil];
@@ -710,6 +819,7 @@ static FileHandler *istance;
 	logResignBlock = [log copy];
 	errorResignBlock = [error copy];
 	successResignBlock = [success copy];
+	
 	self.bundleId = bundleId;
 	self.displayName = displayName;
 	self.shortVersion = shortVersion;
@@ -728,7 +838,7 @@ static FileHandler *istance;
 		if (logResignBlock)
 			logResignBlock(message);
 		
-		// Edit the Info.plis file
+		// Edit the Info.plist file
 		[self editInfoPlistWithLog:^(NSString *log) {
 			if (logResignBlock)
 				logResignBlock(log);
@@ -742,21 +852,32 @@ static FileHandler *istance;
 				logResignBlock(message);
 			
 			// Edit the Provisioning Profile
-			if (self.editProvisioning)
-			{
-				[self editProvisioningWithLog:^(NSString *log) {
+			[self editProvisioningWithLog:^(NSString *log) {
+				if (logResignBlock)
+					logResignBlock(log);
+				
+			} error:^(NSString *error) {
+				if (errorResignBlock)
+					errorResignBlock(error);
+				
+			} success:^(id message) {
+				if (logResignBlock)
+					logResignBlock(message);
+				
+				// Edit the icon files
+				[self editIconsWithLog:^(NSString *log) {
 					if (logResignBlock)
 						logResignBlock(log);
 					
 				} error:^(NSString *error) {
 					if (errorResignBlock)
 						errorResignBlock(error);
-					
+
 				} success:^(id message) {
-					if (logResignBlock)
-						logResignBlock(message);
+					if (successResignBlock)
+						successResignBlock(message);
 				}];
-			}
+			}];
 		}];
 	}];
 }

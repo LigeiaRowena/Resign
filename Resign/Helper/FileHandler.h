@@ -34,7 +34,6 @@ static NSString *kMobileprovisionFilename = @"embedded.mobileprovision";
 static NSString *kAppIdentifier = @"application-identifier";
 static NSString *kTeamIdentifier = @"com.apple.developer.team-identifier";
 static NSString *kKeychainAccessGroups = @"keychain-access-groups";
-
 static NSString *kIconNormal = @"iconNormal";
 static NSString *kIconRetina = @"iconRetina";
 
@@ -59,6 +58,9 @@ static NSString *kIconRetina = @"iconRetina";
     
     // result of entitlements creation task
     NSString *entitlementsResult;
+	
+	// map of the app icons fron the Info.plist file
+	NSMutableDictionary *iconsDictionary;
 }
 
 // array of provisioning profiles available
@@ -70,6 +72,16 @@ static NSString *kIconRetina = @"iconRetina";
 // YES: the provisioning was edited
 // NO: the provisioning is the default one of the original IPA file
 @property (nonatomic) BOOL editProvisioning;
+
+// YES: the icons were edited
+// NO: the icons are the default ones of the original IPA file
+@property (nonatomic) BOOL editIcons;
+
+// path of the edited normal icon (76x76 pixel)
+@property (nonatomic, strong) NSString *iconPath;
+
+// path of the edited retina icon (152x152 pixel)
+@property (nonatomic, strong) NSString *iconRetinaPath;
 
 // bundle id selected for the resign
 @property (nonatomic, strong) NSString *bundleId;
