@@ -670,12 +670,12 @@
         <window title="Resign" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" animationBehavior="default" id="QvC-M9-y7g">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
-            <rect key="contentRect" x="304" y="33" width="700" height="804"/>
+            <rect key="contentRect" x="250" y="41" width="796" height="686"/>
             <rect key="screenRect" x="0.0" y="0.0" width="1280" height="777"/>
-            <value key="minSize" type="size" width="700" height="804"/>
-            <value key="maxSize" type="size" width="700" height="804"/>
+            <value key="minSize" type="size" width="796" height="686"/>
+            <value key="maxSize" type="size" width="796" height="686"/>
             <view key="contentView" id="EiT-Mj-1SZ">
-                <rect key="frame" x="0.0" y="0.0" width="700" height="804"/>
+                <rect key="frame" x="0.0" y="0.0" width="796" height="686"/>
                 <autoresizingMask key="autoresizingMask"/>
             </view>
         </window>
