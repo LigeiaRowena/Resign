@@ -378,7 +378,7 @@ static FileHandler *istance;
 	}
 }
 
-#pragma mark - ZIP
+#pragma mark - ZIP/UNZIP
 
 - (BOOL)searchForZipUtility
 {
@@ -457,6 +457,51 @@ static FileHandler *istance;
         }
     }
 }
+
+- (void)zipIpaWithLog:(LogBlock)log error:(ErrorBlock)error success:(SuccessBlock)success
+{
+	logBlock = [log copy];
+	errorBlock = [error copy];
+	successBlock = [success copy];
+	
+	if (self.appPath)
+	{
+		// Path of the app file to create/resign
+		self.destinationPath = [[self.destinationPath stringByAppendingPathComponent:self.displayName] stringByAppendingPathExtension:@"ipa"];
+		
+		if (logBlock)
+			logBlock([NSString stringWithFormat:@"Beginning the zip of the IPA file in the path: %@", self.destinationPath]);
+
+		// Create the zip task
+		NSTask *zipTask = [[NSTask alloc] init];
+		[zipTask setLaunchPath:@"/usr/bin/zip"];
+		[zipTask setCurrentDirectoryPath:self.workingPath];
+		[zipTask setArguments:@[@"-qry", self.destinationPath, @"Payload/"]];
+		[NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(checkZip:) userInfo:@{@"task": zipTask} repeats:TRUE];
+		[zipTask launch];
+	}
+}
+
+- (void)checkZip:(NSTimer *)timer
+{
+	// Check if the zip task finished: if yes invalidate the timer and do some operations
+	NSTask *zipTask = timer.userInfo[@"task"];
+	if ([zipTask isRunning] == 0)
+	{
+		[timer invalidate];
+		zipTask = nil;
+		if (logBlock)
+			logBlock([NSString stringWithFormat:@"Zipping done. IPA file saved in the path: %@", self.destinationPath]);
+		
+		// Delete the temp working directory
+		[self removeWorkingDirectory];
+		
+		if (successBlock)
+			successBlock([NSString stringWithFormat:@"Resign result: %@", [[codesigningResult stringByAppendingString:@"\n\n"] stringByAppendingString:verificationResult]]);
+	}
+}
+
+#pragma mark - App Info
 
 - (void)setAppPath
 {
@@ -1003,7 +1048,18 @@ static FileHandler *istance;
 							logResignBlock(message);
 						
 						// Do the ZIP task
-						
+						[self zipIpaWithLog:^(NSString *log) {
+							if (logResignBlock)
+								logResignBlock(log);
+							
+						} error:^(NSString *error) {
+							if (errorResignBlock)
+								errorResignBlock(error);
+
+						} success:^(id message) {
+							if (successResignBlock)
+								successResignBlock(message);
+						}];
 					}];
 				}];
 			}];
