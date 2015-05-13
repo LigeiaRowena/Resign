@@ -126,6 +126,7 @@
 {
     if ([[[FileHandler sharedInstance] certificatesArray] count] > 0 && index >= 0)
     {
+		[[FileHandler sharedInstance] setCertificateIndex:(int)index];
         NSString *certificate = [[FileHandler sharedInstance] certificatesArray][index];
         [self.statusField appendStringValue:certificate];
     }

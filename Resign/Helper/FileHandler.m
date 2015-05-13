@@ -559,6 +559,7 @@ static FileHandler *istance;
         NSInteger indexCert = [self getCertificateIndexFromApp:teamName];
         if (indexCert >= 0)
         {
+			self.certificateIndex = (int)indexCert;
             if (successBlock != nil)
                 successBlock([NSNumber numberWithInteger:indexCert]);
         }
@@ -729,6 +730,115 @@ static FileHandler *istance;
 	}
 }
 
+#pragma mark - Codesign
+
+- (void)doCodesignWithLog:(LogBlock)log error:(ErrorBlock)error success:(SuccessBlock)success
+{
+	logBlock = [log copy];
+	errorBlock = [error copy];
+	successBlock = [success copy];
+	
+	if (logBlock)
+		logBlock(@"Beginning the codesign...");
+	
+	// Create the codesign task
+	if (self.appPath)
+	{
+		NSString *currentCertificate = self.certificatesArray[self.certificateIndex];
+		NSString* entitlementsPath = [self.workingPath stringByAppendingPathComponent:kEntitlementsPlistFilename];
+		
+		NSTask *codesignTask = [[NSTask alloc] init];
+		[codesignTask setLaunchPath:@"/usr/bin/codesign"];
+		[codesignTask setArguments:@[@"-f", @"-s", currentCertificate, self.appPath, [NSString stringWithFormat:@"--entitlements=%@", entitlementsPath]]];
+		[NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(checkCodesigning:) userInfo:@{@"task": codesignTask} repeats:TRUE];
+		NSPipe *pipe = [NSPipe pipe];
+		[codesignTask setStandardOutput:pipe];
+		[codesignTask setStandardError:pipe];
+		NSFileHandle *handle = [pipe fileHandleForReading];
+		[codesignTask launch];
+		[NSThread detachNewThreadSelector:@selector(watchCodesigning:)
+								 toTarget:self withObject:handle];
+	}
+}
+
+- (void)checkCodesigning:(NSTimer *)timer
+{
+	// Check if the code signing task finished: if yes invalidate the timer and do some operations
+	NSTask *codesignTask = timer.userInfo[@"task"];
+	if ([codesignTask isRunning] == 0)
+	{
+		[timer invalidate];
+		codesignTask = nil;
+		if (logBlock)
+			logBlock(@"Codesigning done");
+		[self verifySignature];
+	}
+}
+
+- (void)watchCodesigning:(NSFileHandle*)streamHandle
+{
+	@autoreleasepool {
+		// Set the codesigning result string
+		codesigningResult = [[NSString alloc] initWithData:[streamHandle readDataToEndOfFile] encoding:NSASCIIStringEncoding];
+	}
+}
+
+- (void)verifySignature
+{
+	if (self.appPath)
+	{
+		if (logBlock)
+			logBlock([NSString stringWithFormat:@"Verifying codesign: %@",self.appPath]);
+		
+		// Create the verify task in order to verify the codesign
+		NSTask *verifyTask = [[NSTask alloc] init];
+		[verifyTask setLaunchPath:@"/usr/bin/codesign"];
+		[verifyTask setArguments:[NSArray arrayWithObjects:@"-v", self.appPath, nil]];
+		[NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(checkVerificationProcess:) userInfo:@{@"task": verifyTask} repeats:TRUE];
+		NSPipe *pipe = [NSPipe pipe];
+		[verifyTask setStandardOutput:pipe];
+		[verifyTask setStandardError:pipe];
+		NSFileHandle *handle = [pipe fileHandleForReading];
+		[verifyTask launch];
+		[NSThread detachNewThreadSelector:@selector(watchVerificationProcess:)
+								 toTarget:self withObject:handle];
+	}
+}
+
+- (void)watchVerificationProcess:(NSFileHandle*)streamHandle
+{
+	@autoreleasepool {
+		// Set the verification result string
+		verificationResult = [[NSString alloc] initWithData:[streamHandle readDataToEndOfFile] encoding:NSASCIIStringEncoding];
+	}
+}
+
+- (void)checkVerificationProcess:(NSTimer *)timer
+{
+	// Check if the verify task finished: if yes invalidate the timer and do some operations
+	NSTask *verifyTask = timer.userInfo[@"task"];
+	if ([verifyTask isRunning] == 0)
+	{
+		[timer invalidate];
+		verifyTask = nil;
+		
+		// Verification of codesign succeed
+		if ([verificationResult length] == 0)
+		{
+			if (successBlock)
+				successBlock(@"Verification Codesigning done");
+		}
+		
+		// Verification of codesign failed
+		else
+		{
+			NSString *error = [[codesigningResult stringByAppendingString:@"\n\n"] stringByAppendingString:verificationResult];
+			if (errorBlock)
+				errorBlock([NSString stringWithFormat:@"Signing failed with error: %@", error]);
+		}
+	}
+}
+
 #pragma mark - Signign Certificate
 
 - (void)getCertificatesSuccess:(SuccessBlock)success error:(ErrorBlock)error
@@ -824,6 +934,8 @@ static FileHandler *istance;
 	self.displayName = displayName;
 	self.shortVersion = shortVersion;
 	self.buildVersion = buildVersion;
+	codesigningResult = nil;
+	verificationResult = nil;
 	
 	// Create the entitlements file
 	[self createEntitlementsWithLog:^(NSString *log) {
@@ -874,8 +986,25 @@ static FileHandler *istance;
 						errorResignBlock(error);
 
 				} success:^(id message) {
-					if (successResignBlock)
-						successResignBlock(message);
+					if (logResignBlock)
+						logResignBlock(message);
+					
+					// Do the codesign
+					[self doCodesignWithLog:^(NSString *log) {
+						if (logResignBlock)
+							logResignBlock(log);
+						
+					} error:^(NSString *error) {
+						if (errorResignBlock)
+							errorResignBlock(error);
+						
+					} success:^(id message) {
+						if (logResignBlock)
+							logResignBlock(message);
+						
+						// Do the ZIP task
+						
+					}];
 				}];
 			}];
 		}];

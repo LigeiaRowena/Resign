@@ -59,6 +59,13 @@ static NSString *kIconRetina = @"iconRetina";
     // result of entitlements creation task
     NSString *entitlementsResult;
 	
+	// result of codesign task
+	NSString *codesigningResult;
+	
+	// result of codesign verification task
+	NSString *verificationResult;
+
+
 	// map of the app icons fron the Info.plist file
 	NSMutableDictionary *iconsDictionary;
 }
@@ -97,6 +104,9 @@ static NSString *kIconRetina = @"iconRetina";
 
 // array of certificates available
 @property (nonatomic, strong) NSMutableArray *certificatesArray;
+
+// index of the certificate selected in the combo for the resign
+@property (nonatomic) int certificateIndex;
 
 // source ipa path
 @property (nonatomic, strong) NSString *sourcePath;
