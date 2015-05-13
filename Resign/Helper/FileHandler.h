@@ -66,7 +66,7 @@ static NSString *kIconRetina = @"iconRetina";
 	NSString *verificationResult;
 
 
-	// map of the app icons fron the Info.plist file
+	// map of the app icons from the Info.plist file
 	NSMutableDictionary *iconsDictionary;
 }
 
@@ -120,34 +120,47 @@ static NSString *kIconRetina = @"iconRetina";
 // destination ipa path
 @property (nonatomic, strong) NSString *destinationPath;
 
-
+// init
 + (instancetype)sharedInstance;
 
+// utility
+- (void)clearAll;
 + (NSString*)getDocumentFolderPath;
 - (BOOL)removeWorkingDirectory;
 - (BOOL)removeCodeSignatureDirectory;
 
+// bundle id
 - (void)getDefaultBundleIDWithSuccess:(SuccessBlock)success error:(ErrorBlock)error;
 
+// short version
 - (void)getDefaultShortVersionWithSuccess:(SuccessBlock)success error:(ErrorBlock)error;
 
+// build version
 - (void)getDefaultBuildVersionWithSuccess:(SuccessBlock)success error:(ErrorBlock)error;
 
+// product name
 - (void)getDefaultProductNameWithSuccess:(SuccessBlock)success error:(ErrorBlock)error;
 
+// icons
 - (void)getDefaultIconFilesWithSuccess:(SuccessBlock)success error:(ErrorBlock)error;
 
+// zip/unzip
 - (BOOL)searchForZipUtility;
 - (void)unzipIpaFromSource:(NSString*)ipaFileName log:(LogBlock)log error:(ErrorBlock)error success:(SuccessBlock)success;
+
+// app info
 - (void)showIpaInfoWithSuccess:(SuccessBlock)success error:(ErrorBlock)error;
 - (void)showProvisioningInfoWithSuccess:(SuccessBlock)success error:(ErrorBlock)error;
 - (void)showCertificatesInfoWithSuccess:(SuccessBlock)success error:(ErrorBlock)error;
 
+// provisioning profiles
 - (void)getProvisioningProfiles;
 - (NSString*)getProvisioningInfoAtIndex:(NSInteger)index;
 
+// signign certificates
 - (void)getCertificatesSuccess:(SuccessBlock)success error:(ErrorBlock)error;
 
+// resign
 - (void)resignWithBundleId:(NSString*)bundleId displayName:(NSString*)displayName shortVersion:(NSString*)shortVersion buildVersion:(NSString*)buildVersion log:(LogBlock)log error:(ErrorBlock)error success:(SuccessBlock)success;
 
 @end

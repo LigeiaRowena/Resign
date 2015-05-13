@@ -28,6 +28,7 @@
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(controlTextDidChange:) name:NSControlTextDidChangeNotification object:self.shortVersionField];
 
 
+	//self.iconButton.
 	
 	// Search for zip utilities
 	if (![[FileHandler sharedInstance] searchForZipUtility])
@@ -434,7 +435,7 @@
     }
 	
 	// Resign
-	[[FileHandler sharedInstance] resignWithBundleId:self.bundleIDField.stringValue displayName:self.displayNameField.stringValue shortVersion:self.shortVersionField.stringValue buildVersion:self.shortVersionField.stringValue log:^(NSString *log) {
+	[[FileHandler sharedInstance] resignWithBundleId:self.bundleIDField.stringValue displayName:self.displayNameField.stringValue shortVersion:self.shortVersionField.stringValue buildVersion:self.buildVersionField.stringValue log:^(NSString *log) {
 		[self.statusField appendStringValue:log];
 		
 	} error:^(NSString *error) {
@@ -446,6 +447,9 @@
 	} success:^(id message) {
 		[self enableControls];
 		[self.statusField appendStringValue:message];
+		
+		// Clear all
+		[self clearAll];
 	}];
 }
 
@@ -714,6 +718,30 @@
     [self.resetAllButton setEnabled:TRUE];
     [self.resignButton setEnabled:TRUE];
     [self.cleanConsoleButton setEnabled:TRUE];
+}
+
+- (void)clearAll
+{
+	// clear all the UI
+	[self.ipaField setStringValue:@""];
+	[self.provisioningComboBox setStringValue:@""];
+	[self.certificateComboBox setStringValue:@""];
+	[self.bundleIDField setStringValue:@""];
+	[self.bundleIDButton setState:NSOffState];
+	[self.displayNameField setStringValue:@""];
+	[self.displayNameButton setState:NSOffState];
+	[self resetDestinationIpaPath];
+	[self.shortVersionField setStringValue:@""];
+	[self.defaultShortVersionButton setState:NSOffState];
+	[self.buildVersionField setStringValue:@""];
+	[self.defaultBuildVersionButton setState:NSOffState];
+	[self.iconButton setFileName:@""];
+	[self.iconButton setTappable:YES];
+	[self.retinaIconButton setFileName:@""];
+	[self.retinaIconButton setTappable:YES];
+
+	// clear all the FileHandler properties
+	[[FileHandler sharedInstance] clearAll];
 }
 
 #pragma mark - NSComboBox

@@ -80,6 +80,36 @@ static FileHandler *istance;
     return success;
 }
 
+- (void)clearAll
+{
+	successBlock = nil;
+	errorBlock = nil;
+	logBlock = nil;
+	successResignBlock = nil;
+	errorResignBlock = nil;
+	logResignBlock = nil;
+	
+	entitlementsResult = nil;
+	codesigningResult = nil;
+	verificationResult = nil;
+	iconsDictionary = nil;
+	
+	self.provisioningIndex = 0;
+	self.editProvisioning = NO;
+	self.editIcons = NO;
+	self.iconPath = nil;
+	self.iconRetinaPath = nil;
+	self.bundleId = nil;
+	self.displayName = nil;
+	self.shortVersion = nil;
+	self.buildVersion = nil;
+	self.certificateIndex = 0;
+	self.sourcePath = nil;
+	self.workingPath = nil;
+	self.appPath = nil;
+	self.destinationPath = nil;
+}
+
 #pragma mark - NSFileManagerDelegate
 
 - (BOOL)fileManager:(NSFileManager *)fileManager shouldProceedAfterError:(NSError *)error removingItemAtPath:(NSString *)path
