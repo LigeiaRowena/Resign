@@ -140,7 +140,7 @@ static FileHandler *istance;
     else
     {
         if (errorBlock != nil)
-            errorBlock(@"You didn't select any IPA file, or the IPA file you selected is corrupted.");
+            errorBlock(@"You didn't select any IPA file, or the IPA file you selected is corrupted, or the Info.plist of the IPA file is corrupted.");
     }
 }
 
@@ -165,7 +165,7 @@ static FileHandler *istance;
 	else
 	{
 		if (errorBlock != nil)
-			errorBlock(@"You didn't select any IPA file, or the IPA file you selected is corrupted.");
+            errorBlock(@"You didn't select any IPA file, or the IPA file you selected is corrupted, or the Info.plist of the IPA file is corrupted.");
 	}
 }
 
@@ -190,7 +190,7 @@ static FileHandler *istance;
 	else
 	{
 		if (errorBlock != nil)
-			errorBlock(@"You didn't select any IPA file, or the IPA file you selected is corrupted.");
+            errorBlock(@"You didn't select any IPA file, or the IPA file you selected is corrupted, or the Info.plist of the IPA file is corrupted.");
 	}
 }
 
@@ -224,7 +224,7 @@ static FileHandler *istance;
     else
     {
         if (errorBlock != nil)
-            errorBlock(@"You didn't select any IPA file, or the IPA file you selected is corrupted.");
+            errorBlock(@"You didn't select any IPA file, or the IPA file you selected is corrupted, or the Info.plist of the IPA file is corrupted.");
     }
 }
 
@@ -262,7 +262,7 @@ static FileHandler *istance;
     else
     {
         if (errorBlock != nil)
-            errorBlock(@"You didn't select any IPA file, or the IPA file you selected is corrupted.");
+            errorBlock(@"You didn't select any IPA file, or the IPA file you selected is corrupted, or the Info.plist of the IPA file is corrupted.");
     }
 }
 
@@ -416,7 +416,8 @@ static FileHandler *istance;
 	BOOL succes = TRUE;
 	
 	// Look for zip utility
-	if (![manager fileExistsAtPath:@"/usr/bin/zip"])	succes = FALSE;
+	if (![manager fileExistsAtPath:@"/usr/bin/zip"])
+        succes = FALSE;
 
 	if (![manager fileExistsAtPath:@"/usr/bin/unzip"])
 		succes = FALSE;
@@ -574,7 +575,7 @@ static FileHandler *istance;
     {
         [self removeWorkingDirectory];
         if (errorBlock != nil)
-            errorBlock(@"You didn't select any IPA file, or the IPA file you selected is corrupted.");
+            errorBlock(@"You didn't select any IPA file, or the IPA file you selected is corrupted, or the Info.plist of the IPA file is corrupted.");
         return;
     }
 }
@@ -617,7 +618,7 @@ static FileHandler *istance;
     {
         [self removeWorkingDirectory];
         if (errorBlock  != nil)
-            errorBlock(@"You didn't select any IPA file, or the IPA file you selected is corrupted.");
+            errorBlock(@"You didn't select any IPA file, or the IPA file you selected is corrupted, or the Info.plist of the IPA file is corrupted.");
     }
 }
 
@@ -651,7 +652,7 @@ static FileHandler *istance;
     {
         [self removeWorkingDirectory];
         if (errorBlock  != nil)
-            errorBlock(@"You didn't select any IPA file, or the IPA file you selected is corrupted.");
+            errorBlock(@"You didn't select any IPA file, or the IPA file you selected is corrupted, or the Info.plist of the IPA file is corrupted.");
     }
 }
 
@@ -1132,7 +1133,7 @@ static FileHandler *istance;
 		else
 		{
 			if (errorBlock != nil)
-				errorBlock(@"Failed to re-save the Info.plist file properly");
+				errorBlock(@"Failed to re-save the Info.plist file properly. Please try again.");
 		}
 	}
 	
@@ -1177,7 +1178,7 @@ static FileHandler *istance;
     else
     {
         if (errorBlock != nil)
-            errorBlock(@"You must choose a valid *.mobileprovision file");
+            errorBlock(@"You must choose a valid *.mobileprovision file. Please try again.");
     }
 }
 

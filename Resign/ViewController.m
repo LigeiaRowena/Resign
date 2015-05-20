@@ -247,14 +247,6 @@
         [self.iconButton setTappable:NO];
         [self.retinaIconButton setTappable:NO];
 	}
-	// Failed to find the default product name
-	else
-	{
-		[self showAlertOfKind:NSWarningAlertStyle WithTitle:@"Warning" AndMessage:@"You didn't select any IPA file, or the IPA file you selected is corrupted."];
-		[self.defaultIconsButton setState:NSOffState];
-        [self.iconButton setTappable:YES];
-        [self.retinaIconButton setTappable:YES];
-	}
 }
 
 - (BOOL)getDefaultIconFiles
@@ -280,6 +272,8 @@
         [self.defaultIconsButton setState:NSOffState];
         [self.iconButton setEnabled:YES];
         [self.retinaIconButton setEnabled:YES];
+        [self.iconButton setTappable:YES];
+        [self.retinaIconButton setTappable:YES];
         success = FALSE;
     }];
     
@@ -425,7 +419,7 @@
     if (![[FileHandler sharedInstance] removeCodeSignatureDirectory])
     {
         [self enableControls];
-        [self showAlertOfKind:NSWarningAlertStyle WithTitle:@"Warning" AndMessage:@"You didn't select any IPA file, or the IPA file you selected is corrupted."];
+        [self showAlertOfKind:NSWarningAlertStyle WithTitle:@"Warning" AndMessage:@"You didn't select any IPA file, or the IPA file you selected is corrupted: unable to delete the _CodeSignature directory in order to resign the IPA"];
         [self.statusField appendStringValue:@"Unable to delete the _CodeSignature directory in order to resign the IPA: please try again"];
         return;
     }
@@ -492,7 +486,6 @@
     [self.statusField appendStringValue:[NSString stringWithFormat:@"You typed the bundle ID: %@", self.bundleIDField.stringValue]];
 }
 
-
 - (IBAction)changeDisplayName:(id)sender
 {
 	[self.statusField appendStringValue:[NSString stringWithFormat:@"You typed the product name: %@", self.displayNameField.stringValue]];
@@ -523,7 +516,6 @@
 	[FileHandler sharedInstance].destinationPath = self.destinationIpaPath.stringValue;
 	[self.statusField appendStringValue:[NSString stringWithFormat:@"You typed the destination ipa path: %@", self.destinationIpaPath.stringValue]];
 }
-
 
 - (IBAction)defaultDestinationIpaPath:(id)sender
 {
