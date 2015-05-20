@@ -27,9 +27,6 @@
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(controlTextDidChange:) name:NSControlTextDidChangeNotification object:self.destinationIpaPath];
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(controlTextDidChange:) name:NSControlTextDidChangeNotification object:self.shortVersionField];
 
-
-	//self.iconButton.
-	
 	// Search for zip utilities
 	if (![[FileHandler sharedInstance] searchForZipUtility])
 	{
@@ -736,8 +733,10 @@
 	[self.defaultBuildVersionButton setState:NSOffState];
 	[self.iconButton setFileName:@""];
 	[self.iconButton setTappable:YES];
+    [self.iconButton setImage:[NSImage imageNamed:@"Icon"]];
 	[self.retinaIconButton setFileName:@""];
 	[self.retinaIconButton setTappable:YES];
+    [self.retinaIconButton setImage:[NSImage imageNamed:@"Icon-iPadRetina"]];
 
 	// clear all the FileHandler properties
 	[[FileHandler sharedInstance] clearAll];
