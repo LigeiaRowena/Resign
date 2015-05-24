@@ -40,6 +40,7 @@ static FileHandler *istance;
         manager = [NSFileManager defaultManager];
         manager.delegate = self;
 		self.originalProvisioningIndex = -1;
+		iconsCounter = 0;
 	}
 	return self;
 }
@@ -343,66 +344,70 @@ static FileHandler *istance;
 	[iconTask setLaunchPath:@"/bin/cp"];
 	[iconTask setArguments:@[@"-R", self.iconPath, targetIconPath]];
 	[iconTask launch];
+	[NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(checkIcon:) userInfo:@{@"iconTask": iconTask} repeats:TRUE];
+
 	NSTask *iconRetinaTask = [[NSTask alloc] init];
 	[iconRetinaTask setLaunchPath:@"/bin/cp"];
 	[iconRetinaTask setArguments:@[@"-R", self.iconRetinaPath, targetIconRetinaPath]];
 	[iconRetinaTask launch];
-	[NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(checkIcons:) userInfo:@{@"iconTask": iconTask, @"iconRetinaTask": iconRetinaTask} repeats:TRUE];
+	[NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(checkRetinaIcon:) userInfo:@{@"iconRetinaTask": iconRetinaTask} repeats:TRUE];
 }
 
-- (void)checkIcons:(NSTimer *)timer
+- (void)checkRetinaIcon:(NSTimer *)timer
 {
-	int operationsCounter = 0;
-	
 	// Check if the icon task finished: if yes invalidate the timer and do some operations
-	NSTask *iconTask = timer.userInfo[@"iconTask"];
 	NSTask *iconRetinaTask = timer.userInfo[@"iconRetinaTask"];
-	
-	
-	if ([iconTask isRunning] == 0)
-	{
-		int terminationStatus = iconTask.terminationStatus;
-		// The task succeed and the icon was successfully created
-		if (terminationStatus == 0 && [[NSFileManager defaultManager] fileExistsAtPath:iconsDictionary[kIconNormal]])
-		{
-			iconTask = nil;
-			operationsCounter++;
-		}
-
-		// The task failed
-		else
-		{
-			[timer invalidate];
-			iconTask = nil;
-			iconRetinaTask = nil;
-			if (errorBlock != nil)
-				errorBlock(@"Icon editing failed. Please try again");
-		}
-	}
-	
-	// Check if the icon retina task finished: if yes invalidate the timer and do some operations
 	if ([iconRetinaTask isRunning] == 0)
 	{
+		[timer invalidate];
 		int terminationStatus = iconRetinaTask.terminationStatus;
 		// The task succeed and the icon was successfully created
 		if (terminationStatus == 0 && [[NSFileManager defaultManager] fileExistsAtPath:iconsDictionary[kIconRetina]])
 		{
 			iconRetinaTask = nil;
-			operationsCounter++;
+			iconsCounter++;
+			[self checkIcons];
 		}
-
+		
 		// The task failed
 		else
 		{
-			[timer invalidate];
-			iconTask = nil;
 			iconRetinaTask = nil;
 			if (errorBlock != nil)
 				errorBlock(@"Icon retina editing failed. Please try again");
 		}
 	}
-	
-	if (operationsCounter == 2)
+}
+
+- (void)checkIcon:(NSTimer *)timer
+{
+	// Check if the icon task finished: if yes invalidate the timer and do some operations
+	NSTask *iconTask = timer.userInfo[@"iconTask"];
+	if ([iconTask isRunning] == 0)
+	{
+		[timer invalidate];
+		int terminationStatus = iconTask.terminationStatus;
+		// The task succeed and the icon was successfully created
+		if (terminationStatus == 0 && [[NSFileManager defaultManager] fileExistsAtPath:iconsDictionary[kIconNormal]])
+		{
+			iconTask = nil;
+			iconsCounter++;
+			[self checkIcons];
+		}
+
+		// The task failed
+		else
+		{
+			iconTask = nil;
+			if (errorBlock != nil)
+				errorBlock(@"Icon editing failed. Please try again");
+		}
+	}
+}
+
+- (void)checkIcons
+{
+	if (iconsCounter == 2)
 	{
 		if (successBlock)
 			successBlock(@"Successfully editing the Icon files");

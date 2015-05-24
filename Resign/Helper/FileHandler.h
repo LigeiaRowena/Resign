@@ -68,6 +68,9 @@ static NSString *kIconRetina = @"iconRetina";
 
 	// map of the app icons from the Info.plist file
 	NSMutableDictionary *iconsDictionary;
+	
+	// counter/semaphore for the icons editing operations
+	int iconsCounter;
 }
 
 // array of provisioning profiles available
