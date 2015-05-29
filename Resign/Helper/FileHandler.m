@@ -107,7 +107,7 @@ static FileHandler *istance;
 {
     // Delete the _CodeSignature directory
     
-    BOOL success = FALSE;
+    BOOL success = NO;
     NSString* codeSignaturePath = [self.appPath stringByAppendingPathComponent:kCodeSignatureDirectory];
 
     if (codeSignaturePath != nil && [manager fileExistsAtPath:codeSignaturePath])
@@ -115,10 +115,26 @@ static FileHandler *istance;
         NSError *error = nil;
         success = [manager removeItemAtPath:codeSignaturePath error:&error];
     }
+    else if (![manager fileExistsAtPath:codeSignaturePath])
+        success = YES;
     
     return success;
 }
 
++ (BOOL)isEmptyString:(NSString*)string
+{
+    BOOL isEmpty = NO;
+    if (string == nil)
+        isEmpty = YES;
+    
+    else if ([string isEqualTo:[NSNull null]])
+        isEmpty = YES;
+    
+    else if ([[string stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]] isEqualToString:@""])
+        isEmpty = YES;
+    
+    return isEmpty;
+}
 
 
 #pragma mark - NSFileManagerDelegate
@@ -509,12 +525,19 @@ static FileHandler *istance;
 	errorBlock = [error copy];
 	successBlock = [success copy];
 	
-	if (self.appPath)
+	if (![FileHandler isEmptyString:self.appPath] && ![FileHandler isEmptyString:self.destinationPath])
 	{
-#warning controlla se destinationPath è nulla: in quel caso è errore
+        // Check if the destinationPath exists
+        if (![manager fileExistsAtPath:self.destinationPath])
+        {
+            if (errorBlock)
+                errorBlock(@"Unable to unzip the file: the destination path you digited does not exist");
+            return;
+        }
+
+        
 		// Path of the app file to create/resign
         NSString *zippedIpaPath = [[self.destinationPath stringByAppendingPathComponent:self.displayName] stringByAppendingPathExtension:@"ipa"];
-		
 		if (logBlock)
 			logBlock([NSString stringWithFormat:@"Beginning the zip of the IPA file in the path: %@", zippedIpaPath]);
 
@@ -526,6 +549,11 @@ static FileHandler *istance;
 		[NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(checkZip:) userInfo:@{@"task": zipTask} repeats:TRUE];
 		[zipTask launch];
 	}
+    else
+    {
+        if (errorBlock)
+            errorBlock(@"Unable to unzip the file: the destination path is empty or the source IPA file was corrupted");
+    }
 }
 
 - (void)checkZip:(NSTimer *)timer
