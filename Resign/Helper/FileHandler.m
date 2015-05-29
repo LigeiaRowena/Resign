@@ -41,11 +41,42 @@ static FileHandler *istance;
         manager.delegate = self;
 		self.originalProvisioningIndex = -1;
 		iconsCounter = 0;
+        self.workingPath = [NSTemporaryDirectory() stringByAppendingPathComponent:@"resign"];
 	}
 	return self;
 }
 
 #pragma mark - Utility
+
+- (void)clearAll
+{
+    [self removeWorkingDirectory];
+    
+    successBlock = nil;
+    errorBlock = nil;
+    logBlock = nil;
+    successResignBlock = nil;
+    errorResignBlock = nil;
+    logResignBlock = nil;
+    
+    entitlementsResult = nil;
+    codesigningResult = nil;
+    verificationResult = nil;
+    iconsDictionary = nil;
+    
+    self.provisioningIndex = 0;
+    self.editProvisioning = NO;
+    self.editIcons = NO;
+    self.iconPath = nil;
+    self.iconRetinaPath = nil;
+    self.bundleId = nil;
+    self.displayName = nil;
+    self.shortVersion = nil;
+    self.buildVersion = nil;
+    self.certificateIndex = 0;
+    self.sourcePath = nil;
+    self.appPath = nil;
+}
 
 + (NSString*)getDocumentFolderPath
 {
@@ -88,35 +119,7 @@ static FileHandler *istance;
     return success;
 }
 
-- (void)clearAll
-{
-	successBlock = nil;
-	errorBlock = nil;
-	logBlock = nil;
-	successResignBlock = nil;
-	errorResignBlock = nil;
-	logResignBlock = nil;
-	
-	entitlementsResult = nil;
-	codesigningResult = nil;
-	verificationResult = nil;
-	iconsDictionary = nil;
-	
-	self.provisioningIndex = 0;
-	self.editProvisioning = NO;
-	self.editIcons = NO;
-	self.iconPath = nil;
-	self.iconRetinaPath = nil;
-	self.bundleId = nil;
-	self.displayName = nil;
-	self.shortVersion = nil;
-	self.buildVersion = nil;
-	self.certificateIndex = 0;
-	self.sourcePath = nil;
-	self.workingPath = nil;
-	self.appPath = nil;
-	self.destinationPath = nil;
-}
+
 
 #pragma mark - NSFileManagerDelegate
 
@@ -450,7 +453,6 @@ static FileHandler *istance;
     if ([[[self.sourcePath pathExtension] lowercaseString] isEqualToString:@"ipa"])
     {
         // Creation of the temp working directory (deleting the old one)
-        self.workingPath = [NSTemporaryDirectory() stringByAppendingPathComponent:@"resign"];
         if (logBlock != nil)
             logBlock([NSString stringWithFormat:@"Setting up working directory in %@",self.workingPath]);
         [manager removeItemAtPath:self.workingPath error:nil];
@@ -509,6 +511,7 @@ static FileHandler *istance;
 	
 	if (self.appPath)
 	{
+#warning controlla se destinationPath è nulla: in quel caso è errore
 		// Path of the app file to create/resign
         NSString *zippedIpaPath = [[self.destinationPath stringByAppendingPathComponent:self.displayName] stringByAppendingPathExtension:@"ipa"];
 		
@@ -749,7 +752,6 @@ static FileHandler *istance;
 	{
 		if ([[[file pathExtension] lowercaseString] isEqualToString:@"app"])
 		{
-			self.appPath = [payloadPath stringByAppendingPathComponent:file];
 			if ([[NSFileManager defaultManager] fileExistsAtPath:[self.appPath stringByAppendingPathComponent:kMobileprovisionFilename]])
 			{
 				NSLog(@"Found embedded.mobileprovision, deleting it...");
@@ -789,7 +791,6 @@ static FileHandler *istance;
 			{
 				if ([[[file pathExtension] lowercaseString] isEqualToString:@"app"])
 				{
-					self.appPath = [payloadPath stringByAppendingPathComponent:file];
 					if ([[NSFileManager defaultManager] fileExistsAtPath:[self.appPath stringByAppendingPathComponent:kMobileprovisionFilename]])
 						success = YES;
 					break;

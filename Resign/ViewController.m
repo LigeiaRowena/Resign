@@ -646,7 +646,13 @@
         [self openNewIconFile:@152 button:sender];
 }
 
-- (IBAction)resetAll:(id)sender {
+- (IBAction)resetAll:(id)sender
+{
+    // resign as first responder the other controls
+    AppDelegate *appDelegate = (AppDelegate *)[NSApp delegate];
+    [appDelegate.window makeFirstResponder: nil];
+    
+    [self clearAll];
 }
 
 
@@ -732,6 +738,7 @@
 - (void)clearAll
 {
 	// clear all the UI
+    [self.statusField setStringValue:@"---RESET ALL---"];
 	[self.ipaField setStringValue:@""];
 	[self.provisioningComboBox setStringValue:@""];
 	[self.certificateComboBox setStringValue:@""];
