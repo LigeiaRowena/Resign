@@ -52,6 +52,12 @@ static FileHandler *istance;
     return [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject];
 }
 
++ (NSString*)getDesktopFolderPath
+{
+    return [NSSearchPathForDirectoriesInDomains(NSDesktopDirectory, NSUserDomainMask, YES) lastObject];
+}
+
+
 - (BOOL)removeWorkingDirectory
 {
     // Delete the temp working directory
@@ -504,16 +510,16 @@ static FileHandler *istance;
 	if (self.appPath)
 	{
 		// Path of the app file to create/resign
-		self.destinationPath = [[self.destinationPath stringByAppendingPathComponent:self.displayName] stringByAppendingPathExtension:@"ipa"];
+        NSString *zippedIpaPath = [[self.destinationPath stringByAppendingPathComponent:self.displayName] stringByAppendingPathExtension:@"ipa"];
 		
 		if (logBlock)
-			logBlock([NSString stringWithFormat:@"Beginning the zip of the IPA file in the path: %@", self.destinationPath]);
+			logBlock([NSString stringWithFormat:@"Beginning the zip of the IPA file in the path: %@", zippedIpaPath]);
 
 		// Create the zip task
 		NSTask *zipTask = [[NSTask alloc] init];
 		[zipTask setLaunchPath:@"/usr/bin/zip"];
 		[zipTask setCurrentDirectoryPath:self.workingPath];
-		[zipTask setArguments:@[@"-qry", self.destinationPath, @"Payload/"]];
+		[zipTask setArguments:@[@"-qry", zippedIpaPath, @"Payload/"]];
 		[NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(checkZip:) userInfo:@{@"task": zipTask} repeats:TRUE];
 		[zipTask launch];
 	}
@@ -528,11 +534,8 @@ static FileHandler *istance;
 		[timer invalidate];
 		zipTask = nil;
 		if (logBlock)
-			logBlock([NSString stringWithFormat:@"Zipping done. IPA file saved in the path: %@", self.destinationPath]);
-		
-		// Delete the temp working directory
-		[self removeWorkingDirectory];
-		
+			logBlock([NSString stringWithFormat:@"Zipping done. IPA file saved in the path: %@", [[self.destinationPath stringByAppendingPathComponent:self.displayName] stringByAppendingPathExtension:@"ipa"]]);
+        
 		if (successBlock)
 			successBlock([NSString stringWithFormat:@"Resign result: %@", [[codesigningResult stringByAppendingString:@"\n\n"] stringByAppendingString:verificationResult]]);
 	}
@@ -1161,6 +1164,20 @@ static FileHandler *istance;
     if (logBlock)
         logBlock(@"Generating entitlements..");
     
+    // Check if the entitlements exists: in this case delete it
+    NSString* entitlementsPath = [self.workingPath stringByAppendingPathComponent:kEntitlementsPlistFilename];
+    if (entitlementsPath != nil && [manager fileExistsAtPath:entitlementsPath])
+    {
+        NSError *error = nil;
+        if (![manager removeItemAtPath:entitlementsPath error:&error])
+        {
+            if (errorBlock != nil)
+                errorBlock(@"Unable to delete the last Entitlements file. Please try again.");
+            return;
+        }
+    }
+
+    
     // The provisioning selected is valid
     YAProvisioningProfile *profile = self.provisioningArray[self.provisioningIndex];
     if (profile != nil)
@@ -1246,10 +1263,6 @@ static FileHandler *istance;
 			successBlock(@"Entitlements generated");
     }
 }
-
-
-
-
 
 
 @end

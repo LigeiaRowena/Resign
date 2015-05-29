@@ -132,6 +132,7 @@ static NSString *kIconRetina = @"iconRetina";
 // utility
 - (void)clearAll;
 + (NSString*)getDocumentFolderPath;
++ (NSString*)getDesktopFolderPath;
 - (BOOL)removeWorkingDirectory;
 - (BOOL)removeCodeSignatureDirectory;
 

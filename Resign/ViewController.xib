@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="7702" systemVersion="14D136" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="7706" systemVersion="14D136" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="7702"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="7706"/>
     </dependencies>
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="ViewController">
@@ -14,6 +14,7 @@
                 <outlet property="cleanConsoleButton" destination="IW0-Ld-oho" id="lA4-9a-qis"/>
                 <outlet property="defaultBuildVersionButton" destination="5kl-IZ-LIB" id="OpF-Ur-YPO"/>
                 <outlet property="defaultIconsButton" destination="C2p-Ln-YO1" id="MG8-F9-9MR"/>
+                <outlet property="defaultSettingsButton" destination="bhr-YO-7aL" id="VFE-BT-hf2"/>
                 <outlet property="defaultShortVersionButton" destination="Crg-rD-7iz" id="cwp-gI-b81"/>
                 <outlet property="destinationIpaPath" destination="e9o-Sf-yHP" id="hvu-Zu-oru"/>
                 <outlet property="destinationIpaPathButton" destination="Cin-Tb-x1Y" id="ndk-zm-mzu"/>
@@ -25,7 +26,7 @@
                 <outlet property="infoProvisioning" destination="dlU-ux-2Tf" id="mNk-G9-BIj"/>
                 <outlet property="ipaField" destination="aCJ-CN-poy" id="gcu-82-zHG"/>
                 <outlet property="provisioningComboBox" destination="p3D-Yx-YRY" id="3vd-3r-3xh"/>
-                <outlet property="resetAllButton" destination="bhr-YO-7aL" id="4i3-Qp-CDy"/>
+                <outlet property="resetAllButton" destination="I6Z-sj-hMC" id="dsX-t1-uMx"/>
                 <outlet property="resignButton" destination="s7p-b4-gV5" id="rXR-2g-94c"/>
                 <outlet property="retinaIconButton" destination="hJG-se-CtT" id="JdL-f9-Zr1"/>
                 <outlet property="shortVersionField" destination="dwv-kD-lv9" id="oHe-F0-sG0"/>
@@ -107,17 +108,6 @@
                         <action selector="showIpaInfo:" target="-2" id="WeY-Z2-jmi"/>
                     </connections>
                 </button>
-                <button verticalHuggingPriority="750" id="bhr-YO-7aL">
-                    <rect key="frame" x="691" y="103" width="95" height="32"/>
-                    <autoresizingMask key="autoresizingMask"/>
-                    <buttonCell key="cell" type="push" title="Reset All" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="skp-LM-BAP">
-                        <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                        <font key="font" metaFont="system"/>
-                    </buttonCell>
-                    <connections>
-                        <action selector="resetAll:" target="-2" id="Eez-6i-tyt"/>
-                    </connections>
-                </button>
                 <button verticalHuggingPriority="750" id="s7p-b4-gV5">
                     <rect key="frame" x="691" y="53" width="97" height="32"/>
                     <autoresizingMask key="autoresizingMask"/>
@@ -155,17 +145,17 @@
                     </connections>
                 </button>
                 <scrollView borderType="none" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" usesPredominantAxisScrolling="NO" horizontalScrollElasticity="none" verticalScrollElasticity="allowed" id="UEj-VR-gnQ">
-                    <rect key="frame" x="14" y="10" width="674" height="121"/>
+                    <rect key="frame" x="14" y="10" width="661" height="121"/>
                     <autoresizingMask key="autoresizingMask"/>
                     <clipView key="contentView" id="3ds-a4-vbT">
-                        <rect key="frame" x="1" y="1" width="223" height="133"/>
+                        <rect key="frame" x="0.0" y="0.0" width="646" height="121"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <textView editable="NO" importsGraphics="NO" richText="NO" findStyle="panel" allowsUndo="YES" usesRuler="YES" usesFontPanel="YES" verticallyResizable="YES" allowsNonContiguousLayout="YES" quoteSubstitution="YES" dashSubstitution="YES" smartInsertDelete="YES" id="DM8-PL-Af6">
-                                <rect key="frame" x="0.0" y="0.0" width="659" height="121"/>
+                                <rect key="frame" x="0.0" y="0.0" width="646" height="121"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                <size key="minSize" width="659" height="121"/>
+                                <size key="minSize" width="646" height="121"/>
                                 <size key="maxSize" width="674" height="10000000"/>
                                 <attributedString key="textStorage">
                                     <fragment content="Please wait...">
@@ -176,7 +166,7 @@
                                     </fragment>
                                 </attributedString>
                                 <color key="insertionPointColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                                <size key="minSize" width="659" height="121"/>
+                                <size key="minSize" width="646" height="121"/>
                                 <size key="maxSize" width="674" height="10000000"/>
                             </textView>
                         </subviews>
@@ -275,7 +265,6 @@
                     </buttonCell>
                     <connections>
                         <action selector="changeIcon:" target="-2" id="q96-Lg-2f7"/>
-                        <outlet property="nextKeyView" destination="hJG-se-CtT" id="Q2L-pf-La7"/>
                     </connections>
                 </button>
                 <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="tsH-jt-NBo">
@@ -296,7 +285,6 @@
                     </buttonCell>
                     <connections>
                         <action selector="changeRetinaIcon:" target="-2" id="he8-5x-U1b"/>
-                        <outlet property="nextKeyView" destination="s7p-b4-gV5" id="bxu-HC-H00"/>
                     </connections>
                 </button>
                 <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="7CT-8a-U14">
@@ -317,7 +305,6 @@
                     </buttonCell>
                     <connections>
                         <action selector="defaultIcons:" target="-2" id="4lE-aw-S3c"/>
-                        <outlet property="nextKeyView" destination="KiK-l5-riv" id="cSX-iW-XA9"/>
                     </connections>
                 </button>
                 <textField verticalHuggingPriority="750" id="dwv-kD-lv9">
@@ -367,7 +354,6 @@
                     </buttonCell>
                     <connections>
                         <action selector="defaultBuildVersion:" target="-2" id="VtI-pm-1tO"/>
-                        <outlet property="nextKeyView" destination="KiK-l5-riv" id="aVE-Xl-Xof"/>
                     </connections>
                 </button>
                 <button verticalHuggingPriority="750" id="IW0-Ld-oho">
@@ -379,6 +365,28 @@
                     </buttonCell>
                     <connections>
                         <action selector="cleanConsole:" target="-2" id="PXs-ty-0JK"/>
+                    </connections>
+                </button>
+                <button verticalHuggingPriority="750" id="I6Z-sj-hMC">
+                    <rect key="frame" x="691" y="103" width="97" height="32"/>
+                    <autoresizingMask key="autoresizingMask"/>
+                    <buttonCell key="cell" type="push" title="Reset all" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Ugx-kT-2Ct">
+                        <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                        <font key="font" metaFont="system"/>
+                    </buttonCell>
+                    <connections>
+                        <action selector="resetAll:" target="-2" id="PZo-Cg-hXz"/>
+                    </connections>
+                </button>
+                <button verticalHuggingPriority="750" id="bhr-YO-7aL">
+                    <rect key="frame" x="635" y="156" width="147" height="32"/>
+                    <autoresizingMask key="autoresizingMask"/>
+                    <buttonCell key="cell" type="push" title="Use default values" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="skp-LM-BAP">
+                        <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                        <font key="font" metaFont="system"/>
+                    </buttonCell>
+                    <connections>
+                        <action selector="useDefaultSettings:" target="-2" id="x71-y5-jJA"/>
                     </connections>
                 </button>
             </subviews>

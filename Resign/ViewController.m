@@ -48,7 +48,7 @@
 {
 }
 
-#pragma mark - ZIP Methods
+#pragma mark - ZIP/IPA Methods
 
 - (void)unzipIpa
 {
@@ -64,16 +64,19 @@
     } success:^(NSString *success){
         [self enableControls];
         [self.statusField appendStringValue:[NSString stringWithFormat:@"Succeed to unzip ipa file in %@", [[[FileHandler sharedInstance] workingPath] stringByAppendingPathComponent:kPayloadDirName]]];
-        [self showIpaInfo];
+        [self showIpaInfoWithPrint:YES];
     }];
 }
 
-- (void)showIpaInfo
+- (void)showIpaInfoWithPrint:(BOOL)printInfo
 {
+    if (printInfo)
+        [self.statusField appendStringValue:[NSString stringWithFormat:@"Retrieving %@", kInfoPlistFilename]];
+    
     // Show the info of the ipa from the Info.plist file
-    [self.statusField appendStringValue:[NSString stringWithFormat:@"Retrieving %@", kInfoPlistFilename]];
     [[FileHandler sharedInstance] showIpaInfoWithSuccess:^(id success) {
-        [self.statusField appendStringValue:success];
+        if (printInfo)
+            [self.statusField appendStringValue:success];
 
     } error:^(NSString *error) {
         [self showAlertOfKind:NSWarningAlertStyle WithTitle:@"Warning" AndMessage:error];
@@ -113,7 +116,13 @@
 	[self resetBuildVersion];
 	
 	//Show the default icons of the app in the relative fields
-	[self resetDefaultIcons];
+	[self resetDefaultIconsWithPrint:printInfo];
+}
+
+- (void)useDefaultSettingsWithPrint:(BOOL)printInfo
+{
+    // Reset all the values about the IPA source file
+    [self showIpaInfoWithPrint:printInfo];
 }
 
 #pragma mark - Signign Certificate Methods
@@ -139,6 +148,7 @@
     
     [[FileHandler sharedInstance] getCertificatesSuccess:^(NSString *success){
         [self.statusField appendStringValue:@"Signing Certificate IDs extracted"];
+        [self.statusField appendStringValue:@"---READY---"];
         [self enableControls];
         [self.certificateComboBox reloadData];
         
@@ -226,22 +236,22 @@
 
 - (void)resetDestinationIpaPath
 {
-	NSString *documentFolderPath = [FileHandler getDocumentFolderPath];
+	NSString *desktopFolderPath = [FileHandler getDesktopFolderPath];
 
 	[self.destinationIpaPathButton setState:NSOnState];
 	[self.destinationIpaPath setEditable:NO];
 	[self.destinationIpaPath setSelectable:YES];
-	[self.destinationIpaPath setStringValue:documentFolderPath];
-	[FileHandler sharedInstance].destinationPath = documentFolderPath;
+	[self.destinationIpaPath setStringValue:desktopFolderPath];
+	[FileHandler sharedInstance].destinationPath = desktopFolderPath;
 }
 
 
 #pragma mark - Icons Methods
 
-- (void)resetDefaultIcons
+- (void)resetDefaultIconsWithPrint:(BOOL)printInfo
 {
 	// Succeed to find the default icon files
-	if ([self getDefaultIconFiles])
+	if ([self getDefaultIconFilesWithPrint:printInfo])
 	{
         [self.defaultIconsButton setState:NSOnState];
         [self.iconButton setTappable:NO];
@@ -249,7 +259,7 @@
 	}
 }
 
-- (BOOL)getDefaultIconFiles
+- (BOOL)getDefaultIconFilesWithPrint:(BOOL)printInfo
 {
     __block BOOL success = FALSE;
     
@@ -258,12 +268,14 @@
         self.iconButton.fileName = icons[kIconNormal];
 		NSImage *iconImage = [[NSImage alloc] initWithContentsOfFile:icons[kIconNormal]];
         [self.iconButton setImage:iconImage];
-        [self.statusField appendStringValue:[NSString stringWithFormat:@"The default icon file of 76x76 pixels is: %@", self.iconButton.fileName]];
+        if (printInfo)
+            [self.statusField appendStringValue:[NSString stringWithFormat:@"The default icon file of 76x76 pixels is: %@", self.iconButton.fileName]];
 		
 		self.retinaIconButton.fileName = icons[kIconRetina];
 		NSImage *retinaIconImage = [[NSImage alloc] initWithContentsOfFile:icons[kIconRetina]];
         [self.retinaIconButton setImage:retinaIconImage];
-        [self.statusField appendStringValue:[NSString stringWithFormat:@"The default icon file of 152 pixels is: %@", self.retinaIconButton.fileName]];
+        if (printInfo)
+            [self.statusField appendStringValue:[NSString stringWithFormat:@"The default icon file of 152 pixels is: %@", self.retinaIconButton.fileName]];
         success = TRUE;
         
     // Failed to find the Info.plist or the icons
@@ -394,17 +406,17 @@
 	AppDelegate *appDelegate = (AppDelegate *)[NSApp delegate];
 	[appDelegate.window makeFirstResponder: nil];
 
-	[self showIpaInfo];
+	[self showIpaInfoWithPrint:YES];
 }
 
-- (IBAction)resetAll:(id)sender
+- (IBAction)useDefaultSettings:(id)sender
 {
 	// resign as first responder the other controls
 	AppDelegate *appDelegate = (AppDelegate *)[NSApp delegate];
 	[appDelegate.window makeFirstResponder: nil];
 
-    // Reset all the values about the IPA source file
-    [self showIpaInfo];
+    // Reset all the values about the IPA source file printing info in the console about it
+    [self useDefaultSettingsWithPrint:YES];
 }
 
 - (IBAction)resign:(id)sender
@@ -421,6 +433,7 @@
         [self enableControls];
         [self showAlertOfKind:NSWarningAlertStyle WithTitle:@"Warning" AndMessage:@"You didn't select any IPA file, or the IPA file you selected is corrupted: unable to delete the _CodeSignature directory in order to resign the IPA"];
         [self.statusField appendStringValue:@"Unable to delete the _CodeSignature directory in order to resign the IPA: please try again"];
+        [self resetAll:nil];
         return;
     }
 	
@@ -432,14 +445,16 @@
 		[self enableControls];
 		[self showAlertOfKind:NSWarningAlertStyle WithTitle:@"Warning" AndMessage:error];
 		[self.statusField appendStringValue:error];
+        [self resetAll:nil];
 		return;
 		
 	} success:^(id message) {
 		[self enableControls];
 		[self.statusField appendStringValue:message];
-		
-		// Clear all
-		[self clearAll];
+        [self.statusField appendStringValue:@"---RESIGN DONE---"];
+
+		// Reset the default settings of the source IPA
+        [self useDefaultSettingsWithPrint:NO];
 	}];
 }
 
@@ -596,7 +611,7 @@
 	// reset default icons
 	if (self.defaultIconsButton.state == NSOnState)
 	{
-		[self resetDefaultIcons];
+		[self resetDefaultIconsWithPrint:YES];
 	}
 	
 	// customized icons
@@ -630,6 +645,10 @@
     if (butt.tappable)
         [self openNewIconFile:@152 button:sender];
 }
+
+- (IBAction)resetAll:(id)sender {
+}
+
 
 #pragma mark - IRTextFieldDragDelegate
 
@@ -676,8 +695,9 @@
 	[self.iconButton setEnabled:FALSE];
 	[self.retinaIconButton setEnabled:FALSE];
     
-    [self.resetAllButton setEnabled:FALSE];
+    [self.defaultSettingsButton setEnabled:FALSE];
     [self.resignButton setEnabled:FALSE];
+    [self.resetAllButton setEnabled:FALSE];
     [self.cleanConsoleButton setEnabled:FALSE];
 }
 
@@ -703,8 +723,9 @@
 	[self.iconButton setEnabled:TRUE];
 	[self.retinaIconButton setEnabled:TRUE];
     
-    [self.resetAllButton setEnabled:TRUE];
+    [self.defaultSettingsButton setEnabled:TRUE];
     [self.resignButton setEnabled:TRUE];
+    [self.resetAllButton setEnabled:TRUE];
     [self.cleanConsoleButton setEnabled:TRUE];
 }
 

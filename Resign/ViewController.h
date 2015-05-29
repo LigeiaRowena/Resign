@@ -35,8 +35,9 @@
 
 // Console UI
 @property (weak) IBOutlet NSButton *cleanConsoleButton;
-@property (weak) IBOutlet NSButton *resetAllButton;
+@property (weak) IBOutlet NSButton *defaultSettingsButton;
 @property (weak) IBOutlet NSButton *resignButton;
 @property (weak) IBOutlet NSScrollView *statusField;
+@property (weak) IBOutlet NSButton *resetAllButton;
 
 @end
