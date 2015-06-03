@@ -306,14 +306,15 @@ static FileHandler *istance;
 			{
 				NSString *iconName = [self.appPath stringByAppendingPathComponent:fileName];
 				NSImage *iconImage = [[NSImage alloc] initWithContentsOfFile:iconName];
-				if (NSEqualSizes(iconImage.size, CGSizeMake(76, 76)) && iconImage != nil)
-				{
-					[iconsMap setObject:iconName forKey:kIconNormal];
-				}
-				else if (NSEqualSizes(iconImage.size, CGSizeMake(152, 152)) && iconImage != nil)
-				{
-					[iconsMap setObject:iconName forKey:kIconRetina];
-				}
+                NSBitmapImageRep *bitmap = (NSBitmapImageRep*)iconImage.representations[0];
+                if (bitmap.pixelsHigh == 76 && bitmap.pixelsWide == 76 && iconImage != nil)
+                {
+                    [iconsMap setObject:iconName forKey:kIconNormal];
+                }
+                else if (bitmap.pixelsHigh == 152 && bitmap.pixelsWide == 152 && iconImage != nil)
+                {
+                    [iconsMap setObject:iconName forKey:kIconRetina];
+                }
 			}
 		}
 	}
@@ -324,13 +325,15 @@ static FileHandler *istance;
 		NSString *appIcon = iconsAssets[0];//AppIcon76x76
 		NSString *iconName = [[self.appPath stringByAppendingPathComponent:appIcon] stringByAppendingString:@"~ipad.png"];
 		NSImage *iconImage = [[NSImage alloc] initWithContentsOfFile:iconName];
+        NSBitmapImageRep *bitmapIcon = (NSBitmapImageRep*)iconImage.representations[0];
 		NSString *retinaIconName = [[self.appPath stringByAppendingPathComponent:appIcon] stringByAppendingString:@"@2x~ipad.png"];
 		NSImage *retinaIconImage = [[NSImage alloc] initWithContentsOfFile:retinaIconName];
-		if (NSEqualSizes(iconImage.size, CGSizeMake(76, 76)) && iconImage != nil)
+        NSBitmapImageRep *bitmapRetinaIcon = (NSBitmapImageRep*)retinaIconImage.representations[0];
+        if (bitmapIcon.pixelsHigh == 76 && bitmapIcon.pixelsWide == 76 && iconImage != nil)
 		{
 			[iconsMap setObject:iconName forKey:kIconNormal];
 		}
-		if (NSEqualSizes(retinaIconImage.size, CGSizeMake(152, 152)) && retinaIconImage != nil)
+        if (bitmapRetinaIcon.pixelsHigh == 152 && bitmapRetinaIcon.pixelsWide == 152 && retinaIconImage != nil)
 		{
 			[iconsMap setObject:retinaIconName forKey:kIconRetina];
 		}
