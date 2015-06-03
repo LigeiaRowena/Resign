@@ -16,7 +16,7 @@ You can open the xcode project and build it or open directly the app.
 Just open the ipa file by tapping the button "Open the ipa file" or dragging it in the relative field. 
 Then you have information about:
 - provisioning profile  
-- signign cettificate 
+- signign certificate 
 - bundle id
 - display name
 - short version and build version
@@ -27,7 +27,11 @@ If you tap on the "?" icons near some feature, the console prints the relative i
 
 #RESIGN IPA FILES
 
-Once you opened an ipa file, you can decide to resign it changing some feature of it:
+Once you opened an ipa file, the console prints this message to tell that the app is ready to resign the ipa file:
+
+`---READY---`
+
+Now you can decide to resign the ipa file changing some feature of it by tapping the "Resign" button:
 - provisioning profile: tap on the combobox in order to change it
 - signign cettificate: tap on the combobox in order to change it
 - bundle id: deselect the ratio button "Default Bundle ID" in order change it
@@ -35,9 +39,16 @@ Once you opened an ipa file, you can decide to resign it changing some feature o
 - short version and build version: deselect the ratio buttons "Default IPA short version" and "Default IPA build version" in order change them
 - normal icon (76x76 pixels) and retina icon (152x152 pixels): deselect the ratio button "Default icons" in order change them and then just tap on the icons to open other icons, please select a normal icon of 76x76 pixels and a retina icon of 152x152 pixels
 
-You can also tap the "Reset All" button in order to reset all the above features to the default ones.
-You can decide the destination ipa path where to save the resigned ipa file, the default one is Documents.
-Once you changed the features above, just tap the "Resign" button in order to resign the ipa file and save it in the specified destination ipa path: you can also know informations about the resign operations in the console at the bottom.
+When the resign finished successfully, the console prints the message:
+
+`---RESIGN DONE---`
+
+Then you can:
+- resign the same source ipa file loaded before by simply changing other features and tapping the "Resign" button another time
+- tap the "Reset all" button in order to delete all the infos about the last ipa file loaded, and load another ipa file to resign it
+
+If you loaded an ipa file, if you change some features of it then you can always tap the "Use default values" button in order to reset all the above features to the default ones.
+You can decide the destination ipa path where to save the resigned ipa file, the default one is Desktop.
 
 #HELPER CLASSES
 
