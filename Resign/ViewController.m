@@ -12,6 +12,9 @@
 #import "AppDelegate.h"
 
 @interface ViewController ()
+{
+	BOOL isOriginalValues;
+}
 @end
 
 @implementation ViewController
@@ -20,6 +23,9 @@
 - (void)loadView
 {
 	[super loadView];
+	
+	// init flag about original values of the source ipa file
+	isOriginalValues = YES;
 	
 	// added observers for NSTextField
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(controlTextDidChange:) name:NSControlTextDidChangeNotification object:self.bundleIDField];
@@ -52,6 +58,7 @@
 
 - (void)unzipIpa
 {
+	isOriginalValues = YES;
     [self disableControls];
     [[FileHandler sharedInstance] unzipIpaFromSource:[self.ipaField stringValue] log:^(NSString *log) {
         [self.statusField appendStringValue:log];
@@ -416,7 +423,14 @@
 	[appDelegate.window makeFirstResponder: nil];
 
     // Reset all the values about the IPA source file printing info in the console about it
-    [self useDefaultSettingsWithPrint:YES];
+	if (isOriginalValues)
+	{
+		[self useDefaultSettingsWithPrint:YES];
+	}
+	else
+	{
+		[self unzipIpa];
+	}
 }
 
 - (IBAction)resign:(id)sender
@@ -425,6 +439,7 @@
 	AppDelegate *appDelegate = (AppDelegate *)[NSApp delegate];
 	[appDelegate.window makeFirstResponder: nil];
 	
+	isOriginalValues = NO;
     [self disableControls];
 
     // Delete the _CodeSignature directory
