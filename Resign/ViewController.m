@@ -83,7 +83,7 @@
     // Show the info of the ipa from the Info.plist file
     [[FileHandler sharedInstance] showIpaInfoWithSuccess:^(id success) {
         if (printInfo)
-            [self.statusField appendStringValue:success];
+            [self.statusField appendStringValue:[NSString stringWithFormat:@"%@\n---SOURCE IPA LOADED---", success]];
 
     } error:^(NSString *error) {
         [self showAlertOfKind:NSWarningAlertStyle WithTitle:@"Warning" AndMessage:error];
