@@ -8,12 +8,15 @@
 
 #import "ViewController.h"
 #import "NSScrollView+MultiLine.h"
-#import "FileHandler.h"
 #import "AppDelegate.h"
 
 @interface ViewController ()
 {
 	BOOL isOriginalValues;
+	int provisioningIndex;
+	BOOL editProvisioning;
+	BOOL editIcons;
+	int certificateIndex;
 }
 @end
 
@@ -24,8 +27,14 @@
 {
 	[super loadView];
 	
-	// init flag about original values of the source ipa file
+	// init original values for properties
 	isOriginalValues = YES;
+	provisioningIndex = 0;
+	editProvisioning = NO;
+	editIcons = NO;
+	certificateIndex = 0;
+	[[FileHandler sharedInstance] setDelegate:self];
+
 	
 	// added observers for NSTextField
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(controlTextDidChange:) name:NSControlTextDidChangeNotification object:self.bundleIDField];
@@ -52,6 +61,40 @@
 
 - (void)controlTextDidChange:(NSNotification *)aNotification
 {
+}
+
+#pragma mark - FileHandlerDelegate
+
+- (NSString*)getResignTeamIdentifier
+{
+	YAProvisioningProfile *profile = nil;
+	if ([[[FileHandler sharedInstance] provisioningArray] count] > provisioningIndex)
+		profile = [[FileHandler sharedInstance] provisioningArray][provisioningIndex];
+
+	if (profile != nil)
+		return profile.teamIdentifier;
+	else
+		return nil;
+}
+
+- (NSString*)getResignBundleId
+{
+	return self.bundleIDField.stringValue;
+}
+
+- (NSString*)getResignDisplayName
+{
+	return self.displayNameField.stringValue;
+}
+
+- (NSString*)getResignShortVersion
+{
+	return self.shortVersionField.stringValue;
+}
+
+- (NSString*)getResignBuildVersion
+{
+	return self.buildVersionField.stringValue;
 }
 
 #pragma mark - ZIP/IPA Methods
@@ -91,9 +134,10 @@
     
     
     //Select the provisioning of the app in the relative combobox
-    [[FileHandler sharedInstance] showProvisioningInfoWithSuccess:^(id success) {
-        int indexProvisioning = [(NSNumber*)success intValue];
-        [self.provisioningComboBox selectItemAtIndex:indexProvisioning];
+    [[FileHandler sharedInstance] showProvisioningProfileWithSuccess:^(id profile) {
+		provisioningIndex = [[FileHandler sharedInstance] getProvisioningIndexFromApp:profile];
+		editProvisioning = NO;
+        [self.provisioningComboBox selectItemAtIndex:provisioningIndex];
         
     } error:^(NSString *error) {
         [self showAlertOfKind:NSWarningAlertStyle WithTitle:@"Warning" AndMessage:error];
@@ -101,9 +145,9 @@
     
     
     //Select the signign-certificate of the app in the relative combobox
-    [[FileHandler sharedInstance] showCertificatesInfoWithSuccess:^(id success) {
-        int indexCert = [(NSNumber*)success intValue];
-        [self.certificateComboBox selectItemAtIndex:indexCert];
+    [[FileHandler sharedInstance] showSignignCertificatesWithSuccess:^(id teamName) {
+		certificateIndex = (int)[[FileHandler sharedInstance] getCertificateIndexFromApp:teamName];
+        [self.certificateComboBox selectItemAtIndex:certificateIndex];
         
     } error:^(NSString *error) {
         [self showAlertOfKind:NSWarningAlertStyle WithTitle:@"Warning" AndMessage:error];
@@ -138,7 +182,7 @@
 {
     if ([[[FileHandler sharedInstance] certificatesArray] count] > 0 && index >= 0)
     {
-		[[FileHandler sharedInstance] setCertificateIndex:(int)index];
+		certificateIndex = (int)index;
         NSString *certificate = [[FileHandler sharedInstance] certificatesArray][index];
         [self.statusField appendStringValue:certificate];
     }
@@ -175,6 +219,7 @@
     [self.statusField appendStringValue:@"Getting Provisoning Profiles..."];
     
 	[[FileHandler sharedInstance] getProvisioningProfiles];
+	editProvisioning = NO;
 	if ([[[FileHandler sharedInstance] provisioningArray] count] > 0)
 	{
 		[self enableControls];
@@ -189,11 +234,11 @@
 	}
 }
 
-- (void)showProvisioningInfoAtIndex:(NSInteger)index
+- (void)showProvisioningInfoAtIndex:(int)index
 {
-	[[FileHandler sharedInstance] setProvisioningIndex:(int)index];
-	if (index != [[FileHandler sharedInstance] provisioningIndex])
-		[[FileHandler sharedInstance] setEditProvisioning:YES];
+	if (index != provisioningIndex)
+		editProvisioning = YES;
+	provisioningIndex = index;
 	
     NSString *provisioningInfo = [[FileHandler sharedInstance] getProvisioningInfoAtIndex:index];
     [self.statusField appendStringValue:provisioningInfo];
@@ -272,6 +317,7 @@
     
     // Succeed to find icons in the Info.plist
     [[FileHandler sharedInstance] getDefaultIconFilesWithSuccess:^(id icons) {
+		editIcons = NO;
         self.iconButton.fileName = icons[kIconNormal];
 		NSImage *iconImage = [[NSImage alloc] initWithContentsOfFile:icons[kIconNormal]];
         [self.iconButton setImage:iconImage];
@@ -325,7 +371,7 @@
 				[[FileHandler sharedInstance] setIconPath:path];
 			else if ([iconSize isEqualToNumber:@152])
 				[[FileHandler sharedInstance] setIconRetinaPath:path];
-			[[FileHandler sharedInstance] setEditIcons:YES];
+			editIcons = YES;
 		}
 		else
 		{
@@ -404,7 +450,7 @@
 	AppDelegate *appDelegate = (AppDelegate *)[NSApp delegate];
 	[appDelegate.window makeFirstResponder: nil];
 
-	[self showProvisioningInfoAtIndex:self.provisioningComboBox.indexOfSelectedItem];
+	[self showProvisioningInfoAtIndex:(int)self.provisioningComboBox.indexOfSelectedItem];
 }
 
 - (IBAction)showIpaInfo:(id)sender
@@ -453,7 +499,7 @@
     }
 	
 	// Resign
-	[[FileHandler sharedInstance] resignWithBundleId:self.bundleIDField.stringValue displayName:self.displayNameField.stringValue shortVersion:self.shortVersionField.stringValue buildVersion:self.buildVersionField.stringValue log:^(NSString *log) {
+	[[FileHandler sharedInstance] resignWithProvisioningIndex:provisioningIndex editProvisioning:editProvisioning editIcons:editIcons certificateIndex:certificateIndex log:^(NSString *log) {
 		[self.statusField appendStringValue:log];
 		
 	} error:^(NSString *error) {
@@ -772,6 +818,10 @@
 	[self.retinaIconButton setFileName:@""];
 	[self.retinaIconButton setTappable:YES];
     [self.retinaIconButton setImage:[NSImage imageNamed:@"Icon-iPadRetina"]];
+	provisioningIndex = 0;
+	editProvisioning = NO;
+	editIcons = NO;
+	certificateIndex = 0;
 
 	// clear all the FileHandler properties
 	[[FileHandler sharedInstance] clearAll];
@@ -817,7 +867,7 @@
 
 	if ([comboBox isEqual:self.provisioningComboBox])
 	{
-		[self showProvisioningInfoAtIndex:self.provisioningComboBox.indexOfSelectedItem];
+		[self showProvisioningInfoAtIndex:(int)self.provisioningComboBox.indexOfSelectedItem];
 	}
     
     else if ([comboBox isEqual:self.certificateComboBox])

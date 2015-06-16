@@ -39,9 +39,9 @@ static FileHandler *istance;
         formatter.dateFormat = @"dd-MM-yyyy";
         manager = [NSFileManager defaultManager];
         manager.delegate = self;
-		self.originalProvisioningIndex = -1;
 		iconsCounter = 0;
         self.workingPath = [NSTemporaryDirectory() stringByAppendingPathComponent:@"resign"];
+		extensions = @[@"mobileprovision", @"provisionprofile"];
 	}
 	return self;
 }
@@ -64,17 +64,9 @@ static FileHandler *istance;
     verificationResult = nil;
     iconsDictionary = nil;
     
-    self.provisioningIndex = 0;
-    self.editProvisioning = NO;
-    self.editIcons = NO;
     self.iconPath = nil;
     self.iconRetinaPath = nil;
-    self.bundleId = nil;
-    self.displayName = nil;
-    self.shortVersion = nil;
-    self.buildVersion = nil;
-    self.certificateIndex = 0;
-    self.sourcePath = nil;
+	self.sourcePath = nil;
     self.appPath = nil;
 }
 
@@ -273,7 +265,6 @@ static FileHandler *istance;
 		
         if ([iconsDictionary count] == 2)
         {
-			self.editIcons = NO;
             if (successBlock != nil)
                 successBlock(iconsDictionary);
         }
@@ -342,13 +333,13 @@ static FileHandler *istance;
 	return iconsMap;
 }
 
-- (void)editIconsWithLog:(LogBlock)log error:(ErrorBlock)error success:(SuccessBlock)success
+- (void)editIcons:(BOOL)editIcons log:(LogBlock)log error:(ErrorBlock)error success:(SuccessBlock)success
 {
 	logBlock = [log copy];
 	errorBlock = [error copy];
 	successBlock = [success copy];
 	
-	if (!self.editIcons)
+	if (!editIcons)
 	{
 		if (successBlock)
 			successBlock(@"You selected the default Icons");
@@ -540,7 +531,8 @@ static FileHandler *istance;
 
         
 		// Path of the app file to create/resign
-        NSString *zippedIpaPath = [[self.destinationPath stringByAppendingPathComponent:self.displayName] stringByAppendingPathExtension:@"ipa"];
+		NSString *displayName = [self.delegate getResignDisplayName];
+        NSString *zippedIpaPath = [[self.destinationPath stringByAppendingPathComponent:displayName] stringByAppendingPathExtension:@"ipa"];
 		if (logBlock)
 			logBlock([NSString stringWithFormat:@"Beginning the zip of the IPA file in the path: %@", zippedIpaPath]);
 
@@ -567,8 +559,9 @@ static FileHandler *istance;
 	{
 		[timer invalidate];
 		zipTask = nil;
+		NSString *displayName = [self.delegate getResignDisplayName];
 		if (logBlock)
-			logBlock([NSString stringWithFormat:@"Zipping done. IPA file saved in the path: %@", [[self.destinationPath stringByAppendingPathComponent:self.displayName] stringByAppendingPathExtension:@"ipa"]]);
+			logBlock([NSString stringWithFormat:@"Zipping done. IPA file saved in the path: %@", [[self.destinationPath stringByAppendingPathComponent:displayName] stringByAppendingPathExtension:@"ipa"]]);
         
 		if (successBlock)
 			successBlock([NSString stringWithFormat:@"Resign result: %@", [[codesigningResult stringByAppendingString:@"\n\n"] stringByAppendingString:verificationResult]]);
@@ -622,25 +615,21 @@ static FileHandler *istance;
     }
 }
 
-- (void)showProvisioningInfoWithSuccess:(SuccessBlock)success error:(ErrorBlock)error
+- (void)showProvisioningProfileWithSuccess:(SuccessBlock)success error:(ErrorBlock)error
 {
     errorBlock = [error copy];
     successBlock = [success copy];
     
     //Show the provisioning infos
-    NSString *provisioningPath = [self.appPath stringByAppendingPathComponent:kMobileprovisionFilename];
+    NSString *provisioningPath = [self getEmbeddedProvisioningProfilePath];
     NSString* infoPlistPath = [self.appPath stringByAppendingPathComponent:kInfoPlistFilename];
     if ([manager fileExistsAtPath:infoPlistPath])
     {
         YAProvisioningProfile *profile = [[YAProvisioningProfile alloc] initWithPath:provisioningPath];
-        NSInteger indexProvisioning = [self getProvisioningIndexFromApp:profile];
-        if (indexProvisioning >= 0)
+        if ([self getProvisioningIndexFromApp:profile] >= 0)
         {
-			self.provisioningIndex = (int)indexProvisioning;
-			self.originalProvisioningIndex = (int)indexProvisioning;
-			self.editProvisioning = NO;
             if (successBlock != nil)
-                successBlock([NSNumber numberWithInteger:indexProvisioning]);
+                successBlock(profile);
         }
         else
         {
@@ -664,24 +653,22 @@ static FileHandler *istance;
     }
 }
 
-- (void)showCertificatesInfoWithSuccess:(SuccessBlock)success error:(ErrorBlock)error
+- (void)showSignignCertificatesWithSuccess:(SuccessBlock)success error:(ErrorBlock)error
 {
     errorBlock = [error copy];
     successBlock = [success copy];
 
     //Show the signign-certificate infos
-    NSString *provisioningPath = [self.appPath stringByAppendingPathComponent:kMobileprovisionFilename];
+    NSString *provisioningPath = [self getEmbeddedProvisioningProfilePath];
     NSString* infoPlistPath = [self.appPath stringByAppendingPathComponent:kInfoPlistFilename];
     if ([manager fileExistsAtPath:infoPlistPath])
     {
         YAProvisioningProfile *profile = [[YAProvisioningProfile alloc] initWithPath:provisioningPath];
         NSString *teamName = profile.teamName;
-        NSInteger indexCert = [self getCertificateIndexFromApp:teamName];
-        if (indexCert >= 0)
+        if ([self getCertificateIndexFromApp:teamName] >= 0)
         {
-			self.certificateIndex = (int)indexCert;
             if (successBlock != nil)
-                successBlock([NSNumber numberWithInteger:indexCert]);
+                successBlock(teamName);
         }
 
         else
@@ -700,14 +687,28 @@ static FileHandler *istance;
 
 #pragma mark - Provisioning Profiles
 
+- (NSString*)getEmbeddedProvisioningProfilePath
+{
+	// Get the path of the embedded provisioning profile file in the unzipped ipa file
+	
+	NSString *provisioningPath = nil;
+	NSArray *provisioningProfiles = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:self.appPath error:nil];
+	provisioningProfiles = [provisioningProfiles filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"pathExtension IN %@", extensions]];
+	for (NSString *path in provisioningProfiles)
+	{
+		if ([[NSFileManager defaultManager] fileExistsAtPath:[NSString stringWithFormat:@"%@/%@", self.appPath, path] isDirectory:NO])
+			provisioningPath = [NSString stringWithFormat:@"%@/%@", self.appPath, path];
+	}
+	
+	return provisioningPath;
+}
+
 - (void)getProvisioningProfiles
 {
     [self.provisioningArray removeAllObjects];
-	self.editProvisioning = NO;
 	
 	NSArray *provisioningProfiles = [manager contentsOfDirectoryAtPath:[NSString stringWithFormat:@"%@/%@", NSHomeDirectory(), kMobileprovisionDirName] error:nil];
-	provisioningProfiles = [provisioningProfiles filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"self ENDSWITH '.mobileprovision'"]];
-	
+	provisioningProfiles = [provisioningProfiles filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"pathExtension IN %@", extensions]];
 	[provisioningProfiles enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
 		NSString *path = (NSString*)obj;
 		if ([manager fileExistsAtPath:[NSString stringWithFormat:@"%@/%@/%@", NSHomeDirectory(), kMobileprovisionDirName, path] isDirectory:NO])
@@ -723,14 +724,14 @@ static FileHandler *istance;
 	}] mutableCopy];
 }
 
-- (NSInteger)getProvisioningIndexFromApp:(YAProvisioningProfile*)profile
+- (int)getProvisioningIndexFromApp:(YAProvisioningProfile*)profile
 {
-    __block NSInteger index = -1;
+    __block int index = -1;
     [self.provisioningArray enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
         YAProvisioningProfile *p = (YAProvisioningProfile*)obj;
         if ([p.name isEqualToString:profile.name] && [p.bundleIdentifier isEqualToString:profile.bundleIdentifier] && [p.creationDate isEqualToDate:profile.creationDate] && [p.teamName isEqualToString:profile.teamName] && [p.appIdName isEqualToString:profile.appIdName] && [p.teamIdentifier isEqualToString:profile.teamIdentifier])
         {
-            index = idx;
+            index = (int)idx;
             *stop = YES;
         }
     }];
@@ -758,13 +759,13 @@ static FileHandler *istance;
     }
 }
 
-- (void)editProvisioningWithLog:(LogBlock)log error:(ErrorBlock)error success:(SuccessBlock)success
+- (void)editProvisioningWithIndex:(int)provisioningIndex editProvisioning:(BOOL)editProvisioning log:(LogBlock)log error:(ErrorBlock)error success:(SuccessBlock)success
 {
 	logBlock = [log copy];
 	errorBlock = [error copy];
 	successBlock = [success copy];
 	
-	if (!self.editProvisioning)
+	if (!editProvisioning)
 	{
 		if (successBlock)
 			successBlock(@"You selected the default Provisioning Profile");
@@ -778,23 +779,24 @@ static FileHandler *istance;
 	NSString *payloadPath = [self.workingPath stringByAppendingPathComponent:kPayloadDirName];
 	NSArray *payloadContents = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:payloadPath error:nil];
 	
-	// Delete the embedded.mobileprovision file
+	// Delete the embedded provisioning file
 	for (NSString *file in payloadContents)
 	{
 		if ([[[file pathExtension] lowercaseString] isEqualToString:@"app"])
 		{
-			if ([[NSFileManager defaultManager] fileExistsAtPath:[self.appPath stringByAppendingPathComponent:kMobileprovisionFilename]])
+			NSString *provisioningPath = [self getEmbeddedProvisioningProfilePath];
+			if (provisioningPath != nil)
 			{
-				NSLog(@"Found embedded.mobileprovision, deleting it...");
-				[[NSFileManager defaultManager] removeItemAtPath:[self.appPath stringByAppendingPathComponent:kMobileprovisionFilename] error:nil];
+				NSLog(@"Found and deleting file at path: %@", provisioningPath);
+				[[NSFileManager defaultManager] removeItemAtPath:provisioningPath error:nil];
 			}
 			break;
 		}
 	}
 	
 	// Create the provisioning task
-	NSString *targetPath = [self.appPath stringByAppendingPathComponent:kMobileprovisionFilename];
-	NSString *provisioningPath = [(YAProvisioningProfile*)self.provisioningArray[self.provisioningIndex] path];
+	NSString *targetPath = [[self.appPath stringByAppendingPathComponent:kEmbeddedProvisioningFilename] stringByAppendingPathExtension:@"mobileprovision"];
+	NSString *provisioningPath = [(YAProvisioningProfile*)self.provisioningArray[provisioningIndex] path];
 	NSTask *provisioningTask = [[NSTask alloc] init];
 	[provisioningTask setLaunchPath:@"/bin/cp"];
 	[provisioningTask setArguments:[NSArray arrayWithObjects:provisioningPath, targetPath, nil]];
@@ -822,7 +824,8 @@ static FileHandler *istance;
 			{
 				if ([[[file pathExtension] lowercaseString] isEqualToString:@"app"])
 				{
-					if ([[NSFileManager defaultManager] fileExistsAtPath:[self.appPath stringByAppendingPathComponent:kMobileprovisionFilename]])
+					NSString *targetPath = [[self.appPath stringByAppendingPathComponent:kEmbeddedProvisioningFilename] stringByAppendingPathExtension:@"mobileprovision"];
+					if ([[NSFileManager defaultManager] fileExistsAtPath:targetPath])
 						success = YES;
 					break;
 				}
@@ -850,7 +853,7 @@ static FileHandler *istance;
 
 #pragma mark - Codesign
 
-- (void)doCodesignWithLog:(LogBlock)log error:(ErrorBlock)error success:(SuccessBlock)success
+- (void)doCodesign:(int)certificateIndex log:(LogBlock)log error:(ErrorBlock)error success:(SuccessBlock)success
 {
 	logBlock = [log copy];
 	errorBlock = [error copy];
@@ -862,7 +865,7 @@ static FileHandler *istance;
 	// Create the codesign task
 	if (self.appPath)
 	{
-		NSString *currentCertificate = self.certificatesArray[self.certificateIndex];
+		NSString *currentCertificate = self.certificatesArray[certificateIndex];
 		NSString* entitlementsPath = [self.workingPath stringByAppendingPathComponent:kEntitlementsPlistFilename];
 		
 		NSTask *codesignTask = [[NSTask alloc] init];
@@ -1042,21 +1045,17 @@ static FileHandler *istance;
 
 #pragma mark - Resign
 
-- (void)resignWithBundleId:(NSString*)bundleId displayName:(NSString*)displayName shortVersion:(NSString*)shortVersion buildVersion:(NSString*)buildVersion log:(LogBlock)log error:(ErrorBlock)error success:(SuccessBlock)success
+- (void)resignWithProvisioningIndex:(int)provisioningIndex editProvisioning:(BOOL)editProvisioning editIcons:(BOOL)editIcons certificateIndex:(int)certificateIndex log:(LogBlock)log error:(ErrorBlock)error success:(SuccessBlock)success
 {
 	logResignBlock = [log copy];
 	errorResignBlock = [error copy];
 	successResignBlock = [success copy];
-	
-	self.bundleId = bundleId;
-	self.displayName = displayName;
-	self.shortVersion = shortVersion;
-	self.buildVersion = buildVersion;
+
 	codesigningResult = nil;
 	verificationResult = nil;
 	
 	// Create the entitlements file
-	[self createEntitlementsWithLog:^(NSString *log) {
+	[self createEntitlementsWithProvisioningIndex:provisioningIndex log:^(NSString *log) {
 		if (logResignBlock)
 			logResignBlock(log);
 			
@@ -1082,7 +1081,7 @@ static FileHandler *istance;
 				logResignBlock(message);
 			
 			// Edit the Provisioning Profile
-			[self editProvisioningWithLog:^(NSString *log) {
+			[self editProvisioningWithIndex:provisioningIndex editProvisioning:editProvisioning log:^(NSString *log) {
 				if (logResignBlock)
 					logResignBlock(log);
 				
@@ -1095,7 +1094,7 @@ static FileHandler *istance;
 					logResignBlock(message);
 				
 				// Edit the icon files
-				[self editIconsWithLog:^(NSString *log) {
+				[self editIcons:editIcons log:^(NSString *log) {
 					if (logResignBlock)
 						logResignBlock(log);
 					
@@ -1108,7 +1107,7 @@ static FileHandler *istance;
 						logResignBlock(message);
 					
 					// Do the codesign
-					[self doCodesignWithLog:^(NSString *log) {
+					[self doCodesign:certificateIndex log:^(NSString *log) {
 						if (logResignBlock)
 							logResignBlock(log);
 						
@@ -1158,10 +1157,14 @@ static FileHandler *istance;
 	{
 		// Set the value of kCFBundleDisplayName/kCFBundleIdentifier in the Info.plist file
 		NSMutableDictionary *plist = [[NSMutableDictionary alloc] initWithContentsOfFile:infoPlistPath];
-		[plist setObject:self.displayName forKey:kCFBundleDisplayName];
-		[plist setObject:self.bundleId forKey:kCFBundleIdentifier];
-		[plist setObject:self.shortVersion forKey:kCFBundleShortVersionString];
-		[plist setObject:self.buildVersion forKey:kCFBundleVersion];
+		NSString *displayName = [self.delegate getResignDisplayName];
+		[plist setObject:displayName forKey:kCFBundleDisplayName];
+		NSString *bundleId = [self.delegate getResignBundleId];
+		[plist setObject:bundleId forKey:kCFBundleIdentifier];
+		NSString *shortVersion = [self.delegate getResignShortVersion];
+		[plist setObject:shortVersion forKey:kCFBundleShortVersionString];
+		NSString *buildVersion = [self.delegate getResignBuildVersion];
+		[plist setObject:buildVersion forKey:kCFBundleVersion];
 
 		// Save the Info.plist file overwriting
 		NSData *xmlData = [NSPropertyListSerialization dataWithPropertyList:plist format:NSPropertyListXMLFormat_v1_0 options:kCFPropertyListImmutable error:nil];
@@ -1187,7 +1190,7 @@ static FileHandler *istance;
 
 #pragma mark - Entitlements
 
-- (void)createEntitlementsWithLog:(LogBlock)log error:(ErrorBlock)error success:(SuccessBlock)success
+- (void)createEntitlementsWithProvisioningIndex:(int)provisioningIndex log:(LogBlock)log error:(ErrorBlock)error success:(SuccessBlock)success
 {
     logBlock = [log copy];
     errorBlock = [error copy];
@@ -1211,7 +1214,7 @@ static FileHandler *istance;
 
     
     // The provisioning selected is valid
-    YAProvisioningProfile *profile = self.provisioningArray[self.provisioningIndex];
+    YAProvisioningProfile *profile = self.provisioningArray[provisioningIndex];
     if (profile != nil)
     {
         NSTask *generateEntitlementsTask = [[NSTask alloc] init];
@@ -1232,7 +1235,7 @@ static FileHandler *istance;
     else
     {
         if (errorBlock != nil)
-            errorBlock(@"You must choose a valid *.mobileprovision file. Please try again.");
+            errorBlock(@"You must choose a valid provisioning file. Please try again.");
     }
 }
 
@@ -1272,8 +1275,9 @@ static FileHandler *istance;
 	// Edit the Entitlements file and save in the workingPath
     NSMutableDictionary* entitlements = [entitlementsResult.propertyList mutableCopy];
     entitlements = entitlements[@"Entitlements"];
-	YAProvisioningProfile *profile = self.provisioningArray[self.provisioningIndex];
-	NSString *appIdentifier = [NSString stringWithFormat:@"%@.%@", profile.teamIdentifier, self.bundleId];
+	NSString *teamIdentifier = [self.delegate getResignTeamIdentifier];
+	NSString *bundleId = [self.delegate getResignBundleId];
+	NSString *appIdentifier = [NSString stringWithFormat:@"%@.%@", teamIdentifier, bundleId];
 	[entitlements setObject:appIdentifier forKey:kAppIdentifier];
 	[entitlements removeObjectForKey:kTeamIdentifier];
 	[entitlements removeObjectForKey:kKeychainAccessGroups];

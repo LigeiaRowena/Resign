@@ -9,8 +9,9 @@
 #import <Cocoa/Cocoa.h>
 #import "IRTextFieldDrag.h"
 #import "IconButton.h"
+#import "FileHandler.h"
 
-@interface ViewController : NSViewController <IRTextFieldDragDelegate>
+@interface ViewController : NSViewController <IRTextFieldDragDelegate, FileHandlerDelegate>
 
 // Resign UI
 @property (weak) IBOutlet IRTextFieldDrag *ipaField;
