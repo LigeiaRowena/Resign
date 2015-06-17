@@ -357,7 +357,6 @@ static FileHandler *istance;
 	[[NSFileManager defaultManager] removeItemAtPath:targetIconPath error:nil];
 	[[NSFileManager defaultManager] removeItemAtPath:targetIconRetinaPath  error:nil];
 	
-	
 	// Create the icons task
 	NSTask *iconTask = [[NSTask alloc] init];
 	[iconTask setLaunchPath:@"/bin/cp"];
@@ -428,6 +427,7 @@ static FileHandler *istance;
 {
 	if (iconsCounter == 2)
 	{
+		iconsCounter = 0;
 		if (successBlock)
 			successBlock(@"Successfully editing the Icon files");
 	}
