@@ -980,6 +980,26 @@ static FileHandler *istance;
 	[NSThread detachNewThreadSelector:@selector(watchGetCerts:) toTarget:self withObject:handle];
 }
 
+- (void)getCertificatesSecondAttemp
+{
+	[self.certificatesArray removeAllObjects];
+	
+	NSTask *certTask = [[NSTask alloc] init];
+	[certTask setLaunchPath:@"/usr/bin/security"];
+	
+	// these arguments doesn't work anymore with OSX 10.11.3
+	//[certTask setArguments:[NSArray arrayWithObjects:@"find-identity", @"-v", @"-p", @"codesigning", nil]];
+	
+	[certTask setArguments:[NSArray arrayWithObjects:@"find-identity", nil]];
+	[NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(checkCertsSecondAttemp:) userInfo:@{@"task": certTask} repeats:TRUE];
+	NSPipe *pipe = [NSPipe pipe];
+	[certTask setStandardOutput:pipe];
+	[certTask setStandardError:pipe];
+	NSFileHandle *handle = [pipe fileHandleForReading];
+	[certTask launch];
+	[NSThread detachNewThreadSelector:@selector(watchGetCerts:) toTarget:self withObject:handle];
+}
+
 - (void)checkCerts:(NSTimer *)timer
 {
 	// Check if the cert task finished: if yes invalidate the timer and do some operations
@@ -998,8 +1018,31 @@ static FileHandler *istance;
 		// The task didn't find any cert identities
 		else
 		{
-            if (errorBlock != nil)
-                errorBlock(@"There aren't Signign Certificates");
+			[self getCertificatesSecondAttemp];
+		}
+	}
+}
+
+- (void)checkCertsSecondAttemp:(NSTimer *)timer
+{
+	// Check if the cert task finished: if yes invalidate the timer and do some operations
+	NSTask *certTask = timer.userInfo[@"task"];
+	if ([certTask isRunning] == 0)
+	{
+		[timer invalidate];
+		certTask = nil;
+		
+		// The task found some cert identities
+		if ([self.certificatesArray count] > 0)
+		{
+			if (successBlock != nil)
+				successBlock(nil);
+		}
+		// The task didn't find any cert identities
+		else
+		{
+			if (errorBlock != nil)
+				errorBlock(@"There aren't Signign Certificates");
 		}
 	}
 }
@@ -1016,7 +1059,6 @@ static FileHandler *istance;
 		NSMutableArray *tempGetCertsResult = [NSMutableArray arrayWithCapacity:20];
 		for (int i = 0; i <= [rawResult count] - 2; i+=2)
 		{
-			NSLog(@"i:%d", i+1);
 			if (rawResult.count - 1 < i + 1) {
 				// Invalid array, don't add an object to that position
 			} else {
