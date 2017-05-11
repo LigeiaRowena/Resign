@@ -358,17 +358,26 @@ static FileHandler *istance;
 	[[NSFileManager defaultManager] removeItemAtPath:targetIconRetinaPath  error:nil];
 	
 	// Create the icons task
-	NSTask *iconTask = [[NSTask alloc] init];
-	[iconTask setLaunchPath:@"/bin/cp"];
-	[iconTask setArguments:@[@"-R", self.iconPath, targetIconPath]];
-	[iconTask launch];
-	[NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(checkIcon:) userInfo:@{@"iconTask": iconTask} repeats:TRUE];
-
-	NSTask *iconRetinaTask = [[NSTask alloc] init];
-	[iconRetinaTask setLaunchPath:@"/bin/cp"];
-	[iconRetinaTask setArguments:@[@"-R", self.iconRetinaPath, targetIconRetinaPath]];
-	[iconRetinaTask launch];
-	[NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(checkRetinaIcon:) userInfo:@{@"iconRetinaTask": iconRetinaTask} repeats:TRUE];
+    if (targetIconPath) {
+        NSTask *iconTask = [[NSTask alloc] init];
+        [iconTask setLaunchPath:@"/bin/cp"];
+        [iconTask setArguments:@[@"-R", self.iconPath, targetIconPath]];
+        [iconTask launch];
+        [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(checkIcon:) userInfo:@{@"iconTask": iconTask} repeats:TRUE];
+    } else {
+        iconsCounter++;
+    }
+	
+    if (targetIconRetinaPath){
+        NSTask *iconRetinaTask = [[NSTask alloc] init];
+        [iconRetinaTask setLaunchPath:@"/bin/cp"];
+        [iconRetinaTask setArguments:@[@"-R", self.iconRetinaPath, targetIconRetinaPath]];
+        [iconRetinaTask launch];
+        [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(checkRetinaIcon:) userInfo:@{@"iconRetinaTask": iconRetinaTask} repeats:TRUE];
+    } else {
+        iconsCounter++;
+    }
+	
 }
 
 - (void)checkRetinaIcon:(NSTimer *)timer
@@ -987,9 +996,7 @@ static FileHandler *istance;
 	NSTask *certTask = [[NSTask alloc] init];
 	[certTask setLaunchPath:@"/usr/bin/security"];
 	
-	// these arguments doesn't work anymore with OSX 10.11.3
-	//[certTask setArguments:[NSArray arrayWithObjects:@"find-identity", @"-v", @"-p", @"codesigning", nil]];
-	
+	// "-v" "-p" and "codesigning" don't work anymore with OSX 10.11.3
 	[certTask setArguments:[NSArray arrayWithObjects:@"find-identity", nil]];
 	[NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(checkCertsSecondAttemp:) userInfo:@{@"task": certTask} repeats:TRUE];
 	NSPipe *pipe = [NSPipe pipe];
@@ -1314,8 +1321,17 @@ static FileHandler *istance;
 
 - (void)doEntitlements
 {
-	// Edit the Entitlements file and save in the workingPath
-    NSMutableDictionary* entitlements = [entitlementsResult.propertyList mutableCopy];
+    // Workaround removing "SecPolicySetValue" string just for sierra OSX
+    if ([entitlementsResult respondsToSelector:@selector(containsString:)] && [entitlementsResult containsString:@"SecPolicySetValue"]) {
+        NSMutableArray *linesInOutput = [entitlementsResult componentsSeparatedByString:@"\n"].mutableCopy;
+        [linesInOutput removeObjectAtIndex:0];
+        entitlementsResult = [linesInOutput componentsJoinedByString:@"\n"];
+    }
+    
+    // Edit the Entitlements file and save in the workingPath
+    NSData *entitlementsData = [entitlementsResult dataUsingEncoding:NSUTF8StringEncoding];
+    NSError *error = nil;
+    NSMutableDictionary* entitlements = [[NSPropertyListSerialization propertyListWithData:entitlementsData options:NSPropertyListImmutable format:NULL error:&error] mutableCopy];
     entitlements = entitlements[@"Entitlements"];
 	NSString *teamIdentifier = [self.delegate getResignTeamIdentifier];
 	NSString *bundleId = [self.delegate getResignBundleId];
