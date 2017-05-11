@@ -5,14 +5,9 @@
 	<key>files</key>
 	<dict>
 		<key>Resources/Base.lproj/MainMenu.nib</key>
-		<dict>
-			<key>hash</key>
-			<data>
-			2bkx8h28+7RkoPCw+64gfpREG24=
-			</data>
-			<key>optional</key>
-			<true/>
-		</dict>
+		<data>
+		v5B12H55DznuTHzhMcQR4yAGUfk=
+		</data>
 		<key>Resources/Icon-iPadRetina.png</key>
 		<data>
 		IqHkKV2hCQ2IfDbi1oJGX1p2zk0=
@@ -27,7 +22,7 @@
 		</data>
 		<key>Resources/ViewController.nib</key>
 		<data>
-		ZAyMEtQ1lca/2D4oAIa4rqJqagE=
+		TpiygCI7BD4zahSZSva8iUzLLhI=
 		</data>
 		<key>Resources/entitlements.plist</key>
 		<data>
@@ -40,31 +35,68 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			2bkx8h28+7RkoPCw+64gfpREG24=
+			v5B12H55DznuTHzhMcQR4yAGUfk=
 			</data>
-			<key>optional</key>
-			<true/>
+			<key>hash2</key>
+			<data>
+			kzjtGrExFlPND78ORbuzdUjgZG90SMjV/IS+HNwk0Zo=
+			</data>
 		</dict>
 		<key>Resources/Icon-iPadRetina.png</key>
-		<data>
-		IqHkKV2hCQ2IfDbi1oJGX1p2zk0=
-		</data>
+		<dict>
+			<key>hash</key>
+			<data>
+			IqHkKV2hCQ2IfDbi1oJGX1p2zk0=
+			</data>
+			<key>hash2</key>
+			<data>
+			jTn7vCo5kHjz8satPGvwhLUAkCJNxO7Du9pQmhMtCIo=
+			</data>
+		</dict>
 		<key>Resources/Icon.icns</key>
-		<data>
-		vhPd1J9PPPRABmmVfcNP9MFDd9w=
-		</data>
+		<dict>
+			<key>hash</key>
+			<data>
+			vhPd1J9PPPRABmmVfcNP9MFDd9w=
+			</data>
+			<key>hash2</key>
+			<data>
+			4iDpYYScjWWPKvmxQCU8dWJNWKIHMU9yNs6S/6AFeDE=
+			</data>
+		</dict>
 		<key>Resources/Icon.png</key>
-		<data>
-		P4eT8z2VjF+Oz4ufD9adRCz08xA=
-		</data>
+		<dict>
+			<key>hash</key>
+			<data>
+			P4eT8z2VjF+Oz4ufD9adRCz08xA=
+			</data>
+			<key>hash2</key>
+			<data>
+			K0RvJOIq9eZ1BPOAk8xGjrlmw67qUVGRaNzD3p3gsBk=
+			</data>
+		</dict>
 		<key>Resources/ViewController.nib</key>
-		<data>
-		ZAyMEtQ1lca/2D4oAIa4rqJqagE=
-		</data>
+		<dict>
+			<key>hash</key>
+			<data>
+			TpiygCI7BD4zahSZSva8iUzLLhI=
+			</data>
+			<key>hash2</key>
+			<data>
+			JXhQjrwCD5K778FrtyZwb9yXYhj0Wz2JKlisdJELagY=
+			</data>
+		</dict>
 		<key>Resources/entitlements.plist</key>
-		<data>
-		U7TVW1m4PVNpMh9iIiNoBAA52yo=
-		</data>
+		<dict>
+			<key>hash</key>
+			<data>
+			U7TVW1m4PVNpMh9iIiNoBAA52yo=
+			</data>
+			<key>hash2</key>
+			<data>
+			aflP9hCC/PgvODElJ98ryFEVPEnyOXnB2+VMyjNVc3M=
+			</data>
+		</dict>
 	</dict>
 	<key>rules</key>
 	<dict>
@@ -83,6 +115,11 @@
 			<true/>
 			<key>weight</key>
 			<real>1100</real>
+		</dict>
+		<key>^Resources/Base\.lproj/</key>
+		<dict>
+			<key>weight</key>
+			<real>1010</real>
 		</dict>
 		<key>^version.plist$</key>
 		<true/>
@@ -142,6 +179,11 @@
 			<true/>
 			<key>weight</key>
 			<real>1100</real>
+		</dict>
+		<key>^Resources/Base\.lproj/</key>
+		<dict>
+			<key>weight</key>
+			<real>1010</real>
 		</dict>
 		<key>^[^/]+$</key>
 		<dict>
