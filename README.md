@@ -2,7 +2,7 @@ This is a OSX utility app to get all the infos about an IPA file and to resign i
 
 Main features:
 
-- Minimum OS: OS 10.9
+- Minimum OS: OS 10.11
 - ARC
 - Language used: Objective-C
 - Only resign and get information about IPA file for iPads
