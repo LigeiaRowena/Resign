@@ -7,11 +7,11 @@ Main features:
 - Language used: Objective-C
 - Only resign and get information about IPA file for iPads
 
-#INSTALLATION
+# INSTALLATION
 
 You can open the xcode project and build it or open directly the app.
 
-#GETTING INFO FROM IPA FILES
+# GETTING INFO FROM IPA FILES
 
 Just open the ipa file by tapping the button "Open the ipa file" or dragging it in the relative field. 
 Then you have information about:
@@ -25,7 +25,7 @@ Then you have information about:
 At the bottom you have also a console textview, you can clean it by tapping the "Clean" button.
 If you tap on the "?" icons near some feature, the console prints the relative informations.
 
-#RESIGN IPA FILES
+# RESIGN IPA FILES
 
 Once you opened an ipa file, the console prints this message to tell that the app is ready to resign the ipa file:
 
@@ -50,7 +50,7 @@ Then you can:
 If you loaded an ipa file, if you change some features of it then you can always tap the "Use default values" button in order to reset all the above features to the default ones.
 You can decide the destination ipa path where to save the resigned ipa file, the default one is Desktop.
 
-#HELPER CLASSES
+# HELPER CLASSES
 
 - NSScrollView+MultiLine
 - 
@@ -150,6 +150,6 @@ You have also a lot of public methods you can use:
 
 ```
 
-Screens:
+# Screens:
 
 ![alt text](https://github.com/LigeiaRowena/Resign/blob/master/screen.png "Screen")
